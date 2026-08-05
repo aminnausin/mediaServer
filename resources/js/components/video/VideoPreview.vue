@@ -7,6 +7,7 @@ import { computed, reactive, ref, useTemplateRef, watch } from 'vue';
 import { SvgSpinners90RingWithBg } from '@/components/cedar-ui/icons';
 import { buildStoryboardCues } from '@/service/storyboard';
 import { toFormattedDuration } from '@/service/util';
+import { MediaType } from '@/types/types';
 import { cn } from '@aminnausin/cedar-ui';
 
 import VideoControlWrapper from '@/components/video/VideoControlWrapper.vue';
@@ -19,8 +20,10 @@ const props = defineProps<{
     data: VideoResource;
     dataActive: boolean;
     posterUrl?: string;
+    eagerLoad?: boolean;
     isAudio?: boolean;
     isFolderMajorityAudio?: boolean;
+    wrapperClass?: string;
 }>();
 
 const scrubContainer = useTemplateRef('scrubContainer');
@@ -175,24 +178,25 @@ defineExpose({ hovered });
 
 <template>
     <div
-        :class="cn('relative flex items-center overflow-clip text-xs select-none')"
+        ref="scrubContainer"
+        :class="cn('relative flex items-center overflow-clip text-xs select-none', wrapperClass)"
         @mouseenter="onMouseEnter"
         @mouseleave="handleLeave"
         @mousemove="onMouseMove"
         @touchstart.passive="onTouchStart"
         @touchmove.passive="onTouchMove"
         @touchend="handleLeave"
-        ref="scrubContainer"
     >
         <template v-if="posterUrl">
-            <div :class="[isFolderMajorityAudio ? 'aspect-square' : 'aspect-video', 'size-full', $attrs.class]">
+            <div :class="cn(isFolderMajorityAudio ? 'aspect-square' : 'aspect-video', 'size-full', $attrs.class)">
                 <div class="absolute inset-0 scale-120 blur-sm" :style="generatePosterStyle(posterUrl)"></div>
 
                 <LazyImage
-                    :src="posterUrl"
                     alt="poster"
+                    :loading="eagerLoad ? 'eager' : 'lazy'"
+                    :fetchPriority="eagerLoad ? 'high' : 'auto'"
+                    :src="posterUrl"
                     :animate="false"
-                    loading="lazy"
                     :wrapper-class="cn('transition-opacity duration-input', { 'opacity-0': hovered && activeCue })"
                     :class="cn('absolute inset-0 size-full object-contain')"
                 />
@@ -216,16 +220,12 @@ defineExpose({ hovered });
             </div>
 
             <!-- Overlay -->
-            <div
-                v-if="data.duration"
-                :class="
-                    cn('duration-input pointer-events-none absolute inset-0 z-3 flex flex-col justify-end gap-1 transition-[translate,margin]', {
-                        'ms-0.5 -translate-y-0.5': dataActive,
-                    })
-                "
-            >
+            <div v-if="data.duration" :class="cn('duration-input pointer-events-none absolute inset-0 z-3 flex flex-col justify-end gap-1 transition-[translate,margin]')">
                 <VideoControlWrapper :class="cn('ml-1 w-fit')">
-                    <p :class="cn('font-figtree px-1 text-white tabular-nums text-shadow-lg')">
+                    <p
+                        :class="cn('font-figtree px-1 text-white tabular-nums text-shadow-lg')"
+                        :aria-label="`${data.metadata?.media_type === MediaType.AUDIO ? 'Track' : 'Video'} Duration ${toFormattedDuration(data.duration, false, 'verbose')}`"
+                    >
                         {{ activeCue && hovered ? timestamp : toFormattedDuration(data.duration, false, 'digital') }}
                     </p>
                 </VideoControlWrapper>

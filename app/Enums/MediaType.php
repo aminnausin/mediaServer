@@ -17,4 +17,8 @@ enum MediaType: int {
     public function label(): string {
         return strtolower($this->name);
     }
+
+    public static function fromLabel(?string $label): ?self {
+        return collect(self::cases())->first(fn (self $case) => $case->label() === strtolower((string) $label));
+    }
 }

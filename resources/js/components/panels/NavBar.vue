@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Component } from 'vue';
+
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { useDropdownMenuItems } from '@/components/panels/DropdownMenuItems';
 import { RouterLink, useRoute } from 'vue-router';
@@ -12,12 +14,14 @@ import { ref, watch } from 'vue';
 import { drawer } from '@aminnausin/cedar-ui';
 
 import FolderDetailsSidebarDrawer from '@/components/drawers/FolderDetailsSidebarDrawer.vue';
+import ExploreRightSidebarDrawer from '@/components/drawers/ExploreRightSidebarDrawer.vue';
 import VideoSidebarDrawer from '@/components/drawers/VideoSidebarDrawer.vue';
 import ToggleLightMode from '@/components/inputs/ToggleLightMode.vue';
 import SidebarDrawer from '@/components/drawers/SidebarDrawer.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 import MaterialSymbolsLightHistory from '~icons/material-symbols-light/history';
+import ProiconsSparkle2 from '~icons/proicons/sparkle-2';
 import CircumMonitor from '~icons/circum/monitor';
 import ProiconsMenu from '~icons/proicons/menu';
 import IconFolder from '@/components/icons/IconFolder.vue';
@@ -36,13 +40,13 @@ const toggleDropdown = () => {
     showDropdown.value = !showDropdown.value;
 };
 
-const toggleVideoSidebar = (sidebar: 'folders' | 'history') => {
+const toggleRightSidebar = (sidebar: 'feed' | 'folders' | 'history', drawerComponent: Component = SidebarDrawer) => {
     cycleSideBar(sidebar, 'list-card');
 
     if (selectedSideBar.value !== sidebar) return;
 
-    if (getScreenSizeRank() < 3) {
-        drawer.open(route.name === 'folder-details' ? FolderDetailsSidebarDrawer : VideoSidebarDrawer, {
+    if (getScreenSizeRank() < 3 && drawerComponent) {
+        drawer.open(drawerComponent, {
             showHeader: false,
             showFooter: false,
             onClose: () => {
@@ -83,10 +87,13 @@ watch(isDesktop, (now) => {
 
     switch (route.name) {
         case 'home':
-            toggleVideoSidebar(currentSidebar === 'history' ? 'history' : 'folders');
+            toggleRightSidebar(currentSidebar === 'history' ? 'history' : 'folders', VideoSidebarDrawer);
+            break;
+        case 'explore':
+            toggleRightSidebar(currentSidebar === 'history' ? 'history' : 'feed', ExploreRightSidebarDrawer);
             break;
         case 'folder':
-            toggleVideoSidebar('folders');
+            toggleRightSidebar('folders', FolderDetailsSidebarDrawer);
             break;
         case 'config':
             toggleLeftSidebar('config');
@@ -107,7 +114,7 @@ watch(isDesktop, (now) => {
 
 <template>
     <nav id="page-navbar" class="z-20 flex flex-wrap justify-between gap-2 py-1">
-        <RouterLink to="/" title="Return to home library" class="group my-auto flex shrink-0 items-center rounded-md">
+        <RouterLink to="/explore" title="Explore Content" class="group my-auto flex shrink-0 items-center rounded-md">
             <img src="/logo.svg" alt="Logo" class="ease size-5 transition-transform duration-200 group-hover:scale-120 sm:size-5.5" />
         </RouterLink>
 
@@ -131,11 +138,12 @@ watch(isDesktop, (now) => {
                     <button
                         id="user-header"
                         class="hover:text-primary dark:hover:text-primary-muted flex h-8 cursor-pointer items-center justify-center gap-2 rounded-md text-2xl capitalize"
-                        @click="toggleDropdown"
-                        aria-haspopup="menu"
-                        :aria-expanded="showDropdown ? 'true' : 'false'"
-                        aria-controls="user-dropdown"
                         title="Toggle navigation menu"
+                        type="button"
+                        aria-haspopup="menu"
+                        aria-controls="user-dropdown"
+                        :aria-expanded="showDropdown ? 'true' : 'false'"
+                        @click="toggleDropdown"
                     >
                         <h2 id="user-name" class="hidden truncate sm:block" :class="[{ 'suspense-rounded bg-surface-2 h-5 w-32': isLoadingUserData }]">
                             {{ isLoadingUserData ? '' : userData?.name || 'Guest' }}
@@ -154,21 +162,36 @@ watch(isDesktop, (now) => {
 
         <div class="ml-auto flex flex-wrap items-center justify-end gap-1 sm:w-auto sm:max-w-sm sm:shrink-0 sm:flex-nowrap sm:justify-normal">
             <span id="video-navbar" class="flex items-center gap-1 antialiased">
-                <template v-if="$route.name === 'home' || $route.name === 'folder-details'">
-                    <NavButton @click="toggleVideoSidebar('folders')" :label="'folders'" :active="selectedSideBar == 'folders'" title="Toggle folder browser" class="p-0">
-                        <IconFolder class="size-6" stroke-width="0.0" />
-                    </NavButton>
-                    <NavButton
-                        v-if="userData"
-                        @click="toggleVideoSidebar('history')"
-                        :label="'history'"
-                        :active="selectedSideBar === 'history'"
-                        title="Toggle recent watch history"
-                        class="p-0"
-                    >
-                        <MaterialSymbolsLightHistory class="size-6" stroke-width="0.25" stroke="currentColor" />
-                    </NavButton>
-                </template>
+                <NavButton
+                    v-if="$route.name === 'home' || $route.name === 'folder-details'"
+                    @click="toggleRightSidebar('folders', $route.name === 'home' ? VideoSidebarDrawer : FolderDetailsSidebarDrawer)"
+                    :label="'folders'"
+                    :active="selectedSideBar == 'folders'"
+                    title="Toggle folder browser"
+                    class="p-0"
+                >
+                    <IconFolder class="size-6" stroke-width="0.0" />
+                </NavButton>
+                <NavButton
+                    v-if="$route.name === 'explore'"
+                    @click="toggleRightSidebar('feed', ExploreRightSidebarDrawer)"
+                    :label="'activity feed'"
+                    :active="selectedSideBar == 'feed'"
+                    title="Toggle activity feed"
+                    class="p-0"
+                >
+                    <ProiconsSparkle2 class="size-6 *:stroke-1 dark:*:stroke-[1.5]" />
+                </NavButton>
+                <NavButton
+                    v-if="($route.name === 'home' || $route.name === 'explore') && userData"
+                    @click="toggleRightSidebar('history', $route.name === 'home' ? VideoSidebarDrawer : ExploreRightSidebarDrawer)"
+                    :label="'history'"
+                    :active="selectedSideBar === 'history'"
+                    title="Toggle recent watch history"
+                    class="p-0"
+                >
+                    <MaterialSymbolsLightHistory class="size-6" stroke-width="0.25" stroke="currentColor" />
+                </NavButton>
                 <NavButton
                     v-if="$route.name === 'dashboard'"
                     @click="toggleLeftSidebar('dashboard')"
@@ -200,7 +223,7 @@ watch(isDesktop, (now) => {
                     <ProiconsMenu height="20" width="20" />
                 </NavButton>
                 <NavLink v-if="$route.name != 'home'" label="home" to="/" title="Return to home library" class="p-0">
-                    <CircumMonitor class="size-6" />
+                    <CircumMonitor class="size-6 *:stroke-current *:stroke-[0.2]" />
                 </NavLink>
             </span>
             <ToggleLightMode class="dark:hover:border-primary w-17 border-gray-900/5 shadow-sm" />

@@ -88,7 +88,7 @@ class DirectoryController extends Controller {
     }
 
     private function validateCategoryAccess(Category $category): void {
-        if ($category->is_private && Auth::id() !== 1) {
+        if (! $category->isVisibleTo(Auth::user())) {
             throw new ForbiddenLibraryException('Access to this folder is forbidden');
         }
     }

@@ -4,6 +4,7 @@ import type { FormField } from '@/types/types';
 
 import { FormInput, FormLabel, FormErrorList } from '@/components/cedar-ui/form';
 import { useRouter, useRoute, RouterLink } from 'vue-router';
+import { resetUserDependantQueries } from '@/service/vue-query';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { ButtonForm } from '@/components/cedar-ui/button';
@@ -40,6 +41,7 @@ const handleLogin = async () => {
             onSuccess: (response: { data: { user: UserResource } }) => {
                 userData.value = response.data.user;
                 useAuthStore().clearGuestToken();
+                resetUserDependantQueries();
                 router.push(route.query.redirect ? route.query.redirect.toString() : '/');
             },
             onError: () => form.reset('password'),

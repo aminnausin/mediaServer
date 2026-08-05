@@ -13,7 +13,8 @@ const { stateFolder, isLoadingContent } = storeToRefs(useContentStore());
 <template>
     <FolderTab class="h-fit w-full gap-0 p-0">
         <div
-            class="ring-r-default/5 flex min-h-52 items-end overflow-clip rounded-t-xl bg-cover text-white ring-1 lg:h-64"
+            class="ring-r-default/5 flex min-h-52 items-end overflow-clip rounded-t-xl bg-cover text-white ring-1 lg:h-64 2xl:h-72"
+            alt="banner"
             :style="{
                 'background-image': `url(${stateFolder.series?.banner_image?.path ?? 'https://s4.anilist.co/file/anilistcdn/user/banner/b6792701-mBLPRvzr3xPL.jpg'})`,
             }"
@@ -21,17 +22,17 @@ const { stateFolder, isLoadingContent } = storeToRefs(useContentStore());
             <div v-if="!isLoadingContent && stateFolder.id" class="flex w-full flex-wrap items-end gap-4 bg-linear-to-b from-transparent to-neutral-950/40 p-3 text-center">
                 <LazyImage
                     :wrapper-class="'relative h-fit w-fit mx-auto'"
-                    class="aspect-2-3 mx-auto w-24 min-w-24 rounded-md object-cover"
+                    class="aspect-2-3 mx-auto w-24 min-w-24 rounded-md object-cover 2xl:w-32"
                     :src="stateFolder?.series?.poster_image?.path ?? handleStorageURL(stateFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
-                    alt="profile"
+                    alt="poster"
                 />
                 <div class="text-centre flex flex-1 flex-wrap items-end justify-center gap-1 sm:pb-2">
-                    <h2 class="w-full text-2xl text-balance capitalize sm:flex-1 sm:text-left">{{ stateFolder.title }}</h2>
+                    <h2 class="w-full text-2xl font-semibold text-balance capitalize sm:flex-1 sm:text-left">{{ stateFolder.title }}</h2>
                     <p v-if="stateFolder.created_at" class="text-sm" :title="toFormattedDate(stateFolder.created_at)">Created: {{ toTimeSpan(stateFolder.created_at, '') }}</p>
                 </div>
             </div>
             <div v-else class="flex w-full flex-wrap items-end gap-4 bg-linear-to-b from-transparent to-neutral-950/40 p-3 text-center">
-                <div class="aspect-2-3 bg-surface-3 mx-auto flex w-24 min-w-24 items-center justify-center rounded-md">
+                <div class="aspect-2-3 bg-surface-3 mx-auto flex w-24 min-w-24 items-center justify-center rounded-md 2xl:w-32">
                     <ProIconsPhotoOff class="text-foreground-1 dark:text-foreground-0 size-6 animate-pulse" />
                 </div>
 

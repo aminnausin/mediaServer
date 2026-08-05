@@ -2,12 +2,12 @@ import type { CategoryResource, FolderResource, MetadataResource, SeriesResource
 import type { SortCriteria, SortKey } from '@/service/sort/types';
 
 import { formatFileSize, toFormattedDuration } from '@/service/util';
+import { resetUserDependantQueries } from '@/service/vue-query';
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { CompareStrategies } from '@/service/sort/strategies';
 import { sortObjectNew } from '@/service/sort/baseSort';
 import { toParamNumber } from '@/util/route';
-import { queryClient } from '@/service/vue-query';
 import { defineStore } from 'pinia';
 import { MediaType } from '@/types/types';
 import { toast } from '@aminnausin/cedar-ui';
@@ -353,7 +353,7 @@ export const useContentStore = defineStore('Content', () => {
     }
 
     function clearUserContentState() {
-        queryClient.clear();
+        resetUserDependantQueries();
         stateFolder.value.videos.forEach((video) => {
             video.progress_offset = 0;
             video.progress_percentage = 0;

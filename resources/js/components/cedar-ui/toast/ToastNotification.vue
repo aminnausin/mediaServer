@@ -156,7 +156,6 @@ onBeforeUnmount(() => {
         @pointerdown="onPointerDown"
         @pointermove="onPointerMove"
         @pointerup="onPointerUp"
-        role="alert"
     >
         <Transition
             :enter-from-class="`opacity-0 ${isBottom ? 'translate-y-full' : '-translate-y-full'}`"
@@ -165,6 +164,8 @@ onBeforeUnmount(() => {
             :leave-to-class="`opacity-0 ${leaveDirection}`"
         >
             <div
+                v-if="isMounted"
+                role="alert"
                 :class="[
                     { 'p-3 py-4': !html, 'p-0': html },
                     'flex items-start gap-1 rounded-md backdrop-blur-lg',
@@ -173,7 +174,6 @@ onBeforeUnmount(() => {
                     'bg-overlay-t text-foreground-0 shadow-[0_5px_15px_-3px_rgb(0_0_0/0.08)]',
                     'ring-r-inverse ring-1 ring-inset',
                 ]"
-                v-show="isMounted"
             >
                 <div v-if="!html" :class="['flex h-[19.5px] items-center justify-center', mapColour(type)]">
                     <CedarSuccess v-if="type === 'success'" class="toast-icon" />
@@ -183,9 +183,9 @@ onBeforeUnmount(() => {
                     <SvgSpinners90RingWithBg v-if="type === 'promise'" class="toast-icon" />
                 </div>
                 <div class="space-y-1.5">
-                    <h6 :class="['line-clamp-2 pe-6 text-[13px] font-medium', mapColour(type)]" :title="title">
+                    <p :class="['line-clamp-2 pe-6 text-[13px] font-medium', mapColour(type)]" :title="title">
                         {{ title }}
-                    </h6>
+                    </p>
                     <p v-if="description" :class="['scrollbar-minimal max-h-32 w-full overflow-y-auto pe-2 text-xs leading-4 break-all whitespace-pre-wrap opacity-70']">
                         {{ description }}
                     </p>
@@ -193,18 +193,21 @@ onBeforeUnmount(() => {
 
                 <template v-if="!html">
                     <ButtonCorner
-                        @click="onClose"
-                        class="text-foreground-2 hover:text-foreground-1 dark:text-danger-3 hover:bg-surface-1 dark:bg-surface-1/50 dark:hover:bg-surface-1 dark:hover:text-danger-1 absolute right-0 mr-2.5 size-6 p-1.5"
                         label="Close Toast"
                         :class="
-                            cn('cursor-pointer rounded-full opacity-0', {
-                                'top-1/2 -translate-y-1/2': !description && !html,
-                                'top-0 mt-2.5': description || html,
-                                'opacity-100': toastHovered,
-                                'opacity-0': !toastHovered,
-                            })
+                            cn(
+                                'text-foreground-2 hover:text-foreground-1 dark:text-danger-3 hover:bg-surface-1 dark:bg-surface-1/50 dark:hover:bg-surface-1 dark:hover:text-danger-1 absolute right-0 mr-2.5 size-6 p-1.5',
+                                'cursor-pointer rounded-full opacity-0',
+                                {
+                                    'top-1/2 -translate-y-1/2': !description && !html,
+                                    'top-0 mt-2.5': description || html,
+                                    'opacity-100': toastHovered,
+                                    'opacity-0': !toastHovered,
+                                },
+                            )
                         "
                         :use-default-style="false"
+                        @click="onClose"
                     />
                 </template>
             </div>

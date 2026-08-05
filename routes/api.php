@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\EmailController;
 use App\Http\Controllers\Api\V1\ExternalMetadataController;
+use App\Http\Controllers\Api\V1\Feed\ExploreController;
 use App\Http\Controllers\Api\V1\FolderController;
 use App\Http\Controllers\Api\V1\JobController;
 use App\Http\Controllers\Api\V1\Media\MediaController;
@@ -163,6 +164,15 @@ Route::withoutMiddleware([
     \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
 ])->group(function () {
     Route::post('/event', [PlausibleProxyController::class, 'event'])->middleware('throttle:120,1')->name('analytics.event');
+});
+
+// Home
+Route::prefix('/explore')->group(function () {
+    Route::get('continue-watching', [ExploreController::class, 'continueWatching']);
+    Route::get('recently-released', [ExploreController::class, 'recentlyReleased']);
+    Route::get('recently-updated', [ExploreController::class, 'recentlyUpdated']);
+    Route::get('recently-added', [ExploreController::class, 'recentlyAdded']);
+    Route::get('recently-uploaded', [ExploreController::class, 'recentlyUploaded']);
 });
 
 // Libraries (categories)

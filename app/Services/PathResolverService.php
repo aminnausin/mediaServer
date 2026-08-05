@@ -16,10 +16,19 @@ class PathResolverService {
     }
 
     public function resolveCategory(string $identifier, bool $onlyPublic = false, array $select = ['id', 'name', 'default_folder_id', 'is_private', 'downloads_enabled', 'downloads_require_auth']): Category {
-        return $this->firstSuccessful([
-            fn () => $this->resolveCategoryByName($identifier, $select, $onlyPublic),
-            fn () => $this->resolveCategoryById($identifier, $select, $onlyPublic),
-        ], "No category found matching '{$identifier}'");
+        $isNumeric = ctype_digit($identifier) && (int) $identifier > 0;
+
+        $resolvers = $isNumeric
+            ? [
+                fn () => $this->resolveCategoryById($identifier, $select, $onlyPublic),
+                fn () => $this->resolveCategoryByName($identifier, $select, $onlyPublic),
+            ]
+            : [
+                fn () => $this->resolveCategoryByName($identifier, $select, $onlyPublic),
+                fn () => $this->resolveCategoryById($identifier, $select, $onlyPublic),
+            ];
+
+        return $this->firstSuccessful($resolvers, "No category found matching '{$identifier}'");
     }
 
     private function resolveCategoryByName(string $identifier, array $select, bool $onlyPublic): ?Category {
@@ -43,10 +52,19 @@ class PathResolverService {
             $folders = Folder::with('series')->where('category_id', $category->id)->get();
         }
 
-        return $this->firstSuccessful([
-            fn () => $this->resolveFolderByName($identifier, $category, $folders),
-            fn () => $this->resolveFolderById($identifier, $category, $folders),
-        ], "No folder found in category '{$category->name}' matching '{$identifier}'");
+        $isNumeric = ctype_digit($identifier) && (int) $identifier > 0;
+
+        $resolvers = $isNumeric
+            ? [
+                fn () => $this->resolveFolderById($identifier, $category, $folders),
+                fn () => $this->resolveFolderByName($identifier, $category, $folders),
+            ]
+            : [
+                fn () => $this->resolveFolderByName($identifier, $category, $folders),
+                fn () => $this->resolveFolderById($identifier, $category, $folders),
+            ];
+
+        return $this->firstSuccessful($resolvers, "No folder found in category '{$category->name}' matching '{$identifier}'");
     }
 
     private function resolveFolderById(string $identifier, Category $category, Collection $folders): ?Folder {

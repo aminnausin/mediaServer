@@ -94,7 +94,7 @@ export default function useDatePicker(props: DatePickerProps, datePickerInput: R
     }
 
     function datePickerValueClicked(value?: number) {
-        if (!value) {
+        if (!value && value !== 0) {
             datePickerValue.value = '';
             datePickerOpen.value = false;
 

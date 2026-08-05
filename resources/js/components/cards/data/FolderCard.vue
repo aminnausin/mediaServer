@@ -30,8 +30,8 @@ const props = defineProps<{
     urlSuffix?: string;
 }>();
 
-const breakPoints = useBreakpoints(breakpointsTailwind);
-const isDesktop = computed(() => breakPoints.isGreaterOrEqual('lg'));
+const breakpoints = useBreakpoints(breakpointsTailwind);
+const isDesktop = computed(() => breakpoints.isGreaterOrEqual('lg'));
 const folderUrl = computed(() => `/${[props.urlPrefix, props.categoryName, props.data.name, props.urlSuffix].filter(Boolean).join('/')}`);
 
 const { isAuthenticated } = useAuth();
@@ -76,7 +76,8 @@ const contextMenuItems = computed(() => {
 });
 
 const mediaType = computed(() => {
-    return props.data.is_majority_audio ? 'Track' : 'Episode';
+    if (props.data.is_majority_audio) return 'Track';
+    return props.data.series?.episodes !== null ? 'Episode' : 'File';
 });
 </script>
 
@@ -87,14 +88,14 @@ const mediaType = computed(() => {
         iconHidden
         :hoverCardDelay="50"
         :hoverCardLeaveDelay="50"
-        :use-background="false"
+        :use-background="true"
     >
         <template #content>
             <LazyImage
-                :src="data.series?.poster_image?.path ?? handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
+                loading="lazy"
                 alt="Folder Thumbnail"
                 class="aspect-2-3 content-auto hidden h-32 object-cover shadow-md [contain-intrinsic-size:auto_128px] lg:block"
-                loading="lazy"
+                :src="data.series?.poster_image?.path ?? handleStorageURL(data.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
             />
         </template>
         <template #trigger>

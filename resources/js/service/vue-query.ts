@@ -23,3 +23,8 @@ export const queryClient = new QueryClient({
         },
     },
 });
+
+export const resetUserDependantQueries = async () => {
+    await queryClient.invalidateQueries({ queryKey: ['auth'] });
+    queryClient.removeQueries({ queryKey: ['auth-only'] });
+};

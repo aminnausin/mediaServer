@@ -2,7 +2,7 @@
 import type { AxiosError } from 'axios';
 
 import { computed, onMounted, ref, useTemplateRef, watch, nextTick } from 'vue';
-import { handleStorageURL, toTimeSpan, formatFileSize } from '@/service/util';
+import { handleStorageURL, toTimeSpan, formatFileSize, toPlural } from '@/service/util';
 import { getMediaDateDescription } from '@/service/media/mediaFormatter';
 import { runRegenerateStoryboard } from '@/service/media/storyboard';
 import { handleEditFolderImages } from '@/service/folder/folderActions';
@@ -16,12 +16,12 @@ import { useModalStore } from '@/stores/ModalStore';
 import { BasePopover } from '@/components/cedar-ui/popover';
 import { storeToRefs } from 'pinia';
 import { HoverCard } from '@/components/cedar-ui/hover-card';
+import { cn, toast } from '@aminnausin/cedar-ui';
 import { MediaType } from '@/types/types';
 import { BadgeTag } from '@/components/cedar-ui/badge';
 import { emitSeek } from '@/service/player/seekBus';
 import { useRoute } from 'vue-router';
 import { useAuth } from '@/composables/auth/useAuth';
-import { toast } from '@aminnausin/cedar-ui';
 
 import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import EditMediaModal from '@/components/modals/EditMediaModal.vue';
@@ -266,33 +266,41 @@ onMounted(() => {
             </BasePopover>
 
             <ul class="flex max-h-5 w-full flex-wrap gap-1 gap-y-4 overflow-clip [overflow-clip-margin:4px] *:*:shadow-sm **:flex **:items-center **:text-xs sm:hidden">
-                <li>
-                    <BadgeTag :class="'meta-badge gap-0.5'">
-                        {{ views }}
-                        <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`" v-if="personalViewCount">
+                <template v-if="stateVideo.metadata">
+                    <li>
+                        <BadgeTag :class="cn('meta-badge gap-0.5', { 'pe-1': isAuthenticated && personalViewCount })">
+                            <HoverCard
+                                v-if="isAuthenticated"
+                                class="flex items-center gap-0.5"
+                                :content="personalViewCount ? `You've watched this ${personalViewCount} time${toPlural(personalViewCount)}` : `You haven't watched this yet`"
+                            >
+                                <template #trigger>
+                                    {{ views }}
+                                    <IconEye v-if="personalViewCount" class="size-4" />
+                                </template>
+                            </HoverCard>
+                            <span v-else>
+                                {{ views }}
+                            </span>
+                        </BadgeTag>
+                    </li>
+
+                    <li>
+                        <HoverCard :class="'shadow-none!'">
                             <template #trigger>
-                                <IconEye class="size-4 scale-90 transition-all hover:scale-100 hover:text-neutral-400 dark:hover:text-white" />
+                                <BadgeTag v-if="stateVideo.metadata.resolution_height" :label="stateVideo.metadata.resolution_height + 'p'" :class="'meta-badge shadow-sm'" />
+                                <BadgeTag v-else :label="formatFileSize(stateVideo.file_size ?? 0)" :class="'meta-badge shadow-sm'" />
+                            </template>
+                            <template #content>
+                                <p class="text-foreground-1" v-if="stateVideo.metadata.resolution_height">
+                                    Resolution: {{ `${stateVideo.metadata.resolution_width}x${stateVideo.metadata.resolution_height}` }}
+                                </p>
+                                <p class="text-foreground-1" v-if="stateVideo.file_size">Size: {{ formatFileSize(stateVideo.file_size) }}</p>
+                                <p class="text-foreground-1">Codec: {{ stateVideo.metadata.codec ?? 'Unknown' }}</p>
                             </template>
                         </HoverCard>
-                    </BadgeTag>
-                </li>
-
-                <li v-if="stateVideo.metadata">
-                    <HoverCard :class="'shadow-none!'">
-                        <template #trigger>
-                            <BadgeTag v-if="stateVideo.metadata.resolution_height" :label="stateVideo.metadata.resolution_height + 'p'" :class="'meta-badge shadow-sm'" />
-                            <BadgeTag v-else :label="formatFileSize(stateVideo.file_size ?? 0)" :class="'meta-badge shadow-sm'" />
-                        </template>
-                        <template #content>
-                            <p class="text-foreground-1" v-if="stateVideo.metadata.resolution_height">
-                                Resolution: {{ `${stateVideo.metadata.resolution_width}x${stateVideo.metadata.resolution_height}` }}
-                            </p>
-                            <p class="text-foreground-1" v-if="stateVideo.file_size">Size: {{ formatFileSize(stateVideo.file_size) }}</p>
-                            <p class="text-foreground-1">Codec: {{ stateVideo.metadata.codec ?? 'Unknown' }}</p>
-                        </template>
-                    </HoverCard>
-                </li>
-
+                    </li>
+                </template>
                 <li v-if="stateVideo.file_modified_at">
                     <HoverCard :content="mediaDateDescription" :class="'shadow-none!'">
                         <template #trigger>
@@ -333,7 +341,11 @@ onMounted(() => {
                             <ProiconsPhoto class="size-5" />
                         </template>
                     </ButtonIcon>
-                    <ButtonIcon class="size-7 p-0 shadow-md" title="Edit Folder Metadata" @click="modal.open(EditFolderModal, { cachedFolder: stateFolder })">
+                    <ButtonIcon
+                        class="size-7 p-0 shadow-md"
+                        title="Edit Folder Metadata"
+                        @click="modal.open(EditFolderModal, { cachedFolder: stateFolder, titleTooltip: `UUID: ${stateFolder.series?.uuid}` })"
+                    >
                         <template #icon>
                             <IconEdit class="size-5" />
                         </template>
@@ -441,9 +453,9 @@ onMounted(() => {
                         <template v-if="personalViewCount">
                             <HoverCard :content="`You have viewed this ${personalViewCount} time${personalViewCount == 1 ? '' : 's'}`">
                                 <template #trigger>
-                                    <div class="hover:text-primary group flex cursor-default items-center justify-start gap-1 transition-colors">
+                                    <div class="hover:text-primary group/views flex cursor-default items-center justify-start gap-1 transition-colors">
                                         <span class="text-nowrap lowercase">{{ views }}</span>
-                                        <IconEye class="size-4 scale-90 transition-transform group-hover:scale-100" />
+                                        <IconEye class="mt-0.5 size-4" />
                                     </div>
                                 </template>
                             </HoverCard>

@@ -54,7 +54,7 @@ export function getCategories(): Promise<AxiosResponse<CategoryResource[]>> {
 }
 
 export function getFolders(category_id: number) {
-    return API.get(`/folders/?category_id=${category_id}`);
+    return API.get(`/folders?category_id=${category_id}`);
 }
 
 export function getUserViewCount(id: number) {

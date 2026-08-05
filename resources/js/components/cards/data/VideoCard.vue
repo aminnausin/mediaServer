@@ -149,13 +149,13 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                             :hover-card-leave-delay="300"
                         >
                             <template #trigger>
-                                <ProiconsComment class="my-auto size-4 shrink-0 opacity-100 transition-opacity duration-300 hover:opacity-20 sm:size-5" title="Description" />
+                                <ProiconsComment class="my-auto size-4 shrink-0 opacity-100 transition-opacity duration-300 hover:opacity-40 sm:size-5" title="Description" />
                             </template>
                         </HoverCard>
                         <HoverCard class="xs:block hidden" v-if="videoData.metadata?.lyrics" :content-title="'Has Lyrics'" :hover-card-delay="400" :hover-card-leave-delay="300">
                             <template #trigger>
                                 <TablerMicrophone2
-                                    class="size-4 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20 sm:size-5"
+                                    class="size-4 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-40 sm:size-5"
                                     title="Has Lyrics"
                                 />
                             </template>
@@ -169,7 +169,7 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                         >
                             <template #trigger>
                                 <IconCaptions
-                                    class="mb-0.5 size-4 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20 sm:size-5"
+                                    class="mb-0.5 size-4 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-40 sm:size-5"
                                     title="Has Subtitles"
                                 />
                             </template>
@@ -184,7 +184,7 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                         >
                             <template #trigger>
                                 <ProiconsCheckmark
-                                    class="size-4 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-20 sm:size-5"
+                                    class="size-4 shrink-0 opacity-100 transition-opacity duration-300 *:stroke-[1.4px] hover:opacity-40 sm:size-5"
                                     title="Completed"
                                 />
                             </template>

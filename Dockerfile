@@ -37,11 +37,13 @@ FROM node:24-alpine AS builder
 
 WORKDIR /var/www/html
 
-COPY . .
+COPY package.json package-lock.json ./
 
 ENV APP_ENV=production
 
 RUN npm ci
+
+COPY . .
 
 RUN npm run build-only && \
     npm cache clean --force && \

@@ -40,6 +40,29 @@
 
         window.addEventListener('resize', setVhUnit)
         window.APP_NAME = "{{ config('app.name') }}";
+
+        // Temporary workaround: enables bfcache by bypassing vue router's forced visibility change listener
+        // https://github.com/vuejs/router/issues/2631
+        // Remove when fixed upstream.
+
+        const originalAddEventListener = document.addEventListener;
+
+        document.addEventListener = function(type, listener, options) {
+            const rawListener = typeof listener === 'function' ? listener.toString() : '';
+
+            if (type === 'visibilitychange' && rawListener.includes('replaceState') && rawListener.includes('scroll') && rawListener.includes('visibilityState')) {
+                console.info('Blocked Vue Router scroll listener');
+                document.addEventListener = originalAddEventListener;
+                return;
+            }
+
+            return originalAddEventListener.call(
+                this,
+                type,
+                listener,
+                options
+            );
+        };
     </script>
 
     <link rel="manifest" href="/manifest.json" crossorigin="use-credentials">
@@ -87,7 +110,7 @@
     </style>
 </head>
 
-<body class="relative h-dynamic-screen overflow-y-auto bg-surface-1 sm:bg-surface-0 text-foreground-0 antialiased dark:scheme-dark scrollbar-minimal" id="root"> <!-- dark:bg-[#121216] dark:text-[#e2e0e2] text-gray-900 -->
+<body class="relative h-dynamic-screen overflow-y-auto bg-surface-1 sm:bg-surface-0 text-foreground-0 antialiased dark:scheme-dark scrollbar-minimal" id="root">
     @php
     $reverbConfig = [
     "key" => config("reverb.apps.apps.0.key"),

@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Http\Resources\Metadata\StoryboardResource;
+use App\Models\Metadata;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -20,6 +21,10 @@ class VideoResource extends JsonResource {
         );
 
         $metadata = $this->metadata;
+
+        $folder = $this->relationLoaded('folder') ? $this->folder : null;
+        $series = $this->relationLoaded('folder.series') ? $this->folder->series : null;
+        $library = $this->relationLoaded('folder.category') ? $this->folder->category : null;
 
         return [
             'id' => $this->id,
@@ -50,12 +55,26 @@ class VideoResource extends JsonResource {
             'file_modified_at' => $metadata?->first_file_modified_at ?: $metadata?->file_modified_at ?: null, // File Last Modified (Should be date_added)
             'edited_at' => $metadata?->edited_at,
 
-            'progress_offset' => $metadata?->playbackProgress?->progress_offset ?? 0,
-            'progress_percentage' => $metadata?->playbackProgress?->progress_percentage ?? 0,
-            'completion_count' => $metadata?->playbackProgress?->completion_count ?? 0,
+            ...($this->getPlaybackProgressStats($metadata)),
 
             'metadata' => new MetadataResource($metadata),
             'folder_id' => $this->folder_id,
+            'library_id' => $folder?->category_id ?? null,
+            'url' => $this->relationLoaded('folder') ? "{$this->folder->category_id}/{$this->folder_id}?video={$this->id}" : null,
+            'folder_name' => $series?->title ?? $folder->name ?? null,
+            'library_name' => $library?->name ?? null,
+        ];
+    }
+
+    private function getPlaybackProgressStats(?Metadata $metadata) {
+        $playbackProgress = $metadata?->relationLoaded('playbackProgress') ? $metadata->playbackProgress : null;
+
+        return [
+            'progress_offset' => $playbackProgress?->progress_offset ?? 0,
+            'progress_percentage' => $playbackProgress?->progress_percentage ?? 0,
+            'progress_created_at' => $playbackProgress?->created_at,
+            'progress_updated_at' => $playbackProgress?->updated_at,
+            'completion_count' => $playbackProgress?->completion_count ?? 0,
         ];
     }
 }

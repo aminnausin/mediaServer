@@ -38,7 +38,7 @@ const handleToggleDownloads = async (id: number, currentValue: boolean) => {
         processing.value = true;
 
         await setSeriesDownloadSettings(id, { downloads_enabled: !currentValue });
-        await queryClient.invalidateQueries({ queryKey: ['libraryFolders', stateLibraryId.value] });
+        await queryClient.invalidateQueries({ queryKey: ['auth-only', 'libraryFolders', stateLibraryId.value] });
 
         toast.success(`${currentValue ? 'Disabled' : 'Enabled'} Folder Downloads.`);
         processing.value = false;

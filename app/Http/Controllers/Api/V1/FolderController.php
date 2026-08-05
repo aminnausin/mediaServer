@@ -31,7 +31,12 @@ class FolderController extends Controller {
         try {
             return $this->success(
                 FolderResource::collection(
-                    Folder::with(['series.folderTags.tag', 'series.primaryPoster', 'series.images.user'])->where('category_id', $validated['category_id'])->orderBy('id')->get() // do not eager load videos... because in this instance, the request is not asking for videos, simply a list of folders
+                    Folder::query()->select('folders.*')
+                        ->join('series', 'series.folder_id', '=', 'folders.id')
+                        ->with(['series.folderTags.tag', 'series.primaryPoster', 'series.images.user'])
+                        ->where('category_id', $validated['category_id'])
+                        ->orderByRaw('COALESCE(series.title, folders.name) ASC')
+                        ->get() // do not eager load videos... because in this instance, the request is not asking for videos, simply a list of folders
                 )
             );
         } catch (\Throwable $th) {

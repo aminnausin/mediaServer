@@ -1,0 +1,212 @@
+<script setup lang="ts">
+import type { Component } from 'vue';
+
+import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue';
+import { TableLoadingSpinner } from '@/components/cedar-ui/table';
+import { ButtonBase } from '@/components/cedar-ui/button';
+import { cn } from '@aminnausin/cedar-ui';
+
+import ButtonOverlay from '@/components/buttons/ButtonOverlay.vue';
+
+import ProiconsChevronRight from '~icons/proicons/chevron-right';
+import ProiconsChevronLeft from '~icons/proicons/chevron-left';
+
+defineOptions({ inheritAttrs: false });
+
+const props = withDefaults(
+    defineProps<{
+        title?: string;
+        useGrid?: boolean;
+        isLoading?: boolean;
+        itemCount?: number;
+        skeletonCount?: number;
+        skeletonClass?: string;
+        noDataMessage?: string;
+    }>(),
+    {
+        skeletonCount: 10,
+        itemCount: 0,
+    },
+);
+
+const scrollContainer = useTemplateRef('scrollContainer');
+const canScrollLeft = ref(false);
+const canScrollRight = ref(false);
+
+const isDragging = ref(false);
+const hasDragged = ref(false);
+
+let startX = 0;
+let startScroll = 0;
+
+const DRAG_THRESHOLD = 5;
+
+const scrollDirections = computed<{ allowed: boolean; value: 1 | -1; icon: Component; title: string }[]>(() => [
+    { allowed: canScrollLeft.value && props.itemCount > 0, value: -1, icon: ProiconsChevronLeft, title: 'Previous' },
+    { allowed: canScrollRight.value && props.itemCount > 0, value: 1, icon: ProiconsChevronRight, title: 'Next' },
+]);
+
+const updateScrollState = () => {
+    if (!scrollContainer.value) return;
+    const el = scrollContainer.value;
+    canScrollLeft.value = el.scrollLeft > 4;
+    canScrollRight.value = el.scrollLeft + el.clientWidth < el.scrollWidth - 4;
+};
+
+const scrollByAmount = (dir: 1 | -1) => {
+    const el = scrollContainer.value;
+    if (!el) return;
+    el.scrollBy({ left: dir * el.clientWidth * 0.9, behavior: 'smooth' });
+};
+
+const onPointerDown = (e: PointerEvent) => {
+    if (props.useGrid || e.pointerType !== 'mouse' || e.button !== 0 || !scrollContainer.value) return;
+
+    isDragging.value = true;
+    hasDragged.value = false;
+
+    startX = e.clientX;
+    startScroll = scrollContainer.value.scrollLeft;
+};
+
+const onPointerMove = (e: PointerEvent) => {
+    if (!isDragging.value || !scrollContainer.value) return;
+
+    const delta = e.clientX - startX;
+
+    if (!hasDragged.value && Math.abs(delta) > DRAG_THRESHOLD) {
+        hasDragged.value = true;
+        scrollContainer.value.setPointerCapture(e.pointerId);
+    }
+
+    scrollContainer.value.scrollLeft = startScroll - delta;
+};
+
+const onPointerUp = (e?: PointerEvent) => {
+    if (!scrollContainer.value) return;
+
+    isDragging.value = false;
+
+    if (e?.pointerId && scrollContainer.value.hasPointerCapture(e.pointerId)) {
+        scrollContainer.value.releasePointerCapture(e.pointerId);
+    }
+};
+
+const onClickCapture = (e: MouseEvent) => {
+    if (!hasDragged.value) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    hasDragged.value = false;
+};
+
+watch(
+    () => props.isLoading,
+    async () => {
+        await nextTick();
+        updateScrollState();
+    },
+);
+
+onMounted(async () => {
+    await nextTick();
+    updateScrollState();
+});
+</script>
+
+<template>
+    <section :class="cn('group/row content-auto space-y-3 [contain-intrinsic-size:auto_320px]', useGrid ? '' : $attrs.class)">
+        <div v-if="title" class="flex items-center justify-between">
+            <h2 class="text-lg">{{ title }}</h2>
+            <div v-if="!useGrid" class="bg-surface-3/50 dark:bg-surface-3/50 flex w-fit gap-0.5 rounded-lg p-0.5 text-xs">
+                <ButtonBase
+                    v-for="direction in scrollDirections"
+                    :key="direction.value"
+                    :title="direction.title"
+                    :class="
+                        cn('h-7 rounded-md px-3 py-1 capitalize', 'text-foreground-2 hover:text-foreground-0 hover:bg-surface-1/50', {
+                            'hover:bg-surface-1 hover:dark:bg-surface-4 hover:text-primary-active hover:dark:text-primary-muted text-foreground-0 hover:shadow-sm':
+                                direction.allowed,
+                        })
+                    "
+                    :disabled="!direction.allowed"
+                    @click="scrollByAmount(direction.value)"
+                >
+                    <component :is="direction.icon" class="size-4" />
+                </ButtonBase>
+            </div>
+        </div>
+        <div class="relative">
+            <template v-if="!useGrid && props.itemCount > 0 && (canScrollLeft || canScrollRight)">
+                <div
+                    :class="
+                        cn(
+                            'from-surface-1 duration-input bg-linear-to-r to-transparent opacity-0 transition-opacity',
+                            'pointer-events-none absolute inset-y-0 left-0 z-10 w-2 dark:w-4',
+                            { 'opacity-100': isDragging || !canScrollRight },
+                        )
+                    "
+                />
+                <div
+                    :class="
+                        cn(
+                            'from-surface-1 duration-input bg-linear-to-l to-transparent opacity-0 transition-opacity',
+                            'pointer-events-none absolute inset-y-0 right-0 z-10 w-2 dark:w-4',
+                            { 'opacity-100': isDragging || canScrollRight },
+                        )
+                    "
+                />
+                <ButtonOverlay
+                    v-for="direction in scrollDirections"
+                    type="button"
+                    :key="direction.value"
+                    :title="direction.title"
+                    :class="
+                        cn(
+                            '3xl:size-8 absolute top-1/2 z-20 hidden size-7 -translate-y-full',
+                            'origin-center transform-gpu items-center justify-center p-0 @min-md:flex',
+                            'opacity-60 outline-white group-hover/row:opacity-100 hover:bg-neutral-900/90 focus-visible:outline',
+                            'disabled:opacity-20',
+                            {
+                                'right-2': direction.value === 1,
+                                'left-2': direction.value === -1,
+                            },
+                        )
+                    "
+                    :disabled="!direction.allowed"
+                    @click="scrollByAmount(direction.value)"
+                >
+                    <component :is="direction.icon" class="3xl:size-5 size-4" />
+                </ButtonOverlay>
+            </template>
+
+            <div
+                ref="scrollContainer"
+                :class="
+                    cn('scrollbar-hide gap-3', useGrid ? $attrs.class : 'flex touch-pan-y overflow-x-auto scroll-smooth', {
+                        'cursor-grab snap-x snap-mandatory': !useGrid && !isDragging,
+                        'cursor-grabbing scroll-auto select-none': isDragging,
+                    })
+                "
+                @scroll="updateScrollState"
+                @pointerdown="onPointerDown"
+                @pointermove="onPointerMove"
+                @pointerup="onPointerUp"
+                @pointercancel="onPointerUp"
+                @click.capture="onClickCapture"
+                @dragstart.prevent
+            >
+                <template v-if="isLoading">
+                    <div v-for="n in skeletonCount" :key="n" class="flex shrink-0 animate-pulse snap-start flex-col gap-2">
+                        <div :class="cn('dark:bg-surface-2 rounded-md bg-neutral-300', skeletonClass)" />
+                        <div class="h-3 w-30 rounded-md bg-neutral-300 dark:bg-neutral-700/60"></div>
+                        <div class="h-3 w-20 rounded-md bg-neutral-200 dark:bg-neutral-700/40"></div>
+                    </div>
+                </template>
+                <slot v-else-if="props.itemCount > 0" />
+                <TableLoadingSpinner v-else :is-loading="false" :no-results-message="noDataMessage" class="h-16 text-sm" />
+            </div>
+        </div>
+    </section>
+</template>
