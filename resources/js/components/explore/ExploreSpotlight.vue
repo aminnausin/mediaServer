@@ -71,8 +71,8 @@ const { offset, isSwiping, onPointerDown, onPointerMove, onPointerUp } = useSwip
 function onSwipeOut() {
     if (Math.abs(offset.value.x) < 45) return;
 
-    leaveDirection.value = offset.value.x > 0 ? '100%' : '-100%';
-    (offset.value.x > 0 ? nextFolder : previousFolder)();
+    leaveDirection.value = offset.value.x < 0 ? '-100%' : '100%';
+    (offset.value.x < 0 ? nextFolder : previousFolder)();
 }
 
 const nextFolder = () => {
