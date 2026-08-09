@@ -149,7 +149,7 @@ onBeforeUnmount(() => {
             '--position-top': `${expanded ? (isBottom ? 'auto' : positionY) : 'inherit'}`,
             '--position-bottom': `${isBottom && expanded ? positionY : 'inherit'}`,
         }"
-        :data-isSwiping="isSwiping"
+        :data-is-swiping="isSwiping"
         @mouseover="toastHovered = true"
         @mouseout="toastHovered = false"
         @dragend="onPointerUp"
@@ -241,7 +241,7 @@ onBeforeUnmount(() => {
     }
 }
 
-[data-isSwiping='true'] {
+[data-is-swiping='true'] {
     transition-property: none !important;
 }
 </style>
