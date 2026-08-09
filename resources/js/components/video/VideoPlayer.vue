@@ -899,7 +899,7 @@ const handlePlayerTimeUpdate = (event: any) => {
     getBufferHealth();
 
     // if playing or have not started playing yet, force seek (I do not remember what this is for)
-    if (isShowingControls.value && (!isPaused.value || (currentId.value === null && timeElapsed.value))) {
+    if (isShowingControls.value && (!isPaused.value || currentId.value === null)) {
         timeElapsed.value = (event.target.currentTime / timeDuration.value) * 100;
     }
 };
@@ -1117,6 +1117,8 @@ const SUPPORTED_KEYBINDS = [
 type SupportedKeyBind = (typeof SUPPORTED_KEYBINDS)[number];
 
 const handleKeyBinds = (event: KeyboardEvent, override = false) => {
+    console.log(event.key);
+
     if (!SUPPORTED_KEYBINDS.includes(event.key as SupportedKeyBind)) return;
     if (isInputLikeElement(event.target, event.key) && !override) return;
 
@@ -1551,6 +1553,7 @@ defineExpose({
                     :is-audio="isAudio"
                     :buffer-health="bufferHealth"
                     :frame-health="frameHealth"
+                    :time-elapsed="timeElapsed"
                     :player="player"
                 />
 
