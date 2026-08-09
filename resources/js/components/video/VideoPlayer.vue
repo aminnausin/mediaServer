@@ -1553,7 +1553,6 @@ defineExpose({
                     :is-audio="isAudio"
                     :buffer-health="bufferHealth"
                     :frame-health="frameHealth"
-                    :time-elapsed="timeElapsed"
                     :player="player"
                 />
 
