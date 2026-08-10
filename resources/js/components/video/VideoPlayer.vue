@@ -1619,7 +1619,7 @@ defineExpose({
                     </VideoTimeline>
 
                     <!-- Controls -->
-                    <div :class="['pointer-events-auto flex w-full items-center gap-1 px-2', isFullScreen || isTheatreView ? 'pt-2' : 'py-1.5']">
+                    <div id="player-controls" :class="['pointer-events-auto relative flex w-full items-center gap-1 px-2', isFullScreen || isTheatreView ? 'pt-2' : 'py-1.5']">
                         <VideoControlWrapper>
                             <VideoButton
                                 @click="handlePlayerToggle"
@@ -1787,7 +1787,7 @@ defineExpose({
                                 />
                             </template>
                             <VideoPopover
-                                :popoverClass="cn('max-w-42! rounded-lg h-fit', { 'right-0!': usingPlayerModernUI })"
+                                :popoverClass="cn('max-w-42! rounded-lg h-fit')"
                                 ref="player-popover"
                                 :margin="80"
                                 :player="player ?? undefined"

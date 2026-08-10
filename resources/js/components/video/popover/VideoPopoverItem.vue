@@ -20,7 +20,7 @@ const props = withDefaults(defineProps<PopoverItem>(), {});
         :onclick="action"
         :data="disabled"
     >
-        <component v-if="icon" :is="icon" :class="['mr-2 size-4 shrink-0', iconStyle ?? '']" />
+        <component v-if="icon" :is="icon" :class="cn('mr-2 size-4 shrink-0', iconStyle)" />
 
         <span class="text-nowrap">{{ text }}</span>
         <span class="ml-auto text-xs tracking-widest opacity-60">{{ shortcut ?? '' }}</span>
