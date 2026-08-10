@@ -13,6 +13,7 @@ import VideoPopover from '@/components/video/popover/VideoPopover.vue';
 
 import ProiconsCheckmark from '~icons/proicons/checkmark';
 import LucideLanguages from '~icons/lucide/languages';
+import IconSpeech from '@/components/icons/IconSpeech.vue';
 
 defineProps<{
     videoButtonOffset: number;
@@ -36,6 +37,7 @@ const playerAudioTracks = computed(() =>
 
         return {
             icon: LucideLanguages,
+            iconStyle: 'size-3.5',
             text,
             title: [text, `Title: ${track.label || 'und'}`, `Track: ${track.id}`].join('\n'),
             selected: track.id === activeTrackId.value,
@@ -98,7 +100,7 @@ defineExpose({ audioTracksPopover });
         title="Audio Tracks"
     >
         <template #buttonIcon>
-            <LucideLanguages class="size-3" />
+            <IconSpeech class="mb-0.5 size-4.5" />
         </template>
         <template #content>
             <section :class="['scrollbar-minimal flex h-fit max-h-21 flex-col overflow-y-auto transition-transform md:max-h-35', { 'pe-0.5': playerAudioTracks.length > 3 }]">
