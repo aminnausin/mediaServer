@@ -27,7 +27,7 @@ const getPlayerDimensions = (player: HTMLVideoElement) => {
 </script>
 <template>
     <div v-show="isShowingStats" class="pointer-events-auto w-fit rounded-md border border-neutral-700/10 bg-neutral-800/90 p-2 backdrop-blur-xs sm:min-w-52">
-        <div class="scrollbar-minimal scrollbar-dark xs:h-16 flex h-14 max-h-64 w-full gap-2 overflow-y-auto pe-1 sm:h-auto sm:pe-0">
+        <div class="scrollbar-minimal scrollbar-dark xs:h-16 flex h-14 max-h-64 w-full gap-2 overflow-y-auto pe-1 sm:h-auto sm:pe-0 lg:max-h-80">
             <div class="space-y-2">
                 <section class="*:ms-4">
                     <h5 class="ms-0!">Player Info</h5>
@@ -64,16 +64,26 @@ const getPlayerDimensions = (player: HTMLVideoElement) => {
                         Time Elapsed: <span>{{ player?.currentTime.toFixed(2) }}s</span>
                     </p>
                     <p title="Total Size">
-                        File Size: <span>{{ stateVideo.file_size ? formatFileSize(stateVideo.file_size) : 'Unknown' }}</span>
+                        Total Size: <span>{{ stateVideo.file_size ? formatFileSize(stateVideo.file_size) : 'Unknown' }}</span>
                     </p>
-                    <p title="File Bitrate" v-if="stateVideo.metadata?.bitrate">
+                    <p title="Bitrate" v-if="stateVideo.metadata?.bitrate">
                         Bitrate: <span>{{ formatBitrate(stateVideo.metadata.bitrate) }}</span>
                     </p>
-                    <p title="File Framerate" v-if="stateVideo.metadata?.frame_rate">
+                    <p title="Framerate" v-if="stateVideo.metadata?.frame_rate">
                         Framerate: <span>{{ stateVideo.metadata.frame_rate }}fps</span>
                     </p>
-                    <p title="File Codec" v-if="stateVideo.metadata?.codec">
+                    <p title="Container">
+                        Container: <span>{{ stateVideo.path.split('.').at(-1) }}</span>
+                    </p>
+                    <p title="Codec" v-if="stateVideo.metadata?.codec">
                         Codec: <span>{{ stateVideo.metadata.codec }}</span>
+                    </p>
+                </section>
+                <section class="*:ms-4">
+                    <h5 class="ms-0!">File Info</h5>
+
+                    <p title="Path" class="max-w-44.5">
+                        Path: <span>{{ stateVideo.path.split('/').at(-1) }}</span>
                     </p>
                 </section>
             </div>
