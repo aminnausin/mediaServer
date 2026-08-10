@@ -60,6 +60,9 @@ const getPlayerDimensions = (player: HTMLVideoElement) => {
                             Raw Duration: <span>{{ stateVideo.metadata.duration }}s</span>
                         </p>
                     </template>
+                    <p title="Time Elapsed">
+                        Time Elapsed: <span>{{ player?.currentTime.toFixed(2) }}s</span>
+                    </p>
                     <p title="Total Size">
                         File Size: <span>{{ stateVideo.file_size ? formatFileSize(stateVideo.file_size) : 'Unknown' }}</span>
                     </p>
