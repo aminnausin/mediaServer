@@ -1117,8 +1117,6 @@ const SUPPORTED_KEYBINDS = [
 type SupportedKeyBind = (typeof SUPPORTED_KEYBINDS)[number];
 
 const handleKeyBinds = (event: KeyboardEvent, override = false) => {
-    console.log(event.key);
-
     if (!SUPPORTED_KEYBINDS.includes(event.key as SupportedKeyBind)) return;
     if (isInputLikeElement(event.target, event.key) && !override) return;
 
@@ -1537,9 +1535,9 @@ defineExpose({
 
         <!-- UI Panels Z-8 (Stats, Options)-->
         <div
-            style="z-index: 8"
+            style="z-index: 8; max-height: calc(100% - calc(var(--spacing) * 18))"
             :class="
-                cn('ui-layer scrollbar-hide flex flex-wrap justify-between gap-2 overflow-scroll', 'xms:top-2 inset-0 top-9 bottom-16 mx-2', {
+                cn('ui-layer scrollbar-hide inset-x-0 flex h-fit flex-wrap justify-between gap-2 overflow-auto', 'xms:top-2 top-9 bottom-16 mx-2', {
                     'top-11! mx-4': isFullScreen || isTheatreView,
                 })
             "
