@@ -187,56 +187,53 @@ defineExpose({ hovered });
         @touchmove.passive="onTouchMove"
         @touchend="handleLeave"
     >
-        <template v-if="posterUrl">
-            <div :class="cn(isFolderMajorityAudio ? 'aspect-square' : 'aspect-video', 'size-full', $attrs.class)">
-                <div class="absolute inset-0 scale-120 blur-sm" :style="generatePosterStyle(posterUrl)"></div>
+        <div v-if="posterUrl" :class="cn(isFolderMajorityAudio ? 'aspect-square' : 'aspect-video', 'size-full', $attrs.class)">
+            <div class="absolute inset-0 scale-120 blur-sm" :style="generatePosterStyle(posterUrl)"></div>
 
-                <LazyImage
-                    alt="poster"
-                    :loading="eagerLoad ? 'eager' : 'lazy'"
-                    :fetchPriority="eagerLoad ? 'high' : 'auto'"
-                    :src="posterUrl"
-                    :animate="false"
-                    :wrapper-class="cn('transition-opacity duration-input', { 'opacity-0': hovered && activeCue })"
-                    :class="cn('absolute inset-0 size-full object-contain')"
-                />
+            <LazyImage
+                alt="poster"
+                :loading="eagerLoad ? 'eager' : 'lazy'"
+                :fetchPriority="eagerLoad ? 'high' : 'auto'"
+                :src="posterUrl"
+                :animate="false"
+                :wrapper-class="cn('transition-opacity duration-input', { 'opacity-0': hovered && activeCue })"
+                :class="cn('absolute inset-0 size-full object-contain')"
+            />
 
-                <Transition name="fade">
-                    <div
-                        v-if="hovered && activeCue && preloadedSprites.get(activeCue.image) === 'loading'"
-                        :class="cn('duration-input absolute inset-0 flex items-center justify-center transition-opacity')"
-                    >
-                        <SvgSpinners90RingWithBg class="size-4" />
-                    </div>
-                </Transition>
-                <Transition name="fade">
-                    <div
-                        v-if="hovered && activeCue && preloadedSprites.get(activeCue.image) === 'loaded'"
-                        :class="cn('duration-input absolute inset-0 flex items-center justify-center transition-opacity')"
-                    >
-                        <div :style="spriteStyle"></div>
-                    </div>
-                </Transition>
-            </div>
-
-            <!-- Overlay -->
-            <div v-if="data.duration" :class="cn('duration-input pointer-events-none absolute inset-0 z-3 flex flex-col justify-end gap-1 transition-[translate,margin]')">
-                <VideoControlWrapper :class="cn('ml-1 w-fit')">
-                    <p
-                        :class="cn('font-figtree px-1 text-white tabular-nums text-shadow-lg')"
-                        :aria-label="`${data.metadata?.media_type === MediaType.AUDIO ? 'Track' : 'Video'} Duration ${toFormattedDuration(data.duration, false, 'verbose')}`"
-                    >
-                        {{ activeCue && hovered ? timestamp : toFormattedDuration(data.duration, false, 'digital') }}
-                    </p>
-                </VideoControlWrapper>
-                <div :class="cn('h-1 w-full bg-white/20 opacity-0 transition-opacity duration-150', { 'opacity-100': activeCue && hovered })">
-                    <div class="h-full bg-white" :style="{ width: `${(hoverProgress / data.duration) * 100}%` }" />
+            <Transition name="fade">
+                <div
+                    v-if="hovered && activeCue && preloadedSprites.get(activeCue.image) === 'loading'"
+                    :class="cn('duration-input absolute inset-0 flex items-center justify-center transition-opacity')"
+                >
+                    <SvgSpinners90RingWithBg class="size-4" />
                 </div>
-            </div>
-        </template>
-
+            </Transition>
+            <Transition name="fade">
+                <div
+                    v-if="hovered && activeCue && preloadedSprites.get(activeCue.image) === 'loaded'"
+                    :class="cn('duration-input absolute inset-0 flex items-center justify-center transition-opacity')"
+                >
+                    <div :style="spriteStyle"></div>
+                </div>
+            </Transition>
+        </div>
         <div v-else :class="cn('bg-surface-3 flex aspect-video h-24 shrink-0 items-center justify-center dark:bg-neutral-900/80', { 'w-24': isFolderMajorityAudio }, $attrs.class)">
             <ProIconsPhotoOff class="text-foreground-1 size-5" />
+        </div>
+
+        <!-- Overlay -->
+        <div v-if="data.duration" :class="cn('duration-input pointer-events-none absolute inset-0 z-3 flex flex-col justify-end gap-1 transition-[translate,margin]')">
+            <VideoControlWrapper :class="cn('ml-1 w-fit')">
+                <p
+                    :class="cn('font-figtree px-1 text-white tabular-nums text-shadow-lg')"
+                    :aria-label="`${data.metadata?.media_type === MediaType.AUDIO ? 'Track' : 'Video'} Duration ${toFormattedDuration(data.duration, false, 'verbose')}`"
+                >
+                    {{ activeCue && hovered ? timestamp : toFormattedDuration(data.duration, false, 'digital') }}
+                </p>
+            </VideoControlWrapper>
+            <div :class="cn('h-1 w-full bg-white/20 opacity-0 transition-opacity duration-150', { 'opacity-100': activeCue && hovered })">
+                <div class="h-full bg-white" :style="{ width: `${(hoverProgress / data.duration) * 100}%` }" />
+            </div>
         </div>
     </div>
 </template>
