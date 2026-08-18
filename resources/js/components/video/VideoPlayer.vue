@@ -1585,21 +1585,25 @@ defineExpose({
             </div>
 
             <!-- Controls (Z-7) -->
-            <Transition
-                enter-active-class="ease-out"
-                enter-from-class="translate-y-full"
-                enter-to-class="translate-y-0"
-                leave-active-class="ease-in"
-                leave-from-class="translate-y-0"
-                leave-to-class="translate-y-full"
+            <div
+                v-cloak
+                :class="
+                    cn(
+                        '@container pointer-events-none! mt-auto h-14 w-full transition-transform duration-300',
+                        isShowingControls ? 'translate-y-0 ease-out' : 'translate-y-full ease-in',
+                    )
+                "
             >
                 <div
-                    v-cloak
-                    v-show="isShowingControls"
-                    :class="[
-                        '@container pointer-events-none! mt-auto flex h-12 w-full flex-col justify-end bg-linear-to-b from-neutral-900/0 to-neutral-900/30 transition-[translate] duration-300',
-                        { 'p-2': isFullScreen || isTheatreView },
-                    ]"
+                    :class="
+                        cn(
+                            'flex h-14 w-full flex-col justify-end',
+                            // bg-linear-to-b from-transparent to-neutral-900/30 -> Causes rendering bug on firefox android
+                            {
+                                'p-2': isFullScreen || isTheatreView,
+                            },
+                        )
+                    "
                 >
                     <!-- Heatmap and Timeline -->
                     <VideoTimeline
@@ -1861,12 +1865,7 @@ defineExpose({
                         </VideoControlWrapper>
                     </div>
                 </div>
-            </Transition>
-
-            <!-- Center Notification -->
-            <!-- Top Center Notification -->
-            <!-- Left Notification -->
-            <!-- Right Notification -->
+            </div>
         </div>
 
         <!-- Interactable UI Z-6 (Lyrics) -->
@@ -1933,15 +1932,15 @@ defineExpose({
             <!-- Controls Gradient (Z-4) -->
             <Transition
                 enter-active-class="ease-out"
-                enter-from-class="translate-y-full"
-                enter-to-class="translate-y-0"
+                enter-from-class="translate-y-4/5 opacity-0"
+                enter-to-class="translate-y-0 opacity-100"
                 leave-active-class="ease-in"
-                leave-from-class="translate-y-0"
-                leave-to-class="translate-y-full"
+                leave-from-class="translate-y-0 opacity-100"
+                leave-to-class="translate-y-4/5 opacity-0"
             >
                 <div
                     v-show="isShowingControls"
-                    :class="`absolute bottom-0 left-0 h-32 w-full bg-linear-to-b from-transparent to-black opacity-20 transition-[translate] duration-300`"
+                    :class="`from-00% absolute bottom-0 left-0 h-32 w-full bg-linear-to-b from-neutral-900/0 to-neutral-900/30 transition-[translate,opacity] duration-300`"
                     v-cloak
                 ></div>
             </Transition>
