@@ -128,85 +128,87 @@ onUnmounted(() => {
             </slot>
         </template>
     </VideoButton>
-    <Transition
-        enter-active-class="ease-out duration-150"
-        enter-from-class="scale-[0.8] opacity-60"
-        enter-to-class="scale-100 opacity-100"
-        leave-active-class="ease-in-out duration-100"
-        leave-from-class="scale-100 opacity-100"
-        leave-to-class="scale-[0.1] opacity-50"
-    >
-        <UseFocusTrap
-            v-if="popoverOpen"
-            :class="
-                cn(
-                    'scrollbar-dark absolute right-2 z-10 w-75 max-w-lg overflow-clip rounded-md border border-neutral-700/10 bg-neutral-800/90 p-1 shadow-xs backdrop-blur-xs',
-                    `${popoverPosition === 'bottom' ? `top-8 ${verticalOffset ? `sm:top-${verticalOffset}` : 'sm:top-12'}` : `${verticalOffset ? `bottom-${verticalOffset}` : `bottom-14`}`}`, // This wont generate classes
-                    popoverClass,
-                )
-            "
-            ref="popover"
-            :options="{ allowOutsideClick: true }"
+    <Teleport defer to="#player-controls">
+        <Transition
+            enter-active-class="ease-out duration-150"
+            enter-from-class="scale-[0.8] opacity-60"
+            enter-to-class="scale-100 opacity-100"
+            leave-active-class="ease-in-out duration-100"
+            leave-from-class="scale-100 opacity-100"
+            leave-to-class="scale-[0.1] opacity-50"
         >
-            <OnClickOutside @trigger="handleClickOutside" @keydown.esc="popoverOpen = false" tabindex="-1" v-show="popoverOpen" v-cloak :class="'w-full'">
-                <div
-                    v-show="popoverArrow && popoverPosition == 'bottom'"
-                    ref="popoverArrowRef"
-                    :class="
-                        cn(
-                            'absolute left-1/2 inline-block w-5 -translate-x-2 overflow-hidden',
-                            popoverPosition === 'bottom' ? 'top-0 mt-px -translate-y-2.5' : 'bottom-0 mb-px translate-y-2.5',
-                        )
-                    "
-                >
+            <UseFocusTrap
+                v-if="popoverOpen"
+                :class="
+                    cn(
+                        'scrollbar-dark absolute right-2 z-7 w-75 max-w-lg overflow-clip rounded-md border border-neutral-700/10 bg-neutral-800/90 p-1 shadow-xs backdrop-blur-xs',
+                        verticalOffset ? `bottom-${verticalOffset}` : `bottom-16`, // This wont generate classes
+                        popoverClass,
+                    )
+                "
+                ref="popover"
+                :options="{ allowOutsideClick: true }"
+            >
+                <OnClickOutside @trigger="handleClickOutside" @keydown.esc="popoverOpen = false" tabindex="-1" v-show="popoverOpen" v-cloak :class="'w-full'">
                     <div
-                        :class="`size-2.5 transform rounded-xs border-l border-neutral-700/10 bg-neutral-900/80 ${popoverPosition === 'bottom' ? 'origin-bottom-left rotate-45 border-t' : 'origin-top-left -rotate-45 border-b'} `"
-                    ></div>
-                </div>
-                <slot name="content">
-                    <div class="grid gap-4">
-                        <div class="space-y-2">
-                            {{ popoverAdjustment }}
-                            <h4 class="leading-none font-medium">Dimensions</h4>
-                            <p class="text-foreground-1 text-sm">Set the dimensions for the layer.</p>
-                        </div>
-                        <div class="grid gap-2">
-                            <div class="grid grid-cols-3 items-center gap-4">
-                                <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="width">Width</label
-                                ><input
-                                    class="border-input ring-offset-background placeholder:text-foreground-1 col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
-                                    id="width"
-                                    value="100%"
-                                />
-                            </div>
-                            <div class="grid grid-cols-3 items-center gap-4">
-                                <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="maxWidth">Max. width</label
-                                ><input
-                                    class="border-input ring-offset-background placeholder:text-foreground-1 col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
-                                    id="maxWidth"
-                                    value="300px"
-                                />
-                            </div>
-                            <div class="grid grid-cols-3 items-center gap-4">
-                                <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="height">Height</label
-                                ><input
-                                    class="border-input ring-offset-background placeholder:text-foreground-1 col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
-                                    id="height"
-                                    value="25px"
-                                />
-                            </div>
-                            <div class="grid grid-cols-3 items-center gap-4">
-                                <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="maxHeight">Max. height</label
-                                ><input
-                                    class="border-input ring-offset-background placeholder:text-foreground-1 col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
-                                    id="maxHeight"
-                                    value="none"
-                                />
-                            </div>
-                        </div>
+                        v-show="popoverArrow && popoverPosition == 'bottom'"
+                        ref="popoverArrowRef"
+                        :class="
+                            cn(
+                                'absolute left-1/2 inline-block w-5 -translate-x-2 overflow-hidden',
+                                popoverPosition === 'bottom' ? 'top-0 mt-px -translate-y-2.5' : 'bottom-0 mb-px translate-y-2.5',
+                            )
+                        "
+                    >
+                        <div
+                            :class="`size-2.5 transform rounded-xs border-l border-neutral-700/10 bg-neutral-900/80 ${popoverPosition === 'bottom' ? 'origin-bottom-left rotate-45 border-t' : 'origin-top-left -rotate-45 border-b'} `"
+                        ></div>
                     </div>
-                </slot>
-            </OnClickOutside>
-        </UseFocusTrap>
-    </Transition>
+                    <slot name="content">
+                        <div class="grid gap-4">
+                            <div class="space-y-2">
+                                {{ popoverAdjustment }}
+                                <h4 class="leading-none font-medium">Dimensions</h4>
+                                <p class="text-foreground-1 text-sm">Set the dimensions for the layer.</p>
+                            </div>
+                            <div class="grid gap-2">
+                                <div class="grid grid-cols-3 items-center gap-4">
+                                    <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="width">Width</label
+                                    ><input
+                                        class="border-input ring-offset-background placeholder:text-foreground-1 col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
+                                        id="width"
+                                        value="100%"
+                                    />
+                                </div>
+                                <div class="grid grid-cols-3 items-center gap-4">
+                                    <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="maxWidth">Max. width</label
+                                    ><input
+                                        class="border-input ring-offset-background placeholder:text-foreground-1 col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
+                                        id="maxWidth"
+                                        value="300px"
+                                    />
+                                </div>
+                                <div class="grid grid-cols-3 items-center gap-4">
+                                    <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="height">Height</label
+                                    ><input
+                                        class="border-input ring-offset-background placeholder:text-foreground-1 col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
+                                        id="height"
+                                        value="25px"
+                                    />
+                                </div>
+                                <div class="grid grid-cols-3 items-center gap-4">
+                                    <label class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="maxHeight">Max. height</label
+                                    ><input
+                                        class="border-input ring-offset-background placeholder:text-foreground-1 col-span-2 flex h-8 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
+                                        id="maxHeight"
+                                        value="none"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </slot>
+                </OnClickOutside>
+            </UseFocusTrap>
+        </Transition>
+    </Teleport>
 </template>

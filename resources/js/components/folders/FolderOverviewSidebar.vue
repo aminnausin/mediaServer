@@ -52,7 +52,7 @@ const userInfoRows = computed(() => [
                         :tooltip="stateFolder.file_count < stateFolder.series.episodes ? `${stateFolder.series?.episodes - stateFolder.file_count} files missing` : undefined"
                     />
                 </template>
-                <FolderInfoRow v-else title="Files" :value="stateFolder.file_count" />
+                <FolderInfoRow title="Files" :value="stateFolder.file_count" />
 
                 <FolderInfoRow title="Total Size" :value="formatFileSize(stateFolder.total_size)" />
                 <FolderInfoRow title="Total Duration" :value="toFormattedDuration(totalDuration)" />

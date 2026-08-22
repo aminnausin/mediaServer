@@ -51,7 +51,7 @@ const stackTimeout = ref<NodeJS.Timeout | null>(null);
 const toastHovered = ref(false);
 const isMounted = ref(false);
 
-const { offset, isSwiping, onPointerDown, onPointerMove, onPointerUp } = useSwipeHandler({
+const { offset, isSwiping, onPointerDown, onPointerMove, onPointerUp, onPointerCancel } = useSwipeHandler({
     directions: swipeDirections,
     swipeThreshold: { px: SWIPE_THRESHOLD },
     onSwipeOut: onClose,
@@ -140,7 +140,7 @@ onBeforeUnmount(() => {
     <li
         ref="toastEl"
         :id="props.id"
-        :class="[`toast absolute w-full transition-all duration-300 ease-out`, { 'pointer-events-none opacity-0': index >= maxVisibleToasts }, style]"
+        :class="[`toast absolute w-full touch-none transition-all duration-300 ease-out`, { 'pointer-events-none opacity-0': index >= maxVisibleToasts }, style]"
         :style="{
             '--offset-x': `${offset.x}px`,
             '--offset-y': `${offsetY}px`,
@@ -149,13 +149,14 @@ onBeforeUnmount(() => {
             '--position-top': `${expanded ? (isBottom ? 'auto' : positionY) : 'inherit'}`,
             '--position-bottom': `${isBottom && expanded ? positionY : 'inherit'}`,
         }"
-        :data-isSwiping="isSwiping"
+        :data-is-swiping="isSwiping"
         @mouseover="toastHovered = true"
         @mouseout="toastHovered = false"
         @dragend="onPointerUp"
         @pointerdown="onPointerDown"
         @pointermove="onPointerMove"
         @pointerup="onPointerUp"
+        @pointercancel="onPointerCancel"
     >
         <Transition
             :enter-from-class="`opacity-0 ${isBottom ? 'translate-y-full' : '-translate-y-full'}`"
@@ -169,7 +170,7 @@ onBeforeUnmount(() => {
                 :class="[
                     { 'p-3 py-4': !html, 'p-0': html },
                     'flex items-start gap-1 rounded-md backdrop-blur-lg',
-                    'group relative select-text',
+                    'group relative sm:select-text',
                     'transition-[opacity,translate,scale] duration-300 ease-out',
                     'bg-overlay-t text-foreground-0 shadow-[0_5px_15px_-3px_rgb(0_0_0/0.08)]',
                     'ring-r-inverse ring-1 ring-inset',
@@ -186,7 +187,10 @@ onBeforeUnmount(() => {
                     <p :class="['line-clamp-2 pe-6 text-[13px] font-medium', mapColour(type)]" :title="title">
                         {{ title }}
                     </p>
-                    <p v-if="description" :class="['scrollbar-minimal max-h-32 w-full overflow-y-auto pe-2 text-xs leading-4 break-all whitespace-pre-wrap opacity-70']">
+                    <p
+                        v-if="description"
+                        :class="['scrollbar-minimal max-h-32 w-full touch-pan-y overflow-y-auto pe-2 text-xs leading-4 break-all whitespace-pre-wrap opacity-70']"
+                    >
                         {{ description }}
                     </p>
                 </div>
@@ -237,7 +241,7 @@ onBeforeUnmount(() => {
     }
 }
 
-[data-isSwiping='true'] {
+[data-is-swiping='true'] {
     transition-property: none !important;
 }
 </style>

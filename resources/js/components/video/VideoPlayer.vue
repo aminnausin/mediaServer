@@ -899,7 +899,7 @@ const handlePlayerTimeUpdate = (event: any) => {
     getBufferHealth();
 
     // if playing or have not started playing yet, force seek (I do not remember what this is for)
-    if (isShowingControls.value && (!isPaused.value || (currentId.value === null && timeElapsed.value))) {
+    if (isShowingControls.value && (!isPaused.value || currentId.value === null)) {
         timeElapsed.value = (event.target.currentTime / timeDuration.value) * 100;
     }
 };
@@ -1535,9 +1535,9 @@ defineExpose({
 
         <!-- UI Panels Z-8 (Stats, Options)-->
         <div
-            style="z-index: 8"
+            style="z-index: 8; max-height: calc(100% - calc(var(--spacing) * 18))"
             :class="
-                cn('ui-layer scrollbar-hide flex flex-wrap justify-between gap-2 overflow-scroll', 'xms:top-2 inset-0 top-9 bottom-16 mx-2', {
+                cn('ui-layer scrollbar-hide inset-x-0 flex h-fit flex-wrap justify-between gap-2 overflow-auto', 'xms:top-2 top-9 bottom-16 mx-2', {
                     'top-11! mx-4': isFullScreen || isTheatreView,
                 })
             "
@@ -1585,21 +1585,25 @@ defineExpose({
             </div>
 
             <!-- Controls (Z-7) -->
-            <Transition
-                enter-active-class="ease-out"
-                enter-from-class="translate-y-full"
-                enter-to-class="translate-y-0"
-                leave-active-class="ease-in"
-                leave-from-class="translate-y-0"
-                leave-to-class="translate-y-full"
+            <div
+                v-cloak
+                :class="
+                    cn(
+                        '@container pointer-events-none! mt-auto h-14 w-full transition-transform duration-300',
+                        isShowingControls ? 'translate-y-0 ease-out' : 'translate-y-full ease-in',
+                    )
+                "
             >
                 <div
-                    v-cloak
-                    v-show="isShowingControls"
-                    :class="[
-                        '@container pointer-events-none! mt-auto flex h-12 w-full flex-col justify-end bg-linear-to-b from-neutral-900/0 to-neutral-900/30 transition-[translate] duration-300',
-                        { 'p-2': isFullScreen || isTheatreView },
-                    ]"
+                    :class="
+                        cn(
+                            'flex h-14 w-full flex-col justify-end',
+                            // bg-linear-to-b from-transparent to-neutral-900/30 -> Causes rendering bug on firefox android
+                            {
+                                'p-2': isFullScreen || isTheatreView,
+                            },
+                        )
+                    "
                 >
                     <!-- Heatmap and Timeline -->
                     <VideoTimeline
@@ -1617,7 +1621,7 @@ defineExpose({
                     </VideoTimeline>
 
                     <!-- Controls -->
-                    <div :class="['pointer-events-auto flex w-full items-center gap-1 px-2', isFullScreen || isTheatreView ? 'pt-2' : 'py-1.5']">
+                    <div id="player-controls" :class="['pointer-events-auto relative flex w-full items-center gap-1 px-2', isFullScreen || isTheatreView ? 'pt-2' : 'py-1.5']">
                         <VideoControlWrapper>
                             <VideoButton
                                 @click="handlePlayerToggle"
@@ -1785,7 +1789,7 @@ defineExpose({
                                 />
                             </template>
                             <VideoPopover
-                                :popoverClass="cn('max-w-42! rounded-lg h-fit', { 'right-0!': usingPlayerModernUI })"
+                                :popoverClass="cn('max-w-42! rounded-lg h-fit')"
                                 ref="player-popover"
                                 :margin="80"
                                 :player="player ?? undefined"
@@ -1861,12 +1865,7 @@ defineExpose({
                         </VideoControlWrapper>
                     </div>
                 </div>
-            </Transition>
-
-            <!-- Center Notification -->
-            <!-- Top Center Notification -->
-            <!-- Left Notification -->
-            <!-- Right Notification -->
+            </div>
         </div>
 
         <!-- Interactable UI Z-6 (Lyrics) -->
@@ -1933,15 +1932,15 @@ defineExpose({
             <!-- Controls Gradient (Z-4) -->
             <Transition
                 enter-active-class="ease-out"
-                enter-from-class="translate-y-full"
-                enter-to-class="translate-y-0"
+                enter-from-class="translate-y-4/5 opacity-0"
+                enter-to-class="translate-y-0 opacity-100"
                 leave-active-class="ease-in"
-                leave-from-class="translate-y-0"
-                leave-to-class="translate-y-full"
+                leave-from-class="translate-y-0 opacity-100"
+                leave-to-class="translate-y-4/5 opacity-0"
             >
                 <div
                     v-show="isShowingControls"
-                    :class="`absolute bottom-0 left-0 h-32 w-full bg-linear-to-b from-transparent to-black opacity-20 transition-[translate] duration-300`"
+                    :class="`from-00% absolute bottom-0 left-0 h-32 w-full bg-linear-to-b from-neutral-900/0 to-neutral-900/30 transition-[translate,opacity] duration-300`"
                     v-cloak
                 ></div>
             </Transition>
