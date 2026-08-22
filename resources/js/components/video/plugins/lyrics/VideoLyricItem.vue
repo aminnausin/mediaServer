@@ -29,7 +29,7 @@ function onClick() {
 
 const distanceClasses = computed(() => {
     if (!props.isBlurEnabled) {
-        return 'opacity-65';
+        return 'opacity-85';
     }
 
     switch (props.distance) {
