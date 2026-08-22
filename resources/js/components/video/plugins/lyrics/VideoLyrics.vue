@@ -21,6 +21,18 @@ const { stateVideo } = storeToRefs(useContentStore());
 const emit = defineEmits<{ seek: [value: number] }>();
 const props = defineProps<{ rawLyrics: string; player: HTMLVideoElement | null; timeDuration: number; isPaused: boolean; isShowingLyrics: boolean }>();
 
+const activeLyricElement = ref<HTMLElement | null>(null);
+const lyricsContainer = useTemplateRef<HTMLElement | null>('lyrics-container');
+const lyricObserver = ref<IntersectionObserver>();
+
+const activeTime = ref(0);
+const activeIndex = ref(-1);
+const isActiveLyricVisible = ref(false);
+const isContainerVisible = ref(false);
+
+const isProgrammaticScroll = ref(false);
+const isFocusedScroll = ref(false);
+
 const lyrics = computed(() => {
     const availableLyrics = stateLyrics.value;
     if (!availableLyrics) return [{ text: 'No lyrics yet...' }];
@@ -43,14 +55,6 @@ const lyricItems = computed(() => {
     }) as LyricItem[];
 });
 
-const activeLyricElement = ref<HTMLElement | null>(null);
-const lyricsContainer = useTemplateRef<HTMLElement | null>('lyrics-container');
-const lyricObserver = ref<IntersectionObserver>();
-
-const activeTime = ref(0);
-const isActiveLyricVisible = ref(false);
-const isContainerVisible = ref(false);
-
 const toPercentageTime = (seconds: number): number => {
     seconds = Math.min(Math.max(seconds, 0), props.timeDuration);
 
@@ -58,7 +62,7 @@ const toPercentageTime = (seconds: number): number => {
 };
 
 const handleClick = (id: string, seconds: number) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (seconds === activeTime.value) document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     if (!Number.isNaN(seconds)) emit('seek', seconds);
 };
 
@@ -113,13 +117,12 @@ const handleUpdate = async (scrollOverride: boolean = false) => {
     if (!current || current.time === undefined || (current.time === activeTime.value && isActiveLyricVisible.value)) return;
 
     activeTime.value = current.time;
+    activeIndex.value = lyrics.value.findIndex((lyric) => lyric.time === current.time);
 
     const target = document.getElementById(`lyric-${current.time}`);
     if (!target) return;
 
-    if (props.isPaused || scrollOverride || (isContainerVisible.value && isActiveLyricVisible.value)) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    if (scrollOverride || props.isPaused || (isContainerVisible.value && isActiveLyricVisible.value)) focusScroll(target);
 
     observeLyricElement(target);
 };
@@ -127,6 +130,9 @@ const handleUpdate = async (scrollOverride: boolean = false) => {
 // Resets scroll position and active lyric / line
 const resetComponent = () => {
     activeTime.value = 0;
+    activeIndex.value = -1;
+    isFocusedScroll.value = false;
+
     if (activeLyricElement.value && lyricObserver.value) {
         lyricObserver.value.unobserve(activeLyricElement.value);
     }
@@ -135,7 +141,15 @@ const resetComponent = () => {
 
     nextTick(() => {
         lyricsContainer.value?.scrollTo({ top: 0, behavior: 'smooth' });
-        if (lyrics.value?.[0]?.percentage) activeTime.value = lyrics.value[0].percentage;
+        if (lyrics.value?.[0]?.percentage) {
+            activeTime.value = lyrics.value[0].percentage;
+        }
+
+        if (!!lyricItems.value.at(0)?.percentage) {
+            isFocusedScroll.value = true;
+            activeIndex.value = 0;
+        }
+
         const modal = useModalStore();
         modal.close();
     });
@@ -149,8 +163,7 @@ const handleForceScroll = (seconds: number) => {
     const target = document.getElementById(`lyric-${current.time}`);
     if (!target) return;
 
-    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
+    focusScroll(target);
     observeLyricElement(target);
 };
 
@@ -165,6 +178,22 @@ const observeLyricElement = (target: HTMLElement) => {
         activeLyricElement.value = target;
         lyricObserver.value.observe(target);
     });
+};
+
+const focusScroll = (target?: HTMLElement | null) => {
+    if (!target) return;
+    isProgrammaticScroll.value = true;
+    isFocusedScroll.value = true;
+
+    target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+
+const handleUserScroll = () => {
+    if (!isProgrammaticScroll.value) isFocusedScroll.value = false;
+};
+
+const handleScrollEnd = () => {
+    isProgrammaticScroll.value = false;
 };
 
 onMounted(() => {
@@ -228,16 +257,24 @@ watch(
 defineExpose({ scrollToCurrent });
 </script>
 <template>
-    <section class="fade-mask scrollbar-hide flex h-full w-full flex-col overflow-y-scroll text-center text-sm sm:text-xl" ref="lyrics-container" v-show="lyrics.length > 0">
+    <section
+        class="fade-mask scrollbar-hide flex h-full w-full flex-col overflow-y-scroll text-center text-sm sm:text-xl"
+        ref="lyrics-container"
+        v-show="lyrics.length > 0"
+        @scroll="handleUserScroll"
+        @scrollend="handleScrollEnd"
+    >
         <div class="shrink-0" style="height: 45%"></div>
         <VideoLyricItem
             v-for="(lyric, index) in lyrics"
-            :key="index"
             v-show="lyric.time || lyric.text.trim().length != 0"
+            :key="index"
             :lyric="lyric"
             :index="index"
             :is-active="lyric.time === activeTime"
+            :distance="lyrics.length === 1 && lyrics[0].text === 'No lyrics yet...' ? undefined : activeIndex < 0 ? Infinity : Math.abs(index - activeIndex)"
             :title="lyric.time ? toFormattedDuration(lyric.time) : ''"
+            :is-blur-enabled="isFocusedScroll && activeIndex >= 0"
             @clicked="lyric.time !== undefined ? handleClick(`lyric-${lyric.time}`, lyric.time) : null"
         />
         <VideoLyricItem
