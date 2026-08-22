@@ -103,7 +103,7 @@
         "lodash-es": "^4.17.21",
         "nprogress": "^0.2.0",
         "pinia": "^3.0.1",
-        "puppeteer": "^24.7.2",
+        "puppeteer": "^25.8.0",
         "pusher-js": "^8.4.0",
         "ua-parser-js": "^2.0.3",
         "vue": "^3.5.27",
