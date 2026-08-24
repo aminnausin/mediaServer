@@ -69,7 +69,7 @@ defineExpose({
         <PlayerStoryboard :tooltip-time="tooltipTime" :class="cn('scale-50 transition-[scale] duration-150 ease-in', { 'duration-input scale-100 ease-out': tooltipVisible })" />
         <div :class="cn('mx-auto scale-0 transition-[scale] duration-75 ease-in', { 'duration-input scale-100 ease-out': tooltipVisible })">
             <p
-                class="bg-opacity-90 flex min-h-4 shrink-0 items-center justify-center rounded-md bg-neutral-800 px-2 py-1 font-mono text-xs whitespace-nowrap shadow-xs backdrop-blur-xs"
+                class="bg-opacity-90 flex min-h-4 shrink-0 items-center justify-center rounded-md bg-neutral-800 px-2 py-1 font-mono text-xs whitespace-nowrap shadow-xs backdrop-blur-xs select-none"
             >
                 {{ tooltipText }}
             </p>
