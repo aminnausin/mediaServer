@@ -481,6 +481,8 @@ class IndexFiles extends ManagedSubTask {
 
                 // Only check uuid on new videos, old video uuid will be checked in verify files with chunking
                 try {
+                    // TODO: This check detects .m4a files as "video" and fails to pull metadata because there is no video stream
+                    // A secondary check should exist in verify files to mark anything with only audio streams as audio
                     $mimeType = File::mimeType($absolutePath) ?? null;
                     $isAudio = is_string($mimeType) && str_starts_with($mimeType, 'audio');
                     $mediaType = $isAudio ? MediaType::AUDIO : MediaType::VIDEO;
