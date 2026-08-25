@@ -50,7 +50,11 @@ const distanceClasses = computed(() => {
 </script>
 
 <template>
-    <div :class="cn('w-full transition-colors duration-300 ease-out', { 'bg-neutral-800/40': isActive })" :id="`lyric-${lyric?.time ?? index}`" :data-lyric-row="index">
+    <div
+        :class="cn('w-full transition-colors duration-300 ease-out', { 'bg-neutral-800/40': isActive })"
+        :id="`lyric-${lyric?.time ?? `-indexed-${index}`}`"
+        :data-lyric-row="index"
+    >
         <button
             :class="
                 cn(

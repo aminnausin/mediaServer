@@ -5,6 +5,7 @@ import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch, nextTick,
 import { useContentStore } from '@/stores/ContentStore';
 import { useModalStore } from '@/stores/ModalStore';
 import { useLyricStore } from '@/stores/LyricStore';
+import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { onSeek } from '@/service/player/seekBus';
 import { FLAGS } from '@/config/featureFlags';
@@ -17,6 +18,7 @@ let unsubscribe: () => boolean;
 
 const { stateLyrics, dirtyLyric, isLoadingLyrics } = storeToRefs(useLyricStore());
 const { handleGenerateLyrics, handleOpenLyricsModal } = useLyricStore();
+const { useAmLyrics } = storeToRefs(useAppStore());
 const { stateVideo } = storeToRefs(useContentStore());
 
 const emit = defineEmits<{ seek: [value: number] }>();
@@ -33,7 +35,6 @@ const isContainerVisible = ref(false);
 const isFocusedScroll = ref(false);
 
 const useFocusedScroll = ref(true);
-const useAmLyrics = ref(false);
 
 const lyrics = computed(() => {
     const availableLyrics = stateLyrics.value;
@@ -265,7 +266,7 @@ defineExpose({ scrollToCurrent });
         <template #fallback> ... </template>
     </Suspense>
     <section
-        class="fade-mask font-klee-one-mono scrollbar-hide flex h-full w-full flex-col overflow-y-scroll text-center text-sm sm:text-xl"
+        class="fade-mask font-klee-one-mono scrollbar-hide flex h-full w-full flex-col overflow-y-scroll text-center text-sm sm:text-lg 2xl:text-xl"
         ref="lyrics-container"
         v-show="lyrics.length > 0 && !useAmLyrics"
         @wheel="handleUserScroll"
@@ -299,10 +300,6 @@ defineExpose({ scrollToCurrent });
         <div class="pointer-events-auto absolute right-0 bottom-0 left-0 h-16" style="z-index: 6"></div>
     </template>
     <Teleport defer to="#player-toolbar" v-if="isShowingLyrics">
-        <PlayerToolbarButton v-if="FLAGS.USE_AM_LYRICS" @click="useAmLyrics = FLAGS.USE_AM_LYRICS ? !useAmLyrics : false" title="Use alternate lyrics viewer">
-            {{ useAmLyrics ? 'use native lyrics' : 'use am-Lyrics' }}
-        </PlayerToolbarButton>
-        <PlayerToolbarButton v-if="!useAmLyrics" @click="toggleFocusScroll" title="Focus active lyric"> {{ useFocusedScroll ? 'disable' : 'enable' }} focus </PlayerToolbarButton>
         <PlayerToolbarButton v-if="!useAmLyrics" @click="handleOpenLyricsModal" title="Edit lyrics" :is-active="!!dirtyLyric">
             {{ dirtyLyric ? 'preview' : 'edit' }}
         </PlayerToolbarButton>

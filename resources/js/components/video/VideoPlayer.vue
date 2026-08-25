@@ -133,6 +133,7 @@ const {
     isAudioGraphEnabled,
     showAutoSubtitles,
     showSeekButtons,
+    useAmLyrics,
 } = storeToRefs(useAppStore());
 const { setContextMenu, closeContextMenu } = useAppStore();
 const { updateViewCount } = useContentStore();
@@ -329,6 +330,15 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
             action: () => {
                 if (isLoading.value) return;
                 togglePictureInPicture();
+            },
+        },
+        {
+            text: 'Use AM-Lyrics',
+            icon: useAmLyrics.value ? ProiconsCheckmark : undefined,
+            selected: useAmLyrics.value,
+            hidden: !FLAGS.USE_AM_LYRICS || !isAudio.value || !isShowingLyrics.value,
+            action: () => {
+                useAmLyrics.value = !useAmLyrics.value;
             },
         },
         {

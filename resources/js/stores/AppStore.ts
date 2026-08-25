@@ -81,6 +81,8 @@ export const useAppStore = defineStore('App', () => {
     const isAmbientMode = usePersisted('ambientMode', false);
     const showModernUI = usePersisted('showModernUI', true);
 
+    const useAmLyrics = usePersisted('useAmLyrics', false);
+
     const preferredAudioLanguage = usePersistedString('preferredAudioLanguage', '');
 
     //#endregion
@@ -198,6 +200,8 @@ export const useAppStore = defineStore('App', () => {
     watch(isAmbientMode.state, isAmbientMode.persist);
     watch(isPlaylist.state, isPlaylist.persist);
 
+    watch(useAmLyrics.state, useAmLyrics.persist);
+
     watch(preferredAudioLanguage.state, preferredAudioLanguage.persist);
 
     //#endregion
@@ -213,6 +217,7 @@ export const useAppStore = defineStore('App', () => {
         showAutoSubtitles: showAutoSubtitles.state,
         showSeekButtons: showSeekButtons.state,
         preferredAudioLanguage: preferredAudioLanguage.state,
+        useAmLyrics: useAmLyrics.state,
         initBrowserState,
 
         // Local State
