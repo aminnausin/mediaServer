@@ -7,9 +7,11 @@ import { useModalStore } from '@/stores/ModalStore';
 import { useLyricStore } from '@/stores/LyricStore';
 import { storeToRefs } from 'pinia';
 import { onSeek } from '@/service/player/seekBus';
+import { FLAGS } from '@/config/featureFlags';
 
 import PlayerToolbarButton from '@/components/video/button/PlayerToolbarButton.vue';
 import VideoLyricItem from '@/components/video/plugins/lyrics/VideoLyricItem.vue';
+import AmLyrics from '@/components/video/plugins/lyrics/AmLyrics.vue';
 
 let unsubscribe: () => boolean;
 
@@ -31,6 +33,7 @@ const isContainerVisible = ref(false);
 const isFocusedScroll = ref(false);
 
 const useFocusedScroll = ref(true);
+const useAmLyrics = ref(false);
 
 const lyrics = computed(() => {
     const availableLyrics = stateLyrics.value;
@@ -257,10 +260,14 @@ watch(
 defineExpose({ scrollToCurrent });
 </script>
 <template>
+    <Suspense v-if="FLAGS.USE_AM_LYRICS">
+        <AmLyrics :enabled="useAmLyrics" :player="player" :title="stateVideo.title" :artist="stateVideo.artist" :album="stateVideo.album" :duration="timeDuration" />
+        <template #fallback> ... </template>
+    </Suspense>
     <section
-        class="fade-mask scrollbar-hide flex h-full w-full flex-col overflow-y-scroll text-center text-sm sm:text-xl"
+        class="fade-mask font-klee-one-mono scrollbar-hide flex h-full w-full flex-col overflow-y-scroll text-center text-sm sm:text-xl"
         ref="lyrics-container"
-        v-show="lyrics.length > 0"
+        v-show="lyrics.length > 0 && !useAmLyrics"
         @wheel="handleUserScroll"
         @touchmove="handleUserScroll"
     >
@@ -287,11 +294,16 @@ defineExpose({ scrollToCurrent });
         />
         <div class="shrink-0" style="height: 45%"></div>
     </section>
-    <div class="pointer-events-auto absolute top-0 right-0 left-0 h-12" style="z-index: 6"></div>
-    <div class="pointer-events-auto absolute right-0 bottom-0 left-0 h-16" style="z-index: 6"></div>
+    <template v-if="!useAmLyrics">
+        <div class="pointer-events-auto absolute top-0 right-0 left-0 h-12" style="z-index: 6"></div>
+        <div class="pointer-events-auto absolute right-0 bottom-0 left-0 h-16" style="z-index: 6"></div>
+    </template>
     <Teleport defer to="#player-toolbar" v-if="isShowingLyrics">
-        <PlayerToolbarButton @click="toggleFocusScroll" title="Focus active lyric"> {{ useFocusedScroll ? 'disable' : 'enable' }} focus </PlayerToolbarButton>
-        <PlayerToolbarButton @click="handleOpenLyricsModal" title="Edit lyrics" :is-active="!!dirtyLyric">
+        <PlayerToolbarButton v-if="FLAGS.USE_AM_LYRICS" @click="useAmLyrics = FLAGS.USE_AM_LYRICS ? !useAmLyrics : false" title="Use alternate lyrics viewer">
+            {{ useAmLyrics ? 'use native lyrics' : 'use am-Lyrics' }}
+        </PlayerToolbarButton>
+        <PlayerToolbarButton v-if="!useAmLyrics" @click="toggleFocusScroll" title="Focus active lyric"> {{ useFocusedScroll ? 'disable' : 'enable' }} focus </PlayerToolbarButton>
+        <PlayerToolbarButton v-if="!useAmLyrics" @click="handleOpenLyricsModal" title="Edit lyrics" :is-active="!!dirtyLyric">
             {{ dirtyLyric ? 'preview' : 'edit' }}
         </PlayerToolbarButton>
     </Teleport>
