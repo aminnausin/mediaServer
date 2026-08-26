@@ -34,15 +34,15 @@ const distanceClasses = computed(() => {
 
     switch (props.distance) {
         case 0:
-            return 'opacity-100 blur-none';
+            return 'opacity-100 blur-[0px]';
         case 1:
-            return 'opacity-80 blur-none';
+            return 'opacity-80 blur-[0px]';
         case 2:
             return 'opacity-65 blur-[0.5px]';
         case 3:
             return 'opacity-50 blur-[1px]';
         case undefined:
-            return 'opacity-85 blur-none';
+            return 'opacity-85 blur-[0px]';
         default:
             return 'opacity-40 blur-[2px]';
     }
@@ -75,11 +75,11 @@ const distanceClasses = computed(() => {
 <style lang="css" scoped>
 @media (hover: hover) and (pointer: fine) {
     div:hover {
-        background-color: color-mix(in oklab, var(--color-neutral-800) /* oklch(26.9% 0 0) = #262626 */ 30%, transparent);
+        background-color: color-mix(in oklab, var(--color-neutral-800) 30%, transparent);
     }
     button:hover {
         opacity: 100%;
-        filter: blur(0);
+        filter: blur(0px);
     }
 }
 </style>
