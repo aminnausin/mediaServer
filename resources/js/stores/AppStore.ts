@@ -184,6 +184,8 @@ export const useAppStore = defineStore('App', () => {
         isPlaylist.init();
         isAmbientMode.init();
 
+        useAmLyrics.init();
+
         preferredAudioLanguage.init();
     };
 

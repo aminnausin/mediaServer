@@ -262,11 +262,18 @@ defineExpose({ scrollToCurrent });
 </script>
 <template>
     <Suspense v-if="FLAGS.USE_AM_LYRICS">
-        <AmLyrics :enabled="useAmLyrics" :player="player" :title="stateVideo.title" :artist="stateVideo.artist" :album="stateVideo.album" :duration="timeDuration" />
+        <AmLyrics
+            :enabled="useAmLyrics && isShowingLyrics"
+            :player="player"
+            :title="stateVideo.title"
+            :artist="stateVideo.artist"
+            :album="stateVideo.album"
+            :duration="timeDuration"
+        />
         <template #fallback> ... </template>
     </Suspense>
     <section
-        class="fade-mask font-klee-one-mono scrollbar-hide flex h-full w-full flex-col overflow-y-scroll text-center text-sm sm:text-lg 2xl:text-xl"
+        class="fade-mask font-lyrics scrollbar-hide flex h-full w-full flex-col overflow-y-scroll text-center text-sm sm:text-lg 2xl:text-xl"
         ref="lyrics-container"
         v-show="lyrics.length > 0 && !useAmLyrics"
         @wheel="handleUserScroll"
