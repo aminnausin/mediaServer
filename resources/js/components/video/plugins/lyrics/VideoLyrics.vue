@@ -45,7 +45,7 @@ const lyrics = computed(() => {
         if (!match) return { text: line.trim() };
 
         const [, hour, min, sec, text] = match;
-        const seconds = Number.parseInt(hour ?? '0') * 3600 + Number.parseInt(min) * 60 + Number.parseFloat(sec);
+        const seconds = +(Number.parseInt(hour ?? '0') * 3600 + Number.parseInt(min) * 60 + Number.parseFloat(sec)).toFixed(3);
         return { text: text.trim(), time: seconds, percentage: toPercentageTime(seconds) };
     });
 
@@ -196,13 +196,6 @@ const handleUserScroll = () => {
     isFocusedScroll.value = false;
 };
 
-const toggleFocusScroll = () => {
-    useFocusedScroll.value = !useFocusedScroll.value;
-
-    if (!useFocusedScroll.value) return;
-    focusScroll(document.getElementById(`lyric-${activeTime.value}`));
-};
-
 onMounted(() => {
     if (!lyricsContainer.value) return;
 
@@ -270,7 +263,7 @@ defineExpose({ scrollToCurrent });
             :album="stateVideo.album"
             :duration="timeDuration"
         />
-        <template #fallback> ... </template>
+        <template #fallback><p class="animate-pulse px-4 pt-10 text-xl">...</p> </template>
     </Suspense>
     <section
         class="fade-mask font-lyrics scrollbar-hide flex h-full w-full flex-col overflow-y-scroll text-center text-sm sm:text-lg 2xl:text-xl"
