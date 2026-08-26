@@ -98,7 +98,7 @@ onUnmounted(() => {
         :query="`${artist} ${album} ${title}`"
         :duration="duration * 1000"
         highlight-color="#fff"
-        font-family="var(--font-klee-one-mono)"
+        font-family="var(--font-lyrics)"
         autoscroll
         interpolate
     >

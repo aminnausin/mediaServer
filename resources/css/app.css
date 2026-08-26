@@ -68,6 +68,9 @@
         --font-commit-mono: 'Commit Mono', var(--mono);
         --font-mono: var(--mono);
         --font-klee-one-mono: 'Klee One', var(--font-commit-mono);
+        /* --font-lyrics: 'Ma Shan Zheng', var(--mono); */
+        /* --font-lyrics: 'Ma Shan Zheng', 'Klee One', var(--font-commit-mono); */
+        --font-lyrics: 'Klee One', var(--font-commit-mono);
 
         /* Aspect ratios */
         --aspect-video: 16 / 9;
