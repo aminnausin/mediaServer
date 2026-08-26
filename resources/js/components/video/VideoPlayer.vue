@@ -761,7 +761,7 @@ const handleVolumeWheel = (event: WheelEvent) => {
     handleVolumeChange(event.deltaY < 0 ? 1 : -1);
 };
 
-const handleSpeedChange = (event: Event, dir: number = 0) => {
+const handleSpeedChange = (_: Event, dir: number = 0) => {
     if (!player.value) return;
 
     if (dir) {
@@ -1826,6 +1826,7 @@ defineExpose({
                                             :action="handleSpeedChange"
                                             :wheel-action="handleSpeedWheel"
                                             :title="'Change Playback Speed'"
+                                            :default-value="1"
                                         />
                                         <VideoPopoverSlider
                                             v-if="false"

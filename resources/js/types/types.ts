@@ -106,6 +106,7 @@ export interface PopoverSlider {
     min?: number;
     max?: number;
     step?: number;
+    defaultValue?: number;
 }
 
 export declare type Broadcaster = {
