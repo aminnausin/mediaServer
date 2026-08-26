@@ -37,6 +37,15 @@
     .tabular-nums {
         @apply font-figtree;
     }
+
+    .debug {
+        position: absolute;
+        top: 0%;
+        left: 0%;
+        padding: 0.5rem;
+        background-color: white;
+        color: black;
+    }
 }
 
 @layer base {
