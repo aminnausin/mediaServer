@@ -4,7 +4,7 @@ import type { RawLyricItem } from '@/types/types';
 import { computed } from 'vue';
 import { cn } from '@aminnausin/cedar-ui';
 
-const emit = defineEmits<(e: 'clicked') => void>();
+const emit = defineEmits<{ clicked: [play?: boolean] }>();
 
 const props = withDefaults(
     defineProps<{
@@ -20,11 +20,11 @@ const props = withDefaults(
     },
 );
 
-function onClick() {
+function onClick(play = false) {
     const selection = globalThis.getSelection();
     if (selection && selection.toString().length > 0) return;
 
-    emit('clicked');
+    emit('clicked', play);
 }
 
 const distanceClasses = computed(() => {
@@ -54,18 +54,21 @@ const distanceClasses = computed(() => {
         :class="cn('w-full transition-colors duration-300 ease-out', { 'bg-neutral-800/40': isActive })"
         :id="`lyric-${lyric?.time ?? `-indexed-${index}`}`"
         :data-lyric-row="index"
+        :data-active="isActive"
     >
         <button
             :class="
                 cn(
                     'pointer-events-auto px-4 py-1 break-normal select-text sm:mx-auto sm:w-4/5 sm:px-0',
-                    'drop-shadow-sm transition-[color,opacity,filter,scale] duration-300 ease-out',
+                    'transition-[color,opacity,filter,scale] duration-300 ease-out text-shadow-sm',
+                    'focus:outline-none',
                     distanceClasses,
                     { 'cursor-pointer': lyric.time !== undefined },
-                    { 'text-yellow-400 opacity-100 drop-shadow-none': isActive },
+                    { 'text-yellow-400 opacity-100 text-shadow-none': isActive },
                 )
             "
-            @click="onClick"
+            @click="onClick()"
+            @keydown.space.prevent="(event) => !event.repeat && onClick(true)"
         >
             <span>{{ lyric?.text || '-' }}</span>
         </button>
@@ -77,7 +80,17 @@ const distanceClasses = computed(() => {
     div:hover {
         background-color: color-mix(in oklab, var(--color-neutral-800) 30%, transparent);
     }
-    button:hover {
+
+    div:focus-within {
+        background-color: color-mix(in oklab, var(--color-neutral-800) 20%, transparent);
+    }
+
+    div[data-active='true']:focus-within {
+        background-color: color-mix(in oklab, var(--color-neutral-800) 50%, transparent);
+    }
+
+    button:hover,
+    button:focus-visible {
         opacity: 100%;
         filter: blur(0px);
     }

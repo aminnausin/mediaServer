@@ -66,8 +66,16 @@ const toPercentageTime = (seconds: number): number => {
     return (seconds / props.timeDuration) * 100;
 };
 
-const handleClick = (id: string, seconds: number) => {
+const handleClick = (id: string, seconds: number, play?: boolean) => {
     if (seconds === activeTime.value) focusScroll(document.getElementById(id));
+
+    const isAtTime = Math.abs((props.player?.currentTime ?? NaN) - seconds) < 0.01;
+
+    if (play && isAtTime && props.isPaused) {
+        emit('play');
+        return;
+    }
+
     if (!Number.isNaN(seconds)) emit('seek', seconds);
 };
 
@@ -292,7 +300,11 @@ defineExpose({ scrollToCurrent });
                 :distance="lyrics.length === 1 && lyrics[0].text === 'No lyrics yet...' ? undefined : activeIndex < 0 ? Infinity : Math.abs(index - activeIndex)"
                 :title="`${lyric.time}s`"
                 :is-blur-enabled="useFocusedScroll && isFocusedScroll && activeIndex >= 0"
-                @clicked="lyric.time !== undefined ? handleClick(`lyric-${lyric.time}`, lyric.time) : null"
+                @clicked="
+                    (play?: boolean) => {
+                        lyric.time !== undefined ? handleClick(`lyric-${lyric.time}`, lyric.time, play) : null;
+                    }
+                "
             />
             <VideoLyricItem
                 v-if="lyrics.length === 1 && lyrics[0].text === 'No lyrics yet...'"
