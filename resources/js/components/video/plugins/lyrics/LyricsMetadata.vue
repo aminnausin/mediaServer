@@ -16,7 +16,7 @@ const emit = defineEmits<{ play: [] }>();
             @click="emit('play')"
         >
             <BlurhashImage
-                class="aspect-square size-full rounded-full object-cover object-top"
+                class="aspect-square size-full rounded-full border-2 border-white/5 object-cover object-top"
                 alt="Album Art"
                 :wrapper-class="'aspect-square size-full'"
                 :blurhash="media.metadata.poster_image.blur_hash"
