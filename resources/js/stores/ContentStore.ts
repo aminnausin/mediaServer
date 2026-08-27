@@ -100,8 +100,12 @@ export const useContentStore = defineStore('Content', () => {
             sortCriteria = [{ compareFn: CompareStrategies.episode }];
         }
 
-        if (['released_at', 'file_modified_at'].includes(videoSort.value.column)) {
+        if (['released_at', 'file_modified_at', 'progress_updated_at', 'progress_created_at', 'edited_at'].includes(videoSort.value.column)) {
             sortCriteria[0].compareFn = CompareStrategies.date;
+        }
+
+        if (['edited_at'].includes(videoSort.value.column)) {
+            sortCriteria[0].nullsLast = true;
         }
 
         // old sorting function: return filteredResult.sort(sortObject(videoSort.value.column, videoSort.value.dir));
