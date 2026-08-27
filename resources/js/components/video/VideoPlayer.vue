@@ -337,7 +337,7 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
             text: 'Show Metadata',
             icon: showLyricsMetadata.value ? ProiconsCheckmark : undefined,
             selected: showLyricsMetadata.value,
-            hidden: !isAudio.value || !isShowingLyrics.value,
+            hidden: !(isAudio.value || stateFolder.value.is_majority_audio) || !isShowingLyrics.value,
             disabled: !stateVideo.value.metadata?.poster_image?.path,
             action: () => {
                 showLyricsMetadata.value = !showLyricsMetadata.value;
@@ -347,7 +347,7 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
             text: 'Use AM-Lyrics',
             icon: useAmLyrics.value ? ProiconsCheckmark : undefined,
             selected: useAmLyrics.value,
-            hidden: !FLAGS.USE_AM_LYRICS || !isAudio.value || !isShowingLyrics.value,
+            hidden: !FLAGS.USE_AM_LYRICS || !isShowingLyrics.value || !(isAudio.value || stateFolder.value.is_majority_audio),
             action: () => {
                 useAmLyrics.value = !useAmLyrics.value;
             },
