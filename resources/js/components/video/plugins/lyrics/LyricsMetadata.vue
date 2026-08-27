@@ -11,7 +11,7 @@ const emit = defineEmits<{ play: [] }>();
 <template>
     <div v-if="media.metadata?.poster_image?.path" class="pointer-events-auto h-full min-w-0 flex-col justify-center gap-6 p-8">
         <div
-            class="relative max-w-72 cursor-pointer 2xl:max-w-96 @3xl:max-w-lg"
+            class="relative max-w-72 cursor-pointer 2xl:max-w-96 @min-[2048px]:max-w-lg"
             :style="{ animation: 'spin 10s linear infinite', animationPlayState: isPaused ? 'paused' : 'running' }"
             @click="emit('play')"
         >
