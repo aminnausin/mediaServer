@@ -54,6 +54,11 @@ export const mediaSortingOptions = (folder: FolderResource): GenericSortOption<V
         disabled: false,
     },
     {
+        title: 'Views',
+        value: 'view_count',
+        disabled: false,
+    },
+    {
         title: 'Date Uploaded',
         value: 'file_modified_at',
         disabled: false,
@@ -62,29 +67,6 @@ export const mediaSortingOptions = (folder: FolderResource): GenericSortOption<V
         title: 'Date Edited',
         value: 'edited_at',
         disabled: false,
-    },
-    {
-        title: 'Views',
-        value: 'view_count',
-        disabled: false,
-    },
-    {
-        title: 'Last Watched',
-        value: 'progress_updated_at',
-        disabled: false,
-    },
-    {
-        title: 'First Watched',
-        value: 'progress_created_at',
-        disabled: false,
-    },
-    {
-        title: 'Watch Progress',
-        value: 'progress_percentage',
-    },
-    {
-        title: 'Times Completed',
-        value: 'completion_count',
     },
     {
         title: 'Artist',
@@ -114,13 +96,31 @@ export const mediaSortingOptions = (folder: FolderResource): GenericSortOption<V
         disabled: false,
     },
     {
+        title: 'File Size',
+        value: 'file_size',
+        disabled: false,
+    },
+    {
         title: 'Date Released',
         value: 'released_at',
         disabled: false,
     },
     {
-        title: 'File Size',
-        value: 'file_size',
+        title: 'Last Watched',
+        value: 'progress_updated_at',
         disabled: false,
+    },
+    {
+        title: 'First Watched',
+        value: 'progress_created_at',
+        disabled: false,
+    },
+    {
+        title: 'Watch Progress',
+        value: 'progress_percentage',
+    },
+    {
+        title: 'Times Completed',
+        value: 'completion_count',
     },
 ];
