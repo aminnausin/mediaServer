@@ -4,6 +4,7 @@ import { getClientX, toFormattedDuration } from '@/service/util';
 import { throttle } from 'lodash-es';
 
 import PlayerTooltipTimeline from '@/components/video/PlayerTooltipTimeline.vue';
+import { cn } from '@aminnausin/cedar-ui';
 
 const sliderStep = 0.01;
 const thumbWidth = 8;
@@ -198,7 +199,7 @@ defineExpose({ progressTooltip });
                 :aria-valuemax="timeDuration"
                 :aria-valuenow="`${timeElapsed as number}`"
                 :aria-valuetext="timeElapsedVerbose"
-                :class="[`slider pointer-events-auto absolute top-0 left-0 h-2! w-full items-center`]"
+                :class="cn('slider pointer-events-auto absolute top-0 left-0 h-2! w-full items-center', 'focus:not-focus-within:outline-none')"
                 :style="{
                     '--thumb-color': 'ffffff00',
                     '--track-color': 'ffffff00',
