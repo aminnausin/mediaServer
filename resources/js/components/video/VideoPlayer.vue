@@ -133,6 +133,7 @@ const {
     isAudioGraphEnabled,
     showAutoSubtitles,
     showSeekButtons,
+    showLyricsMetadata,
     useAmLyrics,
 } = storeToRefs(useAppStore());
 const { setContextMenu, closeContextMenu } = useAppStore();
@@ -330,6 +331,16 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
             action: () => {
                 if (isLoading.value) return;
                 togglePictureInPicture();
+            },
+        },
+        {
+            text: 'Show Metadata',
+            icon: showLyricsMetadata.value ? ProiconsCheckmark : undefined,
+            selected: showLyricsMetadata.value,
+            hidden: !isAudio.value || !isShowingLyrics.value,
+            disabled: !stateVideo.value.metadata?.poster_image?.path,
+            action: () => {
+                showLyricsMetadata.value = !showLyricsMetadata.value;
             },
         },
         {
@@ -1893,14 +1904,15 @@ defineExpose({
             >
                 <div :class="`flex size-full opacity-0 transition-[opacity,translate] duration-300`" v-show="isShowingLyrics">
                     <VideoLyrics
-                        ref="player-lyrics"
                         v-if="isAudio || stateFolder.is_majority_audio"
-                        @seek="handleManualSeek"
+                        ref="player-lyrics"
                         :player="player"
                         :raw-lyrics="stateVideo?.metadata?.lyrics ?? ''"
                         :time-duration="timeDuration"
                         :is-paused="isPaused"
                         :is-showing-lyrics="isShowingLyrics"
+                        @seek="handleManualSeek"
+                        @play="handlePlayerToggle"
                     />
                 </div>
             </Transition>

@@ -19,6 +19,7 @@ const props = withDefaults(
         animate?: boolean;
         blurhash?: string;
         rootMargin?: string;
+        style?: HTMLAttributes['style'];
     }>(),
     {
         rootMargin: '144px',
@@ -129,7 +130,15 @@ onBeforeUnmount(() => {
 </script>
 <template>
     <div ref="imageContainer" :class="cn('relative block h-full w-full', wrapperClass)">
-        <canvas v-if="blurhash" ref="canvas" v-show="!isError" :class="cn('absolute inset-0 z-0 h-full w-full object-cover', $attrs.class)" aria-hidden="true" tabindex="-1" />
+        <canvas
+            v-if="blurhash"
+            ref="canvas"
+            v-show="!isError"
+            :class="cn('absolute inset-0 z-0 h-full w-full object-cover', $attrs.class)"
+            aria-hidden="true"
+            tabindex="-1"
+            :style="style"
+        />
         <div v-else v-show="src && isLoading && !isError" class="absolute inset-0 flex items-center justify-center">
             <SvgSpinners90RingWithBg class="size-4" />
         </div>
@@ -143,6 +152,7 @@ onBeforeUnmount(() => {
             :alt="isError || !isLoaded ? '' : alt"
             :src="activeSrc"
             :class="['lazy-image relative', { 'lazy-image transition-opacity duration-300 ease-in-out': animate }, { loaded: isLoaded }]"
+            :style="style"
             @load="
                 isLoading = false;
                 isError = false;
