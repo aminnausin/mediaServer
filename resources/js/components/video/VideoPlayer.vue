@@ -337,9 +337,10 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
             text: 'Show Metadata',
             icon: showLyricsMetadata.value ? ProiconsCheckmark : undefined,
             selected: showLyricsMetadata.value,
-            hidden: !(isAudio.value || stateFolder.value.is_majority_audio) || !isShowingLyrics.value,
+            hidden: !(isAudio.value || stateFolder.value.is_majority_audio) || (showLyricsMetadata.value && !isShowingLyrics.value),
             disabled: !stateVideo.value.metadata?.poster_image?.path,
             action: () => {
+                if (!showLyricsMetadata.value) isShowingLyrics.value = true;
                 showLyricsMetadata.value = !showLyricsMetadata.value;
             },
         },
