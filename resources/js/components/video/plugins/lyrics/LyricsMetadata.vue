@@ -16,7 +16,7 @@ const emit = defineEmits<{ play: [] }>();
             @click="emit('play')"
         >
             <BlurhashImage
-                class="aspect-square size-full rounded-full border-2 border-white/5 object-cover object-top"
+                class="aspect-square size-full rounded-full border-2 border-white/5 object-cover object-top shadow-xs"
                 alt="Album Art"
                 :wrapper-class="'aspect-square size-full'"
                 :blurhash="media.metadata.poster_image.blur_hash"
@@ -32,16 +32,18 @@ const emit = defineEmits<{ play: [] }>();
         </div>
         <div class="space-y-1 p-4 text-left">
             <div class="flex items-start gap-2">
-                <h3 class="line-clamp-2 text-xl">{{ media.title }}</h3>
-                <div class="flex h-7 flex-1 items-center gap-1 *:pointer-events-none *:text-xs">
-                    <MediaTag class="h-5">{{ media.metadata.codec }}</MediaTag>
-                    <MediaTag v-if="media.metadata.bitrate && media.metadata.codec === 'mp3'" class="3xl:block hidden h-5">{{ media.metadata.bitrate / 1000 }}kbps</MediaTag>
+                <h3 class="line-clamp-2 text-xl text-shadow-xs">{{ media.title }}</h3>
+                <div class="flex h-7 flex-1 items-center gap-1 *:pointer-events-none *:text-xs *:shadow-xs">
+                    <MediaTag class="text-foreground-1 dark:text-foreground-4 h-5">{{ media.metadata.codec }}</MediaTag>
+                    <MediaTag v-if="media.metadata.bitrate && media.metadata.codec === 'mp3'" class="3xl:block text-foreground-1 dark:text-foreground-4 hidden h-5"
+                        >{{ media.metadata.bitrate / 1000 }}kbps</MediaTag
+                    >
                 </div>
             </div>
-            <p class="truncate text-sm text-white/80">
+            <p class="truncate text-sm text-shadow-xs">
                 {{ media.artist }}
             </p>
-            <p class="truncate text-sm text-white/50">
+            <p class="truncate text-sm opacity-80 text-shadow-xs">
                 {{ media.album }}
             </p>
         </div>
