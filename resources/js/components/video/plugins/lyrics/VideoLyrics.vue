@@ -264,7 +264,7 @@ watch(
 defineExpose({ scrollToCurrent });
 </script>
 <template>
-    <div :class="cn('pointer-events-none h-full w-full gap-4', { 'lg:grid-cols[3fr_5fr] lg:grid 2xl:grid-cols-[2fr_5fr]': showLyricsMetadata })">
+    <div :class="cn('@container pointer-events-none h-full w-full gap-4', { 'lg:grid-cols[3fr_5fr] lg:grid 2xl:grid-cols-[2fr_5fr]': showLyricsMetadata })">
         <LyricsMetadata v-show="showLyricsMetadata" :media="stateVideo" :is-paused="isPaused" @play="emit('play')" class="hidden 2xl:flex" />
         <Suspense v-if="FLAGS.USE_AM_LYRICS">
             <AmLyrics

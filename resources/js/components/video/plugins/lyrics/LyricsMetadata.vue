@@ -11,12 +11,12 @@ const emit = defineEmits<{ play: [] }>();
 <template>
     <div v-if="media.metadata?.poster_image?.path" class="pointer-events-auto h-full min-w-0 flex-col justify-center gap-6 p-8">
         <div
-            class="relative max-w-72 cursor-pointer 2xl:max-w-96"
+            class="relative max-w-72 cursor-pointer 2xl:max-w-96 @3xl:max-w-lg"
             :style="{ animation: 'spin 10s linear infinite', animationPlayState: isPaused ? 'paused' : 'running' }"
             @click="emit('play')"
         >
             <BlurhashImage
-                class="aspect-square size-full rounded-full border-2 border-white/5 object-cover object-top shadow-xs"
+                class="aspect-square size-full rounded-full border-2 border-white/5 object-cover object-center shadow-xs"
                 alt="Album Art"
                 :wrapper-class="'aspect-square size-full'"
                 :blurhash="media.metadata.poster_image.blur_hash"
