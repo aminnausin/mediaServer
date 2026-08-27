@@ -26,7 +26,17 @@ export function sortObject<T>(column: keyof T, direction: SortDir = 1, dateColum
 export function sortObjectNew<T extends { id?: any }>(keys: SortKey<T>[], direction: SortDir = 1) {
     return (a: T, b: T): number => {
         // Loops through keys and returns the first non 0 sort result (so same episode number will be skipped and move on to comparing seasons)
-        for (const { key, compareFn } of keys) {
+        for (const { key, compareFn, nullsLast } of keys) {
+            // Sort null values to end of list
+            if (key && nullsLast) {
+                const aNull = a[key] == null;
+                const bNull = b[key] == null;
+
+                if (aNull && !bNull) return 1;
+                if (!aNull && bNull) return -1;
+                if (aNull && bNull) return 0;
+            }
+
             const valueA = key ? (a[key] ?? '') : undefined;
             const valueB = key ? (b[key] ?? '') : undefined;
 
@@ -45,8 +55,8 @@ export function sortObjectNew<T extends { id?: any }>(keys: SortKey<T>[], direct
 }
 
 function defaultCompare(a: any, b: any): number {
-    const numA = Number.parseFloat(a);
-    const numB = Number.parseFloat(b);
+    const numA = typeof a === 'number' || (typeof a === 'string' && a.trim() !== '' && !Number.isNaN(Number(a))) ? Number(a) : NaN;
+    const numB = typeof b === 'number' || (typeof b === 'string' && b.trim() !== '' && !Number.isNaN(Number(b))) ? Number(b) : NaN;
 
     if (!Number.isNaN(numA) && !Number.isNaN(numB)) {
         return numA - numB;
