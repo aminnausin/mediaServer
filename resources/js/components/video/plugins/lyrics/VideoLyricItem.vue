@@ -51,7 +51,7 @@ const distanceClasses = computed(() => {
 
 <template>
     <div
-        :class="cn('w-full transition-colors duration-300 ease-out', { 'bg-neutral-800/40': isActive })"
+        :class="cn('w-full transition-colors duration-300 ease-out focus-within:outline', { 'bg-neutral-800/40': isActive })"
         :id="`lyric-${lyric?.time ?? `-indexed-${index}`}`"
         :data-lyric-row="index"
         :data-active="isActive"
@@ -79,10 +79,6 @@ const distanceClasses = computed(() => {
 @media (hover: hover) and (pointer: fine) {
     div:hover {
         background-color: color-mix(in oklab, var(--color-neutral-800) 30%, transparent);
-    }
-
-    div:focus-within {
-        background-color: color-mix(in oklab, var(--color-neutral-800) 20%, transparent);
     }
 
     div[data-active='true']:focus-within {
