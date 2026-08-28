@@ -321,7 +321,7 @@ defineExpose({ scrollToCurrent });
             <div class="pointer-events-auto absolute right-0 bottom-0 left-0 h-16" style="z-index: 6"></div>
         </template>
         <Teleport defer to="#player-toolbar" v-if="isShowingLyrics">
-            <PlayerToolbarButton v-if="!useAmLyrics" @click="handleOpenLyricsModal" title="Edit lyrics" :is-active="!!dirtyLyric">
+            <PlayerToolbarButton @click="handleOpenLyricsModal" title="Edit lyrics" :is-active="!!dirtyLyric">
                 {{ dirtyLyric ? 'preview' : 'edit' }}
             </PlayerToolbarButton>
         </Teleport>

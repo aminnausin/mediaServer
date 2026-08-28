@@ -61,7 +61,7 @@ const applyStyle = () => {
     if (!amLyrics.value?.shadowRoot) return;
     const style = document.createElement('style');
     style.textContent = [
-        '.download-controls {!important; align-items: start !important; height: 100% !important;}',
+        '.download-controls {margin-right: 20px !important; margin-top: -4px !important; align-items: start !important; height: 100% !important;}',
         '.format-select {min-height: 20px !important;}',
         '.download-button {height: 20px !important;}',
     ].join('');
