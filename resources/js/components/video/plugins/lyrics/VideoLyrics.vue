@@ -21,7 +21,7 @@ let unsubscribe: () => boolean;
 const { stateLyrics, dirtyLyric, isLoadingLyrics } = storeToRefs(useLyricStore());
 const { handleGenerateLyrics, handleOpenLyricsModal } = useLyricStore();
 const { useAmLyrics, showLyricsMetadata } = storeToRefs(useAppStore());
-const { stateVideo } = storeToRefs(useContentStore());
+const { stateVideo, stateFolder } = storeToRefs(useContentStore());
 
 const emit = defineEmits<{ seek: [value: number]; play: [] }>();
 const props = defineProps<{ rawLyrics: string; player: HTMLVideoElement | null; timeDuration: number; isPaused: boolean; isShowingLyrics: boolean }>();
@@ -264,7 +264,13 @@ watch(
 defineExpose({ scrollToCurrent });
 </script>
 <template>
-    <div :class="cn('@container pointer-events-none h-full w-full gap-4', { 'lg:grid-cols[3fr_5fr] lg:grid 2xl:grid-cols-[2fr_5fr]': showLyricsMetadata })">
+    <div
+        :class="
+            cn('@container pointer-events-none h-full w-full gap-4', {
+                'lg:grid-cols[3fr_5fr] lg:grid 2xl:grid-cols-[2fr_5fr]': showLyricsMetadata && stateVideo.metadata?.poster_image?.path,
+            })
+        "
+    >
         <LyricsMetadata v-show="showLyricsMetadata" :media="stateVideo" :is-paused="isPaused" @play="emit('play')" class="hidden 2xl:flex" />
         <Suspense v-if="FLAGS.USE_AM_LYRICS">
             <AmLyrics
