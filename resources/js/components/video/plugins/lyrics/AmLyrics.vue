@@ -3,7 +3,7 @@ import { nextTick, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 import { FLAGS } from '@/config/featureFlags';
 
 if (FLAGS.USE_AM_LYRICS) {
-    await import('@uimaxbai/am-lyrics/am-lyrics.js');
+    await import('@aminnausin/am-lyrics/am-lyrics.js');
 }
 
 const props = defineProps<{
@@ -11,6 +11,7 @@ const props = defineProps<{
     title?: string;
     artist?: string;
     album?: string;
+    lyrics?: string;
     duration: number;
     enabled?: boolean;
 }>();
@@ -97,6 +98,8 @@ onUnmounted(() => {
         :song-duration="duration * 1000"
         :query="`${artist} ${album} ${title}`"
         :duration="duration * 1000"
+        :allowed-sources="'bini'"
+        :lrc="lyrics"
         highlight-color="#fff"
         font-family="var(--font-commit-mono)"
         autoscroll
