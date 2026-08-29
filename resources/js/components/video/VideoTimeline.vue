@@ -2,9 +2,9 @@
 import { computed, onMounted, onUnmounted, ref, useId, useTemplateRef } from 'vue';
 import { getClientX, toFormattedDuration } from '@/service/util';
 import { throttle } from 'lodash-es';
+import { cn } from '@aminnausin/cedar-ui';
 
 import PlayerTooltipTimeline from '@/components/video/PlayerTooltipTimeline.vue';
-import { cn } from '@aminnausin/cedar-ui';
 
 const sliderStep = 0.01;
 const thumbWidth = 8;
