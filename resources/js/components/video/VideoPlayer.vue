@@ -133,6 +133,8 @@ const {
     isAudioGraphEnabled,
     showAutoSubtitles,
     showSeekButtons,
+    showLyricsMetadata,
+    useAmLyrics,
 } = storeToRefs(useAppStore());
 const { setContextMenu, closeContextMenu } = useAppStore();
 const { updateViewCount } = useContentStore();
@@ -329,6 +331,26 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
             action: () => {
                 if (isLoading.value) return;
                 togglePictureInPicture();
+            },
+        },
+        {
+            text: 'Show Metadata',
+            icon: showLyricsMetadata.value ? ProiconsCheckmark : undefined,
+            selected: showLyricsMetadata.value,
+            hidden: !(isAudio.value || stateFolder.value.is_majority_audio) || (showLyricsMetadata.value && !isShowingLyrics.value),
+            disabled: !stateVideo.value.metadata?.poster_image?.path,
+            action: () => {
+                if (!showLyricsMetadata.value) isShowingLyrics.value = true;
+                showLyricsMetadata.value = !showLyricsMetadata.value;
+            },
+        },
+        {
+            text: 'Use AM-Lyrics',
+            icon: useAmLyrics.value ? ProiconsCheckmark : undefined,
+            selected: useAmLyrics.value,
+            hidden: !FLAGS.USE_AM_LYRICS || !isShowingLyrics.value || !(isAudio.value || stateFolder.value.is_majority_audio),
+            action: () => {
+                useAmLyrics.value = !useAmLyrics.value;
             },
         },
         {
@@ -751,7 +773,7 @@ const handleVolumeWheel = (event: WheelEvent) => {
     handleVolumeChange(event.deltaY < 0 ? 1 : -1);
 };
 
-const handleSpeedChange = (event: Event, dir: number = 0) => {
+const handleSpeedChange = (_: Event, dir: number = 0) => {
     if (!player.value) return;
 
     if (dir) {
@@ -1816,6 +1838,7 @@ defineExpose({
                                             :action="handleSpeedChange"
                                             :wheel-action="handleSpeedWheel"
                                             :title="'Change Playback Speed'"
+                                            :default-value="1"
                                         />
                                         <VideoPopoverSlider
                                             v-if="false"
@@ -1882,14 +1905,15 @@ defineExpose({
             >
                 <div :class="`flex size-full opacity-0 transition-[opacity,translate] duration-300`" v-show="isShowingLyrics">
                     <VideoLyrics
-                        ref="player-lyrics"
                         v-if="isAudio || stateFolder.is_majority_audio"
-                        @seek="handleManualSeek"
+                        ref="player-lyrics"
                         :player="player"
                         :raw-lyrics="stateVideo?.metadata?.lyrics ?? ''"
                         :time-duration="timeDuration"
                         :is-paused="isPaused"
                         :is-showing-lyrics="isShowingLyrics"
+                        @seek="handleManualSeek"
+                        @play="handlePlayerToggle"
                     />
                 </div>
             </Transition>

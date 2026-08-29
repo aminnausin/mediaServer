@@ -54,18 +54,18 @@ export const mediaSortingOptions = (folder: FolderResource): GenericSortOption<V
         disabled: false,
     },
     {
+        title: 'Views',
+        value: 'view_count',
+        disabled: false,
+    },
+    {
         title: 'Date Uploaded',
         value: 'file_modified_at',
         disabled: false,
     },
     {
-        title: 'Date Released',
-        value: 'released_at',
-        disabled: false,
-    },
-    {
-        title: 'Views',
-        value: 'view_count',
+        title: 'Date Edited',
+        value: 'edited_at',
         disabled: false,
     },
     {
@@ -98,6 +98,21 @@ export const mediaSortingOptions = (folder: FolderResource): GenericSortOption<V
     {
         title: 'File Size',
         value: 'file_size',
+        disabled: false,
+    },
+    {
+        title: 'Date Released',
+        value: 'released_at',
+        disabled: false,
+    },
+    {
+        title: 'Last Played',
+        value: 'progress_updated_at',
+        disabled: false,
+    },
+    {
+        title: 'First Played',
+        value: 'progress_created_at',
         disabled: false,
     },
     {

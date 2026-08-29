@@ -12,6 +12,8 @@ export const FLAGS = {
 
     USE_TRANSPARENT_HOME_CARDS: true,
 
+    USE_AM_LYRICS: true,
+
     CONFIG: {
         USE_MEDIA_EXTENSION_CONFIG: true, // Allow setting supported extensions
         USE_SUBTITLE_EXTENSION_CONFIG: false, // Allow setting supported subtitle extensions

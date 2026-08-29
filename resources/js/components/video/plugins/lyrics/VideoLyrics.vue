@@ -1,25 +1,42 @@
 <script setup lang="ts">
 import type { LyricItem } from '@/types/types';
 
-import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch, nextTick } from 'vue';
-import { toFormattedDuration } from '@/service/util';
+import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch, nextTick, Teleport } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
 import { useModalStore } from '@/stores/ModalStore';
 import { useLyricStore } from '@/stores/LyricStore';
+import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { onSeek } from '@/service/player/seekBus';
+import { FLAGS } from '@/config/featureFlags';
+import { cn } from '@aminnausin/cedar-ui';
 
 import PlayerToolbarButton from '@/components/video/button/PlayerToolbarButton.vue';
 import VideoLyricItem from '@/components/video/plugins/lyrics/VideoLyricItem.vue';
+import LyricsMetadata from '@/components/video/plugins/lyrics/LyricsMetadata.vue';
+import AmLyrics from '@/components/video/plugins/lyrics/AmLyrics.vue';
 
 let unsubscribe: () => boolean;
 
 const { stateLyrics, dirtyLyric, isLoadingLyrics } = storeToRefs(useLyricStore());
 const { handleGenerateLyrics, handleOpenLyricsModal } = useLyricStore();
-const { stateVideo } = storeToRefs(useContentStore());
+const { useAmLyrics, showLyricsMetadata } = storeToRefs(useAppStore());
+const { stateVideo, stateFolder } = storeToRefs(useContentStore());
 
-const emit = defineEmits<{ seek: [value: number] }>();
+const emit = defineEmits<{ seek: [value: number]; play: [] }>();
 const props = defineProps<{ rawLyrics: string; player: HTMLVideoElement | null; timeDuration: number; isPaused: boolean; isShowingLyrics: boolean }>();
+
+const activeLyricElement = ref<HTMLElement | null>(null);
+const lyricsContainer = useTemplateRef<HTMLElement | null>('lyrics-container');
+const lyricObserver = ref<IntersectionObserver>();
+
+const activeTime = ref(0);
+const activeIndex = ref(-1);
+const isActiveLyricVisible = ref(false);
+const isContainerVisible = ref(false);
+const isFocusedScroll = ref(false);
+
+const useFocusedScroll = ref(true);
 
 const lyrics = computed(() => {
     const availableLyrics = stateLyrics.value;
@@ -30,7 +47,7 @@ const lyrics = computed(() => {
         if (!match) return { text: line.trim() };
 
         const [, hour, min, sec, text] = match;
-        const seconds = Number.parseInt(hour ?? '0') * 3600 + Number.parseInt(min) * 60 + Number.parseFloat(sec);
+        const seconds = +(Number.parseInt(hour ?? '0') * 3600 + Number.parseInt(min) * 60 + Number.parseFloat(sec)).toFixed(3);
         return { text: text.trim(), time: seconds, percentage: toPercentageTime(seconds) };
     });
 
@@ -43,22 +60,22 @@ const lyricItems = computed(() => {
     }) as LyricItem[];
 });
 
-const activeLyricElement = ref<HTMLElement | null>(null);
-const lyricsContainer = useTemplateRef<HTMLElement | null>('lyrics-container');
-const lyricObserver = ref<IntersectionObserver>();
-
-const activeTime = ref(0);
-const isActiveLyricVisible = ref(false);
-const isContainerVisible = ref(false);
-
 const toPercentageTime = (seconds: number): number => {
     seconds = Math.min(Math.max(seconds, 0), props.timeDuration);
 
     return (seconds / props.timeDuration) * 100;
 };
 
-const handleClick = (id: string, seconds: number) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+const handleClick = (id: string, seconds: number, play?: boolean) => {
+    if (seconds === activeTime.value) focusScroll(document.getElementById(id));
+
+    const isAtTime = Math.abs((props.player?.currentTime ?? Number.NaN) - seconds) < 0.01;
+
+    if (play && isAtTime && props.isPaused) {
+        emit('play');
+        return;
+    }
+
     if (!Number.isNaN(seconds)) emit('seek', seconds);
 };
 
@@ -106,20 +123,22 @@ const handleUpdate = async (scrollOverride: boolean = false) => {
     if (Number.isNaN(currentTime) || !lyricItems.value) return;
 
     const index = findCurrentLyric(lyricItems.value, currentTime);
-    if (index < 0) return;
+    if (index < 0) {
+        if (activeIndex.value > 0) resetComponent();
+        return;
+    }
 
     const current = lyricItems.value[index];
 
     if (!current || current.time === undefined || (current.time === activeTime.value && isActiveLyricVisible.value)) return;
 
     activeTime.value = current.time;
+    activeIndex.value = lyrics.value.findIndex((lyric) => lyric.time === current.time);
 
     const target = document.getElementById(`lyric-${current.time}`);
     if (!target) return;
 
-    if (props.isPaused || scrollOverride || (isContainerVisible.value && isActiveLyricVisible.value)) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    if (scrollOverride || props.isPaused || (isContainerVisible.value && isActiveLyricVisible.value)) focusScroll(target);
 
     observeLyricElement(target);
 };
@@ -127,15 +146,26 @@ const handleUpdate = async (scrollOverride: boolean = false) => {
 // Resets scroll position and active lyric / line
 const resetComponent = () => {
     activeTime.value = 0;
+    activeIndex.value = -1;
+
     if (activeLyricElement.value && lyricObserver.value) {
         lyricObserver.value.unobserve(activeLyricElement.value);
     }
 
     activeLyricElement.value = null;
-
     nextTick(() => {
         lyricsContainer.value?.scrollTo({ top: 0, behavior: 'smooth' });
-        if (lyrics.value?.[0]?.percentage) activeTime.value = lyrics.value[0].percentage;
+        if (lyrics.value?.[0]?.percentage) {
+            activeTime.value = lyrics.value[0].percentage;
+        }
+
+        if (lyricItems.value.at(0)?.percentage) {
+            isFocusedScroll.value = true;
+            activeIndex.value = 0;
+        } else {
+            isFocusedScroll.value = false;
+        }
+
         const modal = useModalStore();
         modal.close();
     });
@@ -149,8 +179,7 @@ const handleForceScroll = (seconds: number) => {
     const target = document.getElementById(`lyric-${current.time}`);
     if (!target) return;
 
-    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
+    focusScroll(target);
     observeLyricElement(target);
 };
 
@@ -165,6 +194,16 @@ const observeLyricElement = (target: HTMLElement) => {
         activeLyricElement.value = target;
         lyricObserver.value.observe(target);
     });
+};
+
+const focusScroll = (target?: HTMLElement | null) => {
+    if (!target) return;
+    isFocusedScroll.value = true;
+    target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+
+const handleUserScroll = () => {
+    isFocusedScroll.value = false;
 };
 
 onMounted(() => {
@@ -202,16 +241,13 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-    if (props.player) {
-        props.player.removeEventListener('timeupdate', handleUpdateEvent);
-    }
+    props.player?.removeEventListener('timeupdate', handleUpdateEvent);
     lyricObserver.value?.disconnect();
     if (unsubscribe) unsubscribe();
 });
 
 watch(() => stateVideo.value, resetComponent);
 watch(() => props.isPaused, handleUpdate);
-
 watch(
     () => props.player,
     (newPlayer, oldPlayer) => {
@@ -228,35 +264,75 @@ watch(
 defineExpose({ scrollToCurrent });
 </script>
 <template>
-    <section class="fade-mask scrollbar-hide flex h-full w-full flex-col overflow-y-scroll text-center text-sm sm:text-xl" ref="lyrics-container" v-show="lyrics.length > 0">
-        <div class="shrink-0" style="height: 45%"></div>
-        <VideoLyricItem
-            v-for="(lyric, index) in lyrics"
-            :key="index"
-            v-show="lyric.time || lyric.text.trim().length != 0"
-            :lyric="lyric"
-            :index="index"
-            :is-active="lyric.time === activeTime"
-            :title="lyric.time ? toFormattedDuration(lyric.time) : ''"
-            @clicked="lyric.time !== undefined ? handleClick(`lyric-${lyric.time}`, lyric.time) : null"
-        />
-        <VideoLyricItem
-            v-if="lyrics.length === 1 && lyrics[0].text === 'No lyrics yet...'"
-            :lyric="{ text: `${isLoadingLyrics ? 'Generating' : 'Generate with Magic'}...` }"
-            :is-active="false"
-            :index="0"
-            :class="[isLoadingLyrics ? '*:cursor-wait!' : 'hocus:text-yellow-500 *:cursor-pointer!']"
-            @clicked="handleGenerateLyrics"
-        />
-        <div class="shrink-0" style="height: 45%"></div>
-    </section>
-    <div class="pointer-events-auto absolute top-0 right-0 left-0 h-12" style="z-index: 6"></div>
-    <div class="pointer-events-auto absolute right-0 bottom-0 left-0 h-16" style="z-index: 6"></div>
-    <Teleport defer to="#player-toolbar" v-if="isShowingLyrics">
-        <PlayerToolbarButton @click="handleOpenLyricsModal" title="Edit lyrics" :is-active="!!dirtyLyric">
-            {{ dirtyLyric ? 'preview' : 'edit' }}
-        </PlayerToolbarButton>
-    </Teleport>
+    <div
+        :class="
+            cn('@container pointer-events-none h-full w-full gap-4', {
+                'lg:grid-cols[3fr_5fr] lg:grid 2xl:grid-cols-[2fr_5fr]': showLyricsMetadata && stateVideo.metadata?.poster_image?.path,
+            })
+        "
+    >
+        <LyricsMetadata v-show="showLyricsMetadata" :media="stateVideo" :is-paused="isPaused" @play="emit('play')" class="hidden 2xl:flex" />
+        <Suspense v-if="FLAGS.USE_AM_LYRICS">
+            <AmLyrics
+                :enabled="useAmLyrics && isShowingLyrics"
+                :player="player"
+                :title="stateVideo.title"
+                :artist="stateVideo.artist"
+                :album="stateVideo.album"
+                :lyrics="stateVideo.metadata?.lyrics"
+                :duration="timeDuration"
+            />
+            <template #fallback><p class="animate-pulse px-4 pt-10 text-xl">...</p> </template>
+        </Suspense>
+
+        <section
+            :class="
+                cn('fade-mask font-lyrics scrollbar-hide flex h-full w-full flex-col overflow-y-scroll text-center text-sm sm:text-lg 2xl:text-xl', {
+                    'fade-mask-left': showLyricsMetadata,
+                })
+            "
+            ref="lyrics-container"
+            v-show="lyrics.length > 0 && !useAmLyrics"
+            @wheel="handleUserScroll"
+            @touchmove="handleUserScroll"
+        >
+            <div class="shrink-0" style="height: 45%"></div>
+            <VideoLyricItem
+                v-for="(lyric, index) in lyrics"
+                v-show="lyric.time || lyric.text.trim().length != 0"
+                :key="index"
+                :lyric="lyric"
+                :index="index"
+                :is-active="lyric.time === activeTime"
+                :distance="lyrics.length === 1 && lyrics[0].text === 'No lyrics yet...' ? undefined : activeIndex < 0 ? Infinity : Math.abs(index - activeIndex)"
+                :title="`${lyric.time}s`"
+                :is-blur-enabled="useFocusedScroll && isFocusedScroll && activeIndex >= 0"
+                @clicked="
+                    (play?: boolean) => {
+                        lyric.time !== undefined ? handleClick(`lyric-${lyric.time}`, lyric.time, play) : null;
+                    }
+                "
+            />
+            <VideoLyricItem
+                v-if="lyrics.length === 1 && lyrics[0].text === 'No lyrics yet...'"
+                :lyric="{ text: `${isLoadingLyrics ? 'Generating' : 'Generate with Magic'}...` }"
+                :is-active="false"
+                :index="0"
+                :class="[isLoadingLyrics ? '*:cursor-wait!' : 'hocus:text-yellow-500 *:cursor-pointer!']"
+                @clicked="handleGenerateLyrics"
+            />
+            <div class="shrink-0" style="height: 45%"></div>
+        </section>
+        <template v-if="!useAmLyrics">
+            <div class="pointer-events-auto absolute top-0 right-0 left-0 h-12" style="z-index: 6"></div>
+            <div class="pointer-events-auto absolute right-0 bottom-0 left-0 h-16" style="z-index: 6"></div>
+        </template>
+        <Teleport defer to="#player-toolbar" v-if="isShowingLyrics">
+            <PlayerToolbarButton @click="handleOpenLyricsModal" title="Edit lyrics" :is-active="!!dirtyLyric">
+                {{ dirtyLyric ? 'preview' : 'edit' }}
+            </PlayerToolbarButton>
+        </Teleport>
+    </div>
 </template>
 
 <style lang="css" scoped>
@@ -274,5 +350,13 @@ defineExpose({ scrollToCurrent });
     mask-repeat: no-repeat;
     -webkit-mask-size: 100% 100%;
     -webkit-mask-repeat: no-repeat;
+}
+
+.fade-mask-left {
+    mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%), linear-gradient(to right, transparent 0%, black 2%, black 100%);
+    mask-composite: intersect;
+
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%), linear-gradient(to right, transparent 0%, black 2%, black 100%);
+    -webkit-mask-composite: source-in;
 }
 </style>

@@ -199,26 +199,28 @@ watch(
 
         <ModalFormFooter class="mt-4 *:h-9">
             <ButtonForm
+                type="button"
+                variant="reset"
+                :disabled="form.processing"
                 @click="
                     () => {
                         $emit('handleFinish');
                         resetLyrics();
                     }
                 "
-                variant="reset"
-                :disabled="form.processing"
             >
                 Cancel
             </ButtonForm>
             <ButtonForm
+                type="button"
                 variant="danger"
+                :disabled="form.processing"
                 :class="
                     cn('transition-reveal h-9 overflow-hidden', {
                         'xs:mx-0 xs:w-18 h-9 py-2 opacity-100': form.dirty,
                         'xs:-mx-1 xs:mt-0 xs:h-9 xs:w-0 xs:px-0 xs:py-2 -mt-2 h-0 w-full py-0 opacity-0!': !form.dirty,
                     })
                 "
-                :disabled="form.processing"
                 @click="handleResetFields"
             >
                 Reset

@@ -37,6 +37,15 @@
     .tabular-nums {
         @apply font-figtree;
     }
+
+    .debug {
+        position: absolute;
+        top: 0%;
+        left: 0%;
+        padding: 0.5rem;
+        background-color: white;
+        color: black;
+    }
 }
 
 @layer base {
@@ -62,6 +71,15 @@
         --font-dm-sans: 'DM Sans', sans-serif;
         --font-klee-one: 'Klee One', 'DM Sans', sans-serif;
         --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif;
+
+        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+        --font-mono: var(--mono);
+        --font-jetbrains-mono: 'JetBrains Mono', var(--mono);
+        --font-geist-mono: 'Geist Mono', var(--mono);
+        --font-commit-mono: 'Commit Mono', var(--mono);
+        --font-lyrics: 'Klee One', var(--font-commit-mono);
+        --font-lyrics-cn: 'Ma Shan Zheng', var(--mono);
+        --font-lyrics-mixed: 'Ma Shan Zheng', 'Klee One', var(--font-commit-mono);
 
         /* Aspect ratios */
         --aspect-video: 16 / 9;

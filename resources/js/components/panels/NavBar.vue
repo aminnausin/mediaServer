@@ -122,7 +122,7 @@ watch(isDesktop, (now) => {
             <h1 id="folder-title" class="truncate rounded-md px-0.5 text-2xl capitalize ring-inset focus-within:ring-2">
                 <RouterLink
                     v-if="$route.name === 'home'"
-                    :to="$route.path"
+                    :to="`${$route.path}/details`"
                     title="Return to folder home page"
                     class="hover:text-primary dark:hover:text-primary-muted focus:outline-none"
                 >

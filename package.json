@@ -92,6 +92,7 @@
     "dependencies": {
         "@jellyfin/libass-wasm": "4.2.3",
         "@tanstack/vue-query": "^5.77.2",
+        "@aminnausin/am-lyrics": "^1.0.2",
         "@vueuse/components": "^13.0.0",
         "@vueuse/core": "^13.0.0",
         "@vueuse/integrations": "^13.0.0",
