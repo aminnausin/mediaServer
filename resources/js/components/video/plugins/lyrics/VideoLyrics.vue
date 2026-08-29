@@ -69,7 +69,7 @@ const toPercentageTime = (seconds: number): number => {
 const handleClick = (id: string, seconds: number, play?: boolean) => {
     if (seconds === activeTime.value) focusScroll(document.getElementById(id));
 
-    const isAtTime = Math.abs((props.player?.currentTime ?? NaN) - seconds) < 0.01;
+    const isAtTime = Math.abs((props.player?.currentTime ?? Number.NaN) - seconds) < 0.01;
 
     if (play && isAtTime && props.isPaused) {
         emit('play');
@@ -159,7 +159,7 @@ const resetComponent = () => {
             activeTime.value = lyrics.value[0].percentage;
         }
 
-        if (!!lyricItems.value.at(0)?.percentage) {
+        if (lyricItems.value.at(0)?.percentage) {
             isFocusedScroll.value = true;
             activeIndex.value = 0;
         } else {

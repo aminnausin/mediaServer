@@ -28,17 +28,12 @@ export function sortObjectNew<T extends { id?: any }>(keys: SortKey<T>[], direct
         // Loops through keys and returns the first non 0 sort result (so same episode number will be skipped and move on to comparing seasons)
         for (const { key, compareFn, nullsLast } of keys) {
             // Sort null values to end of list
-            if (key && nullsLast) {
-                const aNull = a[key] == null;
-                const bNull = b[key] == null;
 
-                if (aNull && !bNull) return 1;
-                if (!aNull && bNull) return -1;
-                if (aNull && bNull) return 0;
-            }
+            const nullCheck = nullCompare(a, b, key, nullsLast);
+            if (nullCheck !== undefined) return nullCheck;
 
-            const valueA = key ? (a[key] ?? '') : undefined;
-            const valueB = key ? (b[key] ?? '') : undefined;
+            const valueA = parseKeyedValue(a, key);
+            const valueB = parseKeyedValue(b, key);
 
             let result: number;
 
@@ -55,8 +50,8 @@ export function sortObjectNew<T extends { id?: any }>(keys: SortKey<T>[], direct
 }
 
 function defaultCompare(a: any, b: any): number {
-    const numA = typeof a === 'number' || (typeof a === 'string' && a.trim() !== '' && !Number.isNaN(Number(a))) ? Number(a) : NaN;
-    const numB = typeof b === 'number' || (typeof b === 'string' && b.trim() !== '' && !Number.isNaN(Number(b))) ? Number(b) : NaN;
+    const numA = typeof a === 'number' || (typeof a === 'string' && a.trim() !== '' && !Number.isNaN(Number(a))) ? Number(a) : Number.NaN;
+    const numB = typeof b === 'number' || (typeof b === 'string' && b.trim() !== '' && !Number.isNaN(Number(b))) ? Number(b) : Number.NaN;
 
     if (!Number.isNaN(numA) && !Number.isNaN(numB)) {
         return numA - numB;
@@ -69,4 +64,19 @@ function defaultCompare(a: any, b: any): number {
     }
 
     return CompareStrategies.stringInsensitive(a, b);
+}
+
+function nullCompare<T>(a: T, b: T, key?: keyof T, nullsLast?: boolean): number | undefined {
+    if (key && nullsLast) {
+        const aNull = a[key] == null;
+        const bNull = b[key] == null;
+
+        if (aNull && !bNull) return 1;
+        if (!aNull && bNull) return -1;
+        if (aNull && bNull) return 0;
+    }
+}
+
+function parseKeyedValue<T>(obj: T, key?: keyof T, defaultValue: unknown = '') {
+    return key ? (obj[key] ?? defaultValue) : undefined;
 }
