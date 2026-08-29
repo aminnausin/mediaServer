@@ -106,12 +106,12 @@ export const mediaSortingOptions = (folder: FolderResource): GenericSortOption<V
         disabled: false,
     },
     {
-        title: 'Last Watched',
+        title: 'Last Played',
         value: 'progress_updated_at',
         disabled: false,
     },
     {
-        title: 'First Watched',
+        title: 'First Played',
         value: 'progress_created_at',
         disabled: false,
     },
