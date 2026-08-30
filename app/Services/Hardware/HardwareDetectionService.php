@@ -151,6 +151,7 @@ class HardwareDetectionService {
 
     /**
      * Windows QSV detection using D3D11VA and the Intel vendor ID
+     * Doesn't really work because `qsv=qs@dx11` fails on the native ffmpeg binary, might be a jellyfin specific thing
      */
     private function validateQsvD3d11va(): bool {
         $process = new Process([
@@ -198,6 +199,8 @@ class HardwareDetectionService {
     /**
      * Old way of deriving basic qsv without vaapi or D3d11va
      * This method was often slower than just using the CPU
+     *
+     * For reference only
      */
     private function validateQsvPlain(): bool {
         $process = new Process([

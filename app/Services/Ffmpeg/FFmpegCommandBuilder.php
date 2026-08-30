@@ -9,8 +9,7 @@ use App\Services\Images\Storyboard\StoryboardOptions;
 class FFmpegCommandBuilder {
     public function __construct(
         private HardwareDetectionService $hardware,
-    ) {
-    }
+    ) {}
 
     public function storyboard(string $filePath, string $outputPattern, StoryboardOptions $options): array {
         $profile = $this->hardware->detect();
