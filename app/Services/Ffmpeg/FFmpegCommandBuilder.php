@@ -9,7 +9,8 @@ use App\Services\Images\Storyboard\StoryboardOptions;
 class FFmpegCommandBuilder {
     public function __construct(
         private HardwareDetectionService $hardware,
-    ) {}
+    ) {
+    }
 
     public function storyboard(string $filePath, string $outputPattern, StoryboardOptions $options): array {
         $profile = $this->hardware->detect();
@@ -61,7 +62,7 @@ class FFmpegCommandBuilder {
         };
 
         $scale = match ($hw) {
-            HardwareType::QSV => "hwmap=derive_device=qsv,vpp_qsv=w={$w}:h={$h}:format=nv12:out_range=pc:scale_mode=hq",
+            HardwareType::QSV => "hwmap=derive_device=qsv,vpp_qsv=w={$w}:h={$h}:format=nv12:out_range=pc:scale_mode=hq,hwdownload,format=nv12",
             default => "scale='min({$w},iw)':-2:flags=lanczos",
         };
 
