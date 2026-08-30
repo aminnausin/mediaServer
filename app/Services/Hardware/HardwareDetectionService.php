@@ -8,9 +8,7 @@ use Symfony\Component\Process\Process;
 class HardwareDetectionService {
     private ?HardwareProfile $cached = null;
 
-    const PROFILE_VERSION = 2;
-
-    const CACHE_KEY = 'ffmpeg_hardware_profile_v' . self::PROFILE_VERSION;
+    const CACHE_KEY = 'ffmpeg_hardware_profile_v' . HardwareProfile::PROFILE_VERSION;
 
     const INTEL_VENDOR_ID = '0x8086';
 
@@ -37,7 +35,7 @@ class HardwareDetectionService {
             return $this->cached;
         }
 
-        $profile = Cache::remember(self::CACHE_KEY, 86400, function () {
+        $profile = Cache::remember(HardwareDetectionService::CACHE_KEY, 86400, function () {
             $hwaccels = $this->getHwaccels();
             $encoders = $this->getEncoders();
             $vaapiDevice = $this->findIntelRenderDevice();
@@ -59,7 +57,7 @@ class HardwareDetectionService {
     }
 
     private function getHwaccels(): array {
-        $process = new Process(['ffmpeg', '-hwaccels', ...self::DEFAULT_ARGUMENTS]);
+        $process = new Process(['ffmpeg', '-hwaccels', ...HardwareDetectionService::DEFAULT_ARGUMENTS]);
         $process->run();
         $output = $process->getOutput();
 
@@ -79,12 +77,12 @@ class HardwareDetectionService {
     private function validateCuda(): bool {
         $process = new Process([
             'ffmpeg',
-            ...self::DEFAULT_ARGUMENTS,
+            ...HardwareDetectionService::DEFAULT_ARGUMENTS,
             '-hwaccel',
             'cuda',
             '-hwaccel_output_format',
             'cuda',
-            ...self::VALIDATION_ARGUMENTS,
+            ...HardwareDetectionService::VALIDATION_ARGUMENTS,
         ]);
         $process->run();
 
@@ -94,12 +92,12 @@ class HardwareDetectionService {
     private function validateVaapi(): bool {
         $process = new Process([
             'ffmpeg',
-            ...self::DEFAULT_ARGUMENTS,
+            ...HardwareDetectionService::DEFAULT_ARGUMENTS,
             '-hwaccel',
             'vaapi',
             '-hwaccel_device',
             '/dev/dri/renderD128',
-            ...self::VALIDATION_ARGUMENTS,
+            ...HardwareDetectionService::VALIDATION_ARGUMENTS,
         ]);
         $process->run();
 
@@ -123,14 +121,14 @@ class HardwareDetectionService {
         }
         $process = new Process([
             'ffmpeg',
-            ...self::DEFAULT_ARGUMENTS,
+            ...HardwareDetectionService::DEFAULT_ARGUMENTS,
             '-init_hw_device',
             "vaapi=va:{$devicePath}",
             '-init_hw_device',
             'qsv=qs@va',
             '-filter_hw_device',
             'qs',
-            ...self::VALIDATION_ARGUMENTS,
+            ...HardwareDetectionService::VALIDATION_ARGUMENTS,
         ]);
         $process->run();
 
@@ -144,14 +142,14 @@ class HardwareDetectionService {
     private function validateQsvD3d11va(): bool {
         $process = new Process([
             'ffmpeg',
-            ...self::DEFAULT_ARGUMENTS,
+            ...HardwareDetectionService::DEFAULT_ARGUMENTS,
             '-init_hw_device',
-            'd3d11va=dx11:,vendor=' . self::INTEL_VENDOR_ID,
+            'd3d11va=dx11:,vendor=' . HardwareDetectionService::INTEL_VENDOR_ID,
             '-init_hw_device',
             'qsv=qs@dx11',
             '-filter_hw_device',
             'qs',
-            ...self::VALIDATION_ARGUMENTS,
+            ...HardwareDetectionService::VALIDATION_ARGUMENTS,
         ]);
         $process->run();
 
@@ -168,7 +166,7 @@ class HardwareDetectionService {
             $name = basename($node);
             $vendorPath = "/sys/class/drm/{$name}/device/vendor";
 
-            if (is_readable($vendorPath) && trim(file_get_contents($vendorPath)) === self::INTEL_VENDOR_ID) {
+            if (is_readable($vendorPath) && trim(file_get_contents($vendorPath)) === HardwareDetectionService::INTEL_VENDOR_ID) {
                 return $node;
             }
         }
@@ -185,10 +183,10 @@ class HardwareDetectionService {
     private function validateQsvPlain(): bool {
         $process = new Process([
             'ffmpeg',
-            ...self::DEFAULT_ARGUMENTS,
+            ...HardwareDetectionService::DEFAULT_ARGUMENTS,
             '-hwaccel',
             'qsv',
-            ...self::VALIDATION_ARGUMENTS,
+            ...HardwareDetectionService::VALIDATION_ARGUMENTS,
         ]);
         $process->setTimeout(10);
         $process->run();

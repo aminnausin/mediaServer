@@ -5,6 +5,8 @@ namespace App\Services\Hardware;
 use App\Enums\HardwareType;
 
 class HardwareProfile {
+    const PROFILE_VERSION = 2;
+
     public function __construct(
         public bool $cuda,
         public ?string $qsv, // null | 'derive_vaapi' | 'derive_d3d11va'
