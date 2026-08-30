@@ -20,6 +20,18 @@ class HardwareDetectionService {
         'error',
     ];
 
+    const VALIDATION_ARGUMENTS = [
+        '-f',
+        'lavfi',
+        '-i',
+        'nullsrc=s=16x16',
+        '-frames:v',
+        '1',
+        '-f',
+        'null',
+        '-',
+    ];
+
     public function detect(): HardwareProfile {
         if ($this->cached) {
             return $this->cached;
@@ -72,15 +84,7 @@ class HardwareDetectionService {
             'cuda',
             '-hwaccel_output_format',
             'cuda',
-            '-f',
-            'lavfi',
-            '-i',
-            'nullsrc=s=16x16',
-            '-frames:v',
-            '1',
-            '-f',
-            'null',
-            '-',
+            ...self::VALIDATION_ARGUMENTS,
         ]);
         $process->run();
 
@@ -95,15 +99,7 @@ class HardwareDetectionService {
             'vaapi',
             '-hwaccel_device',
             '/dev/dri/renderD128',
-            '-f',
-            'lavfi',
-            '-i',
-            'nullsrc=s=16x16',
-            '-frames:v',
-            '1',
-            '-f',
-            'null',
-            '-',
+            ...self::VALIDATION_ARGUMENTS,
         ]);
         $process->run();
 
@@ -134,15 +130,7 @@ class HardwareDetectionService {
             'qsv=qs@va',
             '-filter_hw_device',
             'qs',
-            '-f',
-            'lavfi',
-            '-i',
-            'nullsrc=s=16x16',
-            '-frames:v',
-            '1',
-            '-f',
-            'null',
-            '-',
+            ...self::VALIDATION_ARGUMENTS,
         ]);
         $process->run();
 
@@ -163,15 +151,7 @@ class HardwareDetectionService {
             'qsv=qs@dx11',
             '-filter_hw_device',
             'qs',
-            '-f',
-            'lavfi',
-            '-i',
-            'nullsrc=s=16x16',
-            '-frames:v',
-            '1',
-            '-f',
-            'null',
-            '-',
+            ...self::VALIDATION_ARGUMENTS,
         ]);
         $process->run();
 
@@ -208,15 +188,7 @@ class HardwareDetectionService {
             ...self::DEFAULT_ARGUMENTS,
             '-hwaccel',
             'qsv',
-            '-f',
-            'lavfi',
-            '-i',
-            'color=c=black:s=16x16:r=1',
-            '-frames:v',
-            '1',
-            '-f',
-            'null',
-            '-',
+            ...self::VALIDATION_ARGUMENTS,
         ]);
         $process->setTimeout(10);
         $process->run();
