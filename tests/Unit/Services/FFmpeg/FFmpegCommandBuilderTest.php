@@ -17,8 +17,9 @@ class FFmpegCommandBuilderTest extends TestCase {
     private function makeBuilder(HardwareType $type): FFmpegCommandBuilder {
         $profile = new HardwareProfile(
             cuda: $type === HardwareType::CUDA,
-            qsv: $type === HardwareType::QSV,
+            qsv: $type === HardwareType::QSV ? 'derive_vaapi' : null,
             vaapi: $type === HardwareType::VAAPI,
+            vaapiDevice: HardwareType::QSV ? '/dev/dri/renderD128' : null,
         );
 
         $detector = $this->createMock(HardwareDetectionService::class);
