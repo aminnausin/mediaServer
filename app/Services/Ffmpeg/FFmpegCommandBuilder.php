@@ -61,7 +61,7 @@ class FFmpegCommandBuilder {
         };
 
         $scale = match ($hw) {
-            HardwareType::QSV => "hwmap=derive_device=qsv,vpp_qsv=w={$w}:h={$h}:format=nv12:passthrough=0:out_range=pc:scale_mode=hq",
+            HardwareType::QSV => "hwmap=derive_device=qsv,vpp_qsv=w={$w}:h={$h}:format=nv12:out_range=pc:scale_mode=hq",
             default => "scale='min({$w},iw)':-2:flags=lanczos",
         };
 
