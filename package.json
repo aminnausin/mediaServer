@@ -44,7 +44,7 @@
     "devDependencies": {
         "@aminnausin/cedar-ui": "^0.0.18",
         "@eslint/js": "^9.7.0",
-        "@faker-js/faker": "^9.8.0",
+        "@faker-js/faker": "^10.6.0",
         "@iconify-json/circum": "^1.2.2",
         "@iconify-json/lucide": "^1.2.87",
         "@iconify-json/mage": "^1.2.4",
@@ -90,9 +90,9 @@
         "vue-tsc": "^3.2.7"
     },
     "dependencies": {
+        "@aminnausin/am-lyrics": "^1.0.2",
         "@jellyfin/libass-wasm": "4.2.3",
         "@tanstack/vue-query": "^5.77.2",
-        "@aminnausin/am-lyrics": "^1.0.2",
         "@vueuse/components": "^13.0.0",
         "@vueuse/core": "^13.0.0",
         "@vueuse/integrations": "^13.0.0",
