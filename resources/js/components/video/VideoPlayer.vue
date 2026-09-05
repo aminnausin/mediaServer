@@ -1612,7 +1612,7 @@ defineExpose({
                 :class="
                     cn(
                         '@container pointer-events-none! mt-auto h-14 w-full transition-transform duration-300',
-                        isShowingControls ? 'translate-y-0 ease-out' : 'translate-y-full ease-in',
+                        isShowingControls ? 'translate-y-0 ease-out' : 'translate-y-[102%] ease-in',
                     )
                 "
             >
