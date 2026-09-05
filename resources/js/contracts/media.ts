@@ -37,6 +37,7 @@ export interface FolderResource {
     scanned_at?: string;
     updated_at?: string;
     edited_at?: string;
+    released_at?: string;
 }
 
 export interface SeriesResource {

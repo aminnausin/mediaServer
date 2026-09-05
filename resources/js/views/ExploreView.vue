@@ -34,9 +34,9 @@ const gridFolderCount = computed(() => {
 const spotlightItems = computed(() =>
     interleaveSpotlightItems(
         [
-            { items: recentlyUpdated.value ?? [], label: 'Just Updated' },
-            { items: recentlyAdded.value ?? [], label: 'Just Added' },
-            { items: recentlyReleased.value ?? [], label: 'Just Released' },
+            { items: recentlyUpdated.value ?? [], label: 'Just Updated', dateField: 'updated_at' },
+            { items: recentlyAdded.value ?? [], label: 'Just Added', dateField: 'created_at' },
+            { items: recentlyReleased.value ?? [], label: 'Just Released', dateField: 'released_at' },
         ],
         4,
     ),

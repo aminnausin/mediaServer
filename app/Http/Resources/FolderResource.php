@@ -39,6 +39,7 @@ class FolderResource extends JsonResource {
             'created_at' => $this->series?->created_at,
             'updated_at' => $this->series?->updated_at,
             'edited_at' => $this->series?->edited_at,
+            'released_at' => $this->series?->started_at,
         ];
     }
 }
