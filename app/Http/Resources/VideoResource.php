@@ -75,6 +75,7 @@ class VideoResource extends JsonResource {
             'progress_created_at' => $playbackProgress?->created_at,
             'progress_updated_at' => $playbackProgress?->updated_at,
             'completion_count' => $playbackProgress?->completion_count ?? 0,
+            'last_completed_at' => $playbackProgress?->last_completed_at,
         ];
     }
 }

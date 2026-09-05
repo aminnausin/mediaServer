@@ -152,6 +152,7 @@ export interface VideoResource {
     progress_created_at?: string;
     progress_updated_at?: string;
     completion_count: number;
+    last_completed_at?: string;
 
     folder_id?: number;
     library_id?: number;
