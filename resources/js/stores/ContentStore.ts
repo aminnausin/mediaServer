@@ -202,7 +202,7 @@ export const useContentStore = defineStore('Content', () => {
 
             // build based on folder title (from series) and category name
             const correctCategory = stateDirectory.value.name;
-            const correctFolder = stateFolder.value.title;
+            const correctFolder = stateFolder.value.title ?? stateFolder.value.name;
 
             // rebuilds url with exact values if url parameters were partial
             if (route.params.category !== correctCategory || route.params.folder !== correctFolder) {
