@@ -60,7 +60,12 @@ const userInfoRows = computed(() => [
 
                 <!-- Metadata -->
                 <FolderInfoRow v-if="stateFolder.series?.rating !== null" title="Average Score" :value="`${stateFolder.series?.rating}%`" />
-                <FolderInfoRow v-if="stateFolder.series?.studio" :title="isAudio ? 'Album Artist' : 'Studios'" :value="stateFolder.series?.studio" />
+                <FolderInfoRow
+                    v-if="stateFolder.series?.studio"
+                    :title="isAudio ? 'Album Artist' : 'Studios'"
+                    valueClass="text-wrap"
+                    :value="stateFolder.series?.studio.split(';')"
+                />
                 <FolderInfoRow v-if="stateFolder.series?.started_at" title="Start Date" :value="stateFolder.series?.started_at" />
                 <FolderInfoRow v-if="stateFolder.series?.ended_at" title="End Date" :value="stateFolder.series?.ended_at" />
                 <FolderInfoRow v-if="stateFolder.series?.folder_tags?.length" title="Tags">
