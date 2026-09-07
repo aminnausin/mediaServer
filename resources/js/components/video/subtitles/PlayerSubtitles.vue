@@ -4,6 +4,7 @@ import type { PopoverItem } from '@aminnausin/cedar-ui';
 import type { Ref } from 'vue';
 
 import { computed, inject, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
+import { runRegenerateFonts } from '@/service/media/attachments';
 import { useContentStore } from '@/stores/ContentStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
@@ -75,16 +76,22 @@ const playerSubtitleItems = computed(() => {
         };
     });
 
-    const toggleFonts: PopoverItem | undefined = stateVideo.value.fonts?.length
-        ? {
-              icon: useFonts.value ? ProIconsTextHighlightColor : ProIconsTextHighlightColorOff,
-              text: 'Custom Fonts',
-              selected: useFonts.value,
-              selectedIcon: ProiconsCheckmark,
-              selectedIconStyle: 'text-primary',
-              action: () => (useFonts.value = !useFonts.value),
-          }
-        : undefined;
+    const toggleFonts: PopoverItem | undefined =
+        stateVideo.value.fonts?.length || !stateVideo.value.metadata?.fonts_scanned_at
+            ? {
+                  icon: useFonts.value ? ProIconsTextHighlightColor : ProIconsTextHighlightColorOff,
+                  text: 'Custom Fonts',
+                  selected: useFonts.value,
+                  selectedIcon: ProiconsCheckmark,
+                  selectedIconStyle: 'text-primary',
+                  action: () => {
+                      useFonts.value = !useFonts.value;
+                      if (!stateVideo.value.metadata?.fonts_scanned_at && stateVideo.value.metadata?.id) {
+                          runRegenerateFonts(stateVideo.value.id, stateVideo.value.metadata?.id);
+                      }
+                  },
+              }
+            : undefined;
 
     const subtitlesOff: PopoverItem = {
         icon: IconCaptionsOff,
@@ -125,7 +132,7 @@ const handleSizeWheel = (event: WheelEvent) => {
  * Handle Subtitles Toggle
  * @param track -> Defaults to first available subtitle only if not currently showing anything
  */
-const handleSubtitles = (track?: SubtitleResource, reloadCurrentTrack = false) => {
+const handleSubtitles = (track?: SubtitleResource, reloadCurrentTrack = false, showToast = true) => {
     const nextTrack = track ?? (isShowingSubtitles.value ? undefined : defaultSubtitleTrack.value);
 
     isShowingSubtitles.value = !!nextTrack;
@@ -141,14 +148,31 @@ const handleSubtitles = (track?: SubtitleResource, reloadCurrentTrack = false) =
         return;
     }
 
-    if (nextTrack.codec === 'ass') {
-        instantiateOctopus(nextTrack, props.getCurrentTime, stateVideo.value.metadata?.frame_rate, useFonts.value ? stateVideo.value.fonts : []);
-        hideNativeTracks();
+    if (nextTrack.codec !== 'ass') {
+        clearOctopus();
+        handleNativeSubtitles(nextTrack);
         return;
     }
 
-    clearOctopus();
-    handleNativeSubtitles(nextTrack);
+    let fontDescription: string | undefined;
+
+    if (useFonts.value && !stateVideo.value.fonts?.length) {
+        switch (stateVideo.value.metadata?.fonts_scanned_at) {
+            case '...scanning':
+                fontDescription = 'Scanning for custom fonts...';
+                break;
+            case null:
+            case undefined:
+            case '':
+                fontDescription = "Custom fonts aren't available yet\nUse “Build Fonts” in the menu to generate them";
+                break;
+            default:
+                fontDescription = 'No custom fonts were found in this file';
+                break;
+        }
+    }
+    instantiateOctopus(nextTrack, props.getCurrentTime, stateVideo.value.metadata?.frame_rate, useFonts.value ? stateVideo.value.fonts : [], fontDescription, showToast);
+    hideNativeTracks();
 };
 
 const handleNativeSubtitles = async (nextTrack: SubtitleResource) => {
@@ -220,7 +244,28 @@ const buildSubtitleUrl = (subtitle?: SubtitleResource): string => {
 
 watch(
     () => useFonts.value,
-    () => handleSubtitles(currentSubtitleTrack.value, true),
+    () => {
+        if (!isShowingSubtitles.value || !currentSubtitleTrack.value) {
+            return;
+        }
+
+        handleSubtitles(currentSubtitleTrack.value, true);
+    },
+);
+
+watch(
+    () => ({
+        id: stateVideo.value.id,
+        fonts: stateVideo.value.fonts,
+    }),
+    (current, previous) => {
+        if (!isShowingSubtitles.value || !currentSubtitleTrack.value || !useFonts.value) {
+            return;
+        }
+
+        if (current.id !== previous.id) return;
+        handleSubtitles(currentSubtitleTrack.value, true, false);
+    },
 );
 
 onMounted(() => {

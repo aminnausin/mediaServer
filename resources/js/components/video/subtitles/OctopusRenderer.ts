@@ -10,7 +10,14 @@ export default function useOctopusRenderer() {
     const assInstance = ref<SubtitlesOctopus | null>(null);
     const abortController = ref<AbortController | null>(null);
 
-    const instantiateOctopus = async (nextTrack: SubtitleResource, getCurrentTime: () => number, frameRate?: number, fonts: string[] = []) => {
+    const instantiateOctopus = async (
+        nextTrack: SubtitleResource,
+        getCurrentTime: () => number,
+        frameRate?: number,
+        fonts: string[] = [],
+        extendedDescription?: string,
+        showToast = false,
+    ) => {
         const video = document.getElementById('video-source') as HTMLVideoElement;
         if (!video) return;
         if (assInstance.value) clearOctopus();
@@ -28,14 +35,16 @@ export default function useOctopusRenderer() {
         const trackTitle = nextTrack.title ? `Title: ${nextTrack.title}` : `Track: ${nextTrack.track_id}`;
 
         try {
-            const response = await toast.promise(fetch(subUrl, { signal }), {
-                loading: `Loading track ${nextTrack.track_id}...`,
-                loadingDescription: 'Initial load may take a few seconds',
-                success: `Loaded subtitles`,
-                successDescription: trackTitle,
-                error: 'Failed to load subtitles',
-                errorDescription: trackTitle,
-            });
+            const response = showToast
+                ? await toast.promise(fetch(subUrl, { signal }), {
+                      loading: `Loading track ${nextTrack.track_id}...`,
+                      loadingDescription: 'Initial load may take a few seconds',
+                      success: `Loaded subtitles`,
+                      successDescription: [trackTitle, extendedDescription].filter(Boolean).join('\n\n'),
+                      error: 'Failed to load subtitles',
+                      errorDescription: trackTitle,
+                  })
+                : await fetch(subUrl, { signal });
 
             if (!response.ok || signal.aborted) return;
 

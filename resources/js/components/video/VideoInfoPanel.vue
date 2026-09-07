@@ -3,7 +3,7 @@ import type { AxiosError } from 'axios';
 
 import { computed, onMounted, ref, useTemplateRef, watch, nextTick } from 'vue';
 import { handleStorageURL, toTimeSpan, formatFileSize, toPlural } from '@/service/util';
-import { resetFonts, resetSubtitles } from '@/service/media/attachments';
+import { resetSubtitles, runRegenerateFonts } from '@/service/media/attachments';
 import { getMediaDateDescription } from '@/service/media/mediaFormatter';
 import { runRegenerateStoryboard } from '@/service/media/storyboard';
 import { handleEditFolderImages } from '@/service/folder/folderActions';
@@ -105,7 +105,7 @@ const popoverItems = computed(() => {
         },
         {
             icon: ProiconsTextFontSize,
-            text: 'Reset Fonts',
+            text: `${stateVideo.value.fonts?.length || stateVideo.value.metadata?.fonts_scanned_at ? 'Reset' : 'Build'} Fonts`,
             hidden: stateVideo.value.metadata?.media_type === 1 || !isAuthenticated.value,
             action: handleResetFonts,
         },
@@ -167,16 +167,8 @@ const handleResetFonts = () => {
         toast.error('ID Missing');
         return;
     }
-    toast.promise(resetFonts(stateVideo.value.metadata.id), {
-        loading: 'Resetting Fonts',
-        loadingDescription: `Clearing custom font cache`,
-        success: 'Fonts Reset!',
-        error: 'Failed to reset fonts',
-        errorDescription: (err) => {
-            const axiosErr = err as AxiosError<{ message?: string }>;
-            return axiosErr.response?.data?.message ?? axiosErr.message;
-        },
-    });
+
+    runRegenerateFonts(stateVideo.value.id, stateVideo.value.metadata.id);
 };
 
 const handleResetStoryboard = () => {

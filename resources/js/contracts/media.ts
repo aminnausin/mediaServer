@@ -121,6 +121,7 @@ export interface MetadataResource {
     file_modified_at?: string;
     first_file_modified_at?: string;
     subtitles_scanned_at?: string;
+    fonts_scanned_at?: string;
 }
 
 export interface VideoResource {
@@ -174,6 +175,11 @@ export interface SubtitleResource {
     codec?: string;
     is_default: boolean;
     is_forced: boolean;
+}
+
+export interface FontResource {
+    file_name: string;
+    path: string;
 }
 
 export interface StoryboardResource {
