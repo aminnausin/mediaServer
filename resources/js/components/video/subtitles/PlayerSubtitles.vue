@@ -76,22 +76,19 @@ const playerSubtitleItems = computed(() => {
         };
     });
 
-    const toggleFonts: PopoverItem | undefined =
-        stateVideo.value.fonts?.length || !stateVideo.value.metadata?.fonts_scanned_at || stateVideo.value.metadata?.fonts_scanned_at === '...scanning'
-            ? {
-                  icon: useFonts.value ? ProIconsTextHighlightColor : ProIconsTextHighlightColorOff,
-                  text: 'Custom Fonts',
-                  selected: useFonts.value,
-                  selectedIcon: ProiconsCheckmark,
-                  selectedIconStyle: 'text-primary',
-                  action: () => {
-                      useFonts.value = !useFonts.value;
-                      if (!stateVideo.value.metadata?.fonts_scanned_at && stateVideo.value.metadata?.id && items.length > 0) {
-                          runRegenerateFonts(stateVideo.value.id, stateVideo.value.metadata?.id);
-                      }
-                  },
-              }
-            : undefined;
+    const toggleFonts: PopoverItem = {
+        icon: useFonts.value ? ProIconsTextHighlightColor : ProIconsTextHighlightColorOff,
+        text: 'Custom Fonts',
+        selected: useFonts.value,
+        selectedIcon: ProiconsCheckmark,
+        selectedIconStyle: 'text-primary',
+        action: () => {
+            useFonts.value = !useFonts.value;
+            if (!stateVideo.value.metadata?.fonts_scanned_at && stateVideo.value.metadata?.id && items.length > 0 && useFonts.value) {
+                runRegenerateFonts(stateVideo.value.id, stateVideo.value.metadata?.id);
+            }
+        },
+    };
 
     const subtitlesOff: PopoverItem = {
         icon: IconCaptionsOff,
