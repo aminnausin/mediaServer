@@ -16,6 +16,7 @@ use App\Models\Subtitle;
 use App\Models\Video;
 use App\Models\VideoTag;
 use App\Services\Images\ImageService;
+use App\Traits\HasMeaningfulChanges;
 use App\Traits\HasTags;
 use App\Traits\HttpResponses;
 use App\Traits\LogsModelChanges;
@@ -24,6 +25,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 class MetadataController extends Controller {
+    use HasMeaningfulChanges;
     use HasTags;
     use HttpResponses;
     use LogsModelChanges;

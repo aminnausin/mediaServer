@@ -15,6 +15,7 @@ use App\Models\FolderTag;
 use App\Models\Series;
 use App\Models\SeriesSizeHistory;
 use App\Services\Images\ImageService;
+use App\Traits\HasMeaningfulChanges;
 use App\Traits\HasModelHelpers;
 use App\Traits\HasTags;
 use App\Traits\HttpResponses;
@@ -24,6 +25,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 class SeriesController extends Controller {
+    use HasMeaningfulChanges;
     use HasModelHelpers;
     use HasTags;
     use HttpResponses;
