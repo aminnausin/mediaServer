@@ -14,6 +14,8 @@ import TablerDownload from '@/components/icons/TablerDownload.vue';
 import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
 import SectionLabel from '@/components/labels/SectionLabel.vue';
 
+import ProIconsTextHighlightColorOff from '@/components/icons/ProIconsTextHighlightColorOff.vue';
+import ProiconsTextHighlightColor from '~icons/proicons/text-highlight-color';
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsLockOpen from '~icons/proicons/lock-open';
 import ProiconsDelete from '~icons/proicons/delete';
@@ -29,7 +31,7 @@ const props = withDefaults(
         handleStartScan: (verifyOnly?: boolean) => Promise<void>;
         handleStartGenerateStoryboards: () => Promise<void>;
         handleToggleSetting: (
-            setting: keyof Pick<CategoryResource, 'is_private' | 'downloads_enabled' | 'downloads_require_auth' | 'storyboard_enabled'>,
+            setting: keyof Pick<CategoryResource, 'is_private' | 'downloads_enabled' | 'downloads_require_auth' | 'storyboard_enabled' | 'fonts_enabled'>,
             currentValue: boolean,
             successMessage: (newValue: boolean) => string,
         ) => Promise<void>;
@@ -103,6 +105,15 @@ const { isAdmin } = useAuth();
                 <ButtonText :title="'Generate Storyboards'" @click="handleStartGenerateStoryboards()" :disabled="processing" v-if="data.storyboard_enabled">
                     <p class="flex-1 text-start">Build Storyboards</p>
                     <template #icon> <ProIconsPhotoOff v-if="!data.storyboard_enabled" class="size-4" /> <ProIconsPhoto v-else class="size-4" /></template>
+                </ButtonText>
+
+                <ButtonText
+                    :title="'Toggle Fonts'"
+                    @click="handleToggleSetting('fonts_enabled', data.fonts_enabled, (v) => `${v ? 'Enabled' : 'Disabled'} Automatic Font Generation`)"
+                    :disabled="processing"
+                >
+                    <p class="flex-1 text-start">{{ data.fonts_enabled ? 'Disable Fonts' : 'Enable Fonts' }}</p>
+                    <template #icon> <ProIconsTextHighlightColorOff v-if="!data.fonts_enabled" class="size-4" /> <ProiconsTextHighlightColor v-else class="size-4" /></template>
                 </ButtonText>
 
                 <ButtonText

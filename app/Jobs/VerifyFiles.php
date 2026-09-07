@@ -6,6 +6,7 @@ use App\Data\Subtitles\SubtitleScanTarget;
 use App\Enums\ImageType;
 use App\Enums\MediaType;
 use App\Enums\TaskStatus;
+use App\Jobs\Metadata\ExtractFonts;
 use App\Jobs\Metadata\GenerateStoryboard;
 use App\Jobs\Utility\Subtitles\ScanSubtitles;
 use App\Models\Metadata;
@@ -31,6 +32,8 @@ class VerifyFiles extends ManagedSubTask {
     protected $embedChain = [];
 
     protected $storyboardChain = [];
+
+    protected $fontChain = [];
 
     protected $scannedDirectories = []; // this could go in the indexer but realistically it is only scanning each directory once and caching the "result" to later batch actual subtitle indexing
 
@@ -69,7 +72,7 @@ class VerifyFiles extends ManagedSubTask {
                 );
             }
 
-            $additionalTaskChain = array_merge($this->embedChain, $this->subtitleScanChain, $this->storyboardChain);
+            $additionalTaskChain = array_merge($this->embedChain, $this->subtitleScanChain, $this->storyboardChain, $this->fontChain);
             $additionalTaskCount = count($additionalTaskChain);
 
             $taskCountUpdates = [
@@ -386,8 +389,17 @@ class VerifyFiles extends ManagedSubTask {
 
                 // If no storyboard and storyboard_scanned_at is null OR storyboard was scanned before file was last modified or file was just updated
                 $needsStoryboard = $fileUpdated || (! $metadata->storyboard_scanned_at && ! $metadata->storyboard) || $metadata->storyboard_scanned_at?->lt($metadata->file_modified_at);
-                if ($this->generateImageTasks && ! $is_audio && $video->folder->category->storyboard_enabled && ($needsStoryboard)) {
+                if ($this->generateImageTasks && ! $is_audio && $video->folder->category->storyboard_enabled && $needsStoryboard) {
                     $this->storyboardChain[] = new GenerateStoryboard(
+                        filePath: $filePath,
+                        uuid: $uuid,
+                        taskId: $this->taskId,
+                    );
+                }
+
+                $needsFonts = $fileUpdated || (! $metadata->fonts_scanned_at && ! $metadata->fonts) || $metadata->fonts_scanned_at?->lt($metadata->file_modified_at);
+                if (! $is_audio && $video->folder->category->fonts_enabled && $needsFonts) {
+                    $this->fontChain[] = new ExtractFonts(
                         filePath: $filePath,
                         uuid: $uuid,
                         taskId: $this->taskId,

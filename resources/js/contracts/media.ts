@@ -16,6 +16,7 @@ export interface CategoryResource {
     downloads_enabled: boolean;
     downloads_require_auth: boolean;
     storyboard_enabled: boolean;
+    fonts_enabled: boolean;
 }
 
 //#region Folders
