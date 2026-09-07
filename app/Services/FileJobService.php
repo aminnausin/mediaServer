@@ -8,6 +8,7 @@ use App\Jobs\EmbedUidInMetadata;
 use App\Jobs\GeneratePreviewImage;
 use App\Jobs\IndexFiles;
 use App\Jobs\Maintenance\PurgeStaleGuestData;
+use App\Jobs\Metadata\ExtractFonts;
 use App\Jobs\Metadata\GenerateStoryboard;
 use App\Jobs\SyncFiles;
 use App\Jobs\Utility\Paths\CleanFolderPaths;
@@ -324,6 +325,27 @@ class FileJobService {
             chain: function ($task) use ($metadata) {
                 return [
                     new GenerateStoryboard(
+                        filePath: VerifyFiles::getAbsoluteMediaPath($metadata->video),
+                        uuid: $metadata->uuid,
+                        taskId: $task->id,
+                    ),
+                ];
+            },
+            queue: 'encode'
+        );
+    }
+
+    public function regenerateFonts(int $userId, Metadata $metadata): Task {
+        $name = 'Regenerate Fonts';
+        $description = 'Re-extracts embedded fonts for ' . $metadata->composite_id;
+
+        return $this->executeBatchOperation(
+            userId: $userId,
+            name: $name,
+            description: $description,
+            chain: function ($task) use ($metadata) {
+                return [
+                    new ExtractFonts(
                         filePath: VerifyFiles::getAbsoluteMediaPath($metadata->video),
                         uuid: $metadata->uuid,
                         taskId: $task->id,

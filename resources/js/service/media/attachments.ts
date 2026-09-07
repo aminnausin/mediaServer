@@ -5,5 +5,5 @@ export const resetSubtitles = (metadataId: number) => {
 };
 
 export const resetFonts = (metadataId: number) => {
-    return API.delete(`/metadata/${metadataId}/fonts`, { headers: { 'X-Skip-Toast': 'true' } });
+    return API.post(`/metadata/${metadataId}/fonts`, { headers: { 'X-Skip-Toast': 'true' } });
 };

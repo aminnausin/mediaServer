@@ -150,7 +150,7 @@ class ScanSubtitles extends ManagedSubTask {
         }
     }
 
-    private function verifyMetadata($metadata, $filePath): array {
+    private function verifyMetadata(Metadata $metadata, string $filePath): array {
         $raw_metadata = $metadata->raw_metadata;
 
         if (empty($raw_metadata)) {

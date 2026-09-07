@@ -476,7 +476,7 @@ class VerifyFiles extends ManagedSubTask {
         }
     }
 
-    public static function getFileMetadata($filePath, $reason = 'und') {
+    public static function getFileMetadata(string $filePath, $reason = 'und') {
         try {
             // ? FFMPEG module with 6 test folders takes 35+ seconds but running the commands through shell takes 18 seconds
 
