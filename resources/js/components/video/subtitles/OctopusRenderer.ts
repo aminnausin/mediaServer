@@ -10,7 +10,7 @@ export default function useOctopusRenderer() {
     const assInstance = ref<SubtitlesOctopus | null>(null);
     const abortController = ref<AbortController | null>(null);
 
-    const instantiateOctopus = async (nextTrack: SubtitleResource, getCurrentTime: () => number, frameRate?: number) => {
+    const instantiateOctopus = async (nextTrack: SubtitleResource, getCurrentTime: () => number, frameRate?: number, fonts: string[] = []) => {
         const video = document.getElementById('video-source') as HTMLVideoElement;
         if (!video) return;
         if (assInstance.value) clearOctopus();
@@ -47,7 +47,7 @@ export default function useOctopusRenderer() {
                 const options: SubtitlesOctopusOptions = {
                     video,
                     subUrl,
-                    fonts: [...baseFonts, ...supplementalFonts],
+                    fonts: [...baseFonts, ...supplementalFonts, ...fonts],
                     workerUrl: '/build/lib/subtitles-octopus/subtitles-octopus-worker.js',
                     fallbackFont: '/fonts/noto-sans/NotoSans-V42-Regular.woff2',
                     onError(e?: any) {

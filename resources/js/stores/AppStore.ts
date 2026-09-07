@@ -86,6 +86,8 @@ export const useAppStore = defineStore('App', () => {
 
     const preferredAudioLanguage = usePersistedString('preferredAudioLanguage', '');
 
+    const useEmbeddedFonts = usePersisted('useEmbeddedFonts', false);
+
     //#endregion
 
     function toggleDarkMode() {
@@ -189,6 +191,8 @@ export const useAppStore = defineStore('App', () => {
         useAmLyrics.init();
 
         preferredAudioLanguage.init();
+
+        useEmbeddedFonts.init();
     };
 
     watch(lightMode, toggleDarkMode, { immediate: false });
@@ -209,6 +213,8 @@ export const useAppStore = defineStore('App', () => {
 
     watch(preferredAudioLanguage.state, preferredAudioLanguage.persist);
 
+    watch(useEmbeddedFonts.state, useEmbeddedFonts.persist);
+
     //#endregion
 
     return {
@@ -224,6 +230,7 @@ export const useAppStore = defineStore('App', () => {
         preferredAudioLanguage: preferredAudioLanguage.state,
         showLyricsMetadata: showLyricsMetadata.state,
         useAmLyrics: useAmLyrics.state,
+        useEmbeddedFonts: useEmbeddedFonts.state,
         initBrowserState,
 
         // Local State

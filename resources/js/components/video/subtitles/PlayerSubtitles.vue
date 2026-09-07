@@ -3,8 +3,9 @@ import type { SubtitleResource } from '@/types/resources';
 import type { PopoverItem } from '@aminnausin/cedar-ui';
 import type { Ref } from 'vue';
 
-import { computed, inject, nextTick, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+import { computed, inject, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 import { useContentStore } from '@/stores/ContentStore';
+import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { cn, toast } from '@aminnausin/cedar-ui';
 import { round } from 'lodash-es';
@@ -14,6 +15,8 @@ import VideoPopoverSlider from '@/components/video/popover/VideoPopoverSlider.vu
 import VideoPopoverItem from '@/components/video/popover/VideoPopoverItem.vue';
 import VideoPopover from '@/components/video/popover/VideoPopover.vue';
 
+import ProIconsTextHighlightColorOff from '@/components/icons/ProIconsTextHighlightColorOff.vue';
+import ProIconsTextHighlightColor from '~icons/proicons/text-highlight-color';
 import ProiconsTextFontSize from '~icons/proicons/text-font-size';
 import ProiconsCheckmark from '~icons/proicons/checkmark';
 import IconCaptionsOff from '@/components/icons/IconCaptionsOff.vue';
@@ -28,6 +31,7 @@ interface PlayerSubtitlesProps {
 const { instantiateOctopus, clearOctopus, debouncedResetOctopusCache, resizeOctopus } = useOctopusRenderer();
 
 //#region Shared State
+const { useEmbeddedFonts: useFonts } = storeToRefs(useAppStore());
 const { stateVideo } = storeToRefs(useContentStore());
 const player = inject<Ref<HTMLVideoElement>>('player');
 const props = defineProps<PlayerSubtitlesProps>();
@@ -71,6 +75,17 @@ const playerSubtitleItems = computed(() => {
         };
     });
 
+    const toggleFonts: PopoverItem | undefined = stateVideo.value.fonts?.length
+        ? {
+              icon: useFonts.value ? ProIconsTextHighlightColor : ProIconsTextHighlightColorOff,
+              text: 'Custom Fonts',
+              selected: useFonts.value,
+              selectedIcon: ProiconsCheckmark,
+              selectedIconStyle: 'text-primary',
+              action: () => (useFonts.value = !useFonts.value),
+          }
+        : undefined;
+
     const subtitlesOff: PopoverItem = {
         icon: IconCaptionsOff,
         text: 'Off',
@@ -80,7 +95,7 @@ const playerSubtitleItems = computed(() => {
         action: clearSubtitles,
     };
 
-    return [subtitlesOff, ...items];
+    return [toggleFonts, subtitlesOff, ...items].filter(Boolean);
 });
 
 const defaultSubtitleTrack = computed<SubtitleResource | undefined>(() => {
@@ -110,14 +125,14 @@ const handleSizeWheel = (event: WheelEvent) => {
  * Handle Subtitles Toggle
  * @param track -> Defaults to first available subtitle only if not currently showing anything
  */
-const handleSubtitles = (track?: SubtitleResource) => {
+const handleSubtitles = (track?: SubtitleResource, reloadCurrentTrack = false) => {
     const nextTrack = track ?? (isShowingSubtitles.value ? undefined : defaultSubtitleTrack.value);
 
     isShowingSubtitles.value = !!nextTrack;
-    subtitlesPopover.value?.handleClose();
+    if (!reloadCurrentTrack) subtitlesPopover.value?.handleClose();
 
     // If no change, don't bother calculating anything
-    if (currentSubtitleTrack.value?.id === nextTrack?.id && currentSubtitleTrack.value?.metadata_uuid === nextTrack?.metadata_uuid) return;
+    if (currentSubtitleTrack.value?.id === nextTrack?.id && currentSubtitleTrack.value?.metadata_uuid === nextTrack?.metadata_uuid && !reloadCurrentTrack) return;
 
     currentSubtitleTrack.value = nextTrack;
 
@@ -127,7 +142,7 @@ const handleSubtitles = (track?: SubtitleResource) => {
     }
 
     if (nextTrack.codec === 'ass') {
-        instantiateOctopus(nextTrack, props.getCurrentTime, stateVideo.value.metadata?.frame_rate);
+        instantiateOctopus(nextTrack, props.getCurrentTime, stateVideo.value.metadata?.frame_rate, useFonts.value ? stateVideo.value.fonts : []);
         hideNativeTracks();
         return;
     }
@@ -202,6 +217,11 @@ const buildSubtitleUrl = (subtitle?: SubtitleResource): string => {
     const extension = codec === 'ass' ? '.ass' : '.vtt';
     return `/data/subtitles/${metadata_uuid}/${track_id}${languageSlug}${extension}`;
 };
+
+watch(
+    () => useFonts.value,
+    () => handleSubtitles(currentSubtitleTrack.value, true),
+);
 
 onMounted(() => {
     window.addEventListener('resize', debouncedResetOctopusCache);

@@ -3,6 +3,7 @@ import type { AxiosError } from 'axios';
 
 import { computed, onMounted, ref, useTemplateRef, watch, nextTick } from 'vue';
 import { handleStorageURL, toTimeSpan, formatFileSize, toPlural } from '@/service/util';
+import { resetFonts, resetSubtitles } from '@/service/media/attachments';
 import { getMediaDateDescription } from '@/service/media/mediaFormatter';
 import { runRegenerateStoryboard } from '@/service/media/storyboard';
 import { handleEditFolderImages } from '@/service/folder/folderActions';
@@ -11,7 +12,6 @@ import { handleEditMediaImages } from '@/service/media/mediaActions';
 import { getUserViewCount } from '@/service/mediaAPI';
 import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
 import { useContentStore } from '@/stores/ContentStore';
-import { resetSubtitles } from '@/service/media/subtitles';
 import { useModalStore } from '@/stores/ModalStore';
 import { BasePopover } from '@/components/cedar-ui/popover';
 import { storeToRefs } from 'pinia';
@@ -29,6 +29,7 @@ import useMetaData from '@/composables/useMetaData';
 import ShareModal from '@/components/modals/ShareModal.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
+import ProiconsTextFontSize from '~icons/proicons/text-font-size';
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import ProiconsInfoSquare from '~icons/proicons/info-square';
 import TablerDownload from '@/components/icons/TablerDownload.vue';
@@ -91,16 +92,22 @@ const popoverItems = computed(() => {
             hidden: !isAuthenticated.value,
         },
         {
+            icon: ProiconsPhoto,
+            text: (stateVideo.value.storyboard ? 'Reset' : 'Build') + ' Storyboard',
+            hidden: !isAuthenticated.value || stateVideo.value.metadata?.media_type === 1,
+            action: handleResetStoryboard,
+        },
+        {
             icon: IconCaptions,
             text: 'Reset Subtitles',
             hidden: stateVideo.value.metadata?.media_type === 1 || !isAuthenticated.value,
             action: handleResetSubtitles,
         },
         {
-            icon: ProiconsPhoto,
-            text: (stateVideo.value.storyboard ? 'Reset' : 'Build') + ' Storyboard',
-            hidden: !isAuthenticated.value || stateVideo.value.metadata?.media_type === 1,
-            action: handleResetStoryboard,
+            icon: ProiconsTextFontSize,
+            text: 'Reset Fonts',
+            hidden: stateVideo.value.metadata?.media_type === 1 || !isAuthenticated.value,
+            action: handleResetFonts,
         },
     ];
 });
@@ -148,6 +155,23 @@ const handleResetSubtitles = () => {
         loadingDescription: `Clearing subtitle cache`,
         success: 'Subtitles Reset!',
         error: 'Failed to reset subtitles',
+        errorDescription: (err) => {
+            const axiosErr = err as AxiosError<{ message?: string }>;
+            return axiosErr.response?.data?.message ?? axiosErr.message;
+        },
+    });
+};
+
+const handleResetFonts = () => {
+    if (!stateVideo.value.metadata?.id) {
+        toast.error('ID Missing');
+        return;
+    }
+    toast.promise(resetFonts(stateVideo.value.metadata.id), {
+        loading: 'Resetting Fonts',
+        loadingDescription: `Clearing custom font cache`,
+        success: 'Fonts Reset!',
+        error: 'Failed to reset fonts',
         errorDescription: (err) => {
             const axiosErr = err as AxiosError<{ message?: string }>;
             return axiosErr.response?.data?.message ?? axiosErr.message;

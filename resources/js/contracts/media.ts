@@ -161,6 +161,8 @@ export interface VideoResource {
 
     folder_name?: string;
     library_name?: string;
+
+    fonts?: string[];
 }
 
 export interface SubtitleResource {
