@@ -14,6 +14,8 @@ class SubtitleManager {
         $metadata->subtitles()->update([
             'path' => null,
         ]);
+
+        $metadata->update(['subtitles_scanned_at' => null]);
     }
 
     public function purgeSubtitles(Metadata $metadata, bool $externalOnly = false): void {
