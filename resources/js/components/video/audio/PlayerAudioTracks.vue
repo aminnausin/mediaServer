@@ -95,12 +95,12 @@ defineExpose({ audioTracksPopover });
             'target-element': player,
             'use-tooltip': !audioTracksPopover?.popoverOpen,
             offset: videoButtonOffset,
-            class: 'size-6 flex items-center justify-center',
+            class: 'size-6 flex items-center justify-center px-0.5',
         }"
         title="Audio Tracks"
     >
         <template #buttonIcon>
-            <IconSpeech class="mb-0.5 size-4.5" />
+            <IconSpeech class="ms-0.5 mb-0.5 size-4.5" />
         </template>
         <template #content>
             <section :class="['scrollbar-minimal flex h-fit max-h-21 flex-col overflow-y-auto transition-transform md:max-h-35', { 'pe-0.5': playerAudioTracks.length > 3 }]">
