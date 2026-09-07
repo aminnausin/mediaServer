@@ -106,7 +106,7 @@ const popoverItems = computed(() => {
         {
             icon: ProiconsTextFontSize,
             text: `${stateVideo.value.fonts?.length || stateVideo.value.metadata?.fonts_scanned_at ? 'Reset' : 'Build'} Fonts`,
-            hidden: stateVideo.value.metadata?.media_type === 1 || !isAuthenticated.value,
+            hidden: stateVideo.value.metadata?.media_type === 1 || !isAuthenticated.value || stateVideo.value.subtitles.length === 0,
             action: handleResetFonts,
         },
     ];
