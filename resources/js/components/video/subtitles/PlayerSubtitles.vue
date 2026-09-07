@@ -77,7 +77,7 @@ const playerSubtitleItems = computed(() => {
     });
 
     const toggleFonts: PopoverItem | undefined =
-        stateVideo.value.fonts?.length || !stateVideo.value.metadata?.fonts_scanned_at
+        stateVideo.value.fonts?.length || !stateVideo.value.metadata?.fonts_scanned_at || stateVideo.value.metadata?.fonts_scanned_at === '...scanning'
             ? {
                   icon: useFonts.value ? ProIconsTextHighlightColor : ProIconsTextHighlightColorOff,
                   text: 'Custom Fonts',
@@ -86,7 +86,7 @@ const playerSubtitleItems = computed(() => {
                   selectedIconStyle: 'text-primary',
                   action: () => {
                       useFonts.value = !useFonts.value;
-                      if (!stateVideo.value.metadata?.fonts_scanned_at && stateVideo.value.metadata?.id) {
+                      if (!stateVideo.value.metadata?.fonts_scanned_at && stateVideo.value.metadata?.id && items.length > 0) {
                           runRegenerateFonts(stateVideo.value.id, stateVideo.value.metadata?.id);
                       }
                   },
