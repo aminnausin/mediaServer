@@ -69,7 +69,10 @@ class MetadataController extends Controller {
 
         if ($metadata->isDirty() || $tagsChanged) {
             $user = Auth::user();
-            $metadata->fill(['editor_id' => $user->id, 'edited_at' => now()]);
+
+            if ($this->hasMeaningfulChanges($metadata, Metadata::IGNORED_EDITABLE_FIELDS)) {
+                $metadata->fill(['editor_id' => $user->id, 'edited_at' => now()]);
+            }
 
             $this->logModelChanges($metadata, ['tags_changed' => $tagsChanged], $user);
 

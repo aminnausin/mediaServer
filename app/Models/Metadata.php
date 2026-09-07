@@ -141,6 +141,8 @@ class Metadata extends Model {
         'raw_metadata' => 'array',
     ];
 
+    public const IGNORED_EDITABLE_FIELDS = ['intro_start', 'intro_duration', 'episode', 'season', 'release_date'];
+
     public function video(): BelongsTo {
         return $this->belongsTo(Video::class);
     }

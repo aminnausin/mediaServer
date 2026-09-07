@@ -88,7 +88,10 @@ class SeriesController extends Controller {
 
         if ($series->isDirty() || $tagsChanged) {
             $user = Auth::user();
-            $series->fill(['editor_id' => $user->id, 'edited_at' => now()]);
+
+            if ($this->hasMeaningfulChanges($series, Series::IGNORED_EDITABLE_FIELDS)) {
+                $series->fill(['editor_id' => $user->id, 'edited_at' => now()]);
+            }
 
             $this->logModelChanges($series, ['tags_changed' => $tagsChanged], $user);
 
