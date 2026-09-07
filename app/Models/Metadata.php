@@ -169,6 +169,10 @@ class Metadata extends Model {
         return $this->hasMany(Subtitle::class, 'metadata_uuid', 'uuid')->orderBy('track_id');
     }
 
+    public function fonts(): HasMany {
+        return $this->hasMany(Font::class, 'metadata_uuid', 'uuid');
+    }
+
     public function images(): MorphMany {
         return $this->morphMany(Image::class, 'imageable', null, null, 'uuid');
     }

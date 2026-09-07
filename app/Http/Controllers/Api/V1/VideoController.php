@@ -21,6 +21,7 @@ class VideoController extends Controller {
         try {
             $result = VideoResource::collection(Video::with([
                 'metadata',
+                'metadata.fonts',
                 'metadata.subtitles',
                 'metadata.videoTags',
                 'metadata.primaryPoster',

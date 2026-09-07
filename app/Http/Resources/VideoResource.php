@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Http\Resources\Metadata\StoryboardResource;
+use App\Models\Font;
 use App\Models\Metadata;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -63,6 +64,9 @@ class VideoResource extends JsonResource {
             'url' => $this->relationLoaded('folder') ? "{$this->folder->category_id}/{$this->folder_id}?video={$this->id}" : null,
             'folder_name' => $series?->title ?? $folder->name ?? null,
             'library_name' => $library?->name ?? null,
+            'fonts' => $metadata?->relationLoaded('fonts') ? $metadata->fonts->whereNotNull('path')->map(function (Font $font): string {
+                return "/storage/{$font->path}";
+            })->values()->all() : [],
         ];
     }
 
