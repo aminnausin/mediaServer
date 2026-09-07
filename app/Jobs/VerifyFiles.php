@@ -397,7 +397,7 @@ class VerifyFiles extends ManagedSubTask {
                     );
                 }
 
-                $needsFonts = $fileUpdated || (! $metadata->fonts_scanned_at && ! $metadata->fonts) || $metadata->fonts_scanned_at?->lt($metadata->file_modified_at);
+                $needsFonts = $fileUpdated || (! $metadata->fonts_scanned_at && count($metadata->fonts) === 0) || $metadata->fonts_scanned_at?->lt($metadata->file_modified_at);
                 if (! $is_audio && $video->folder->category->fonts_enabled && $needsFonts) {
                     $this->fontChain[] = new ExtractFonts(
                         filePath: $filePath,
@@ -590,7 +590,7 @@ class VerifyFiles extends ManagedSubTask {
             $results = array_merge($results, array_filter([
                 'codec' => $stream['codec_name'] ?? null,
                 'bitrate' => $stream['bit_rate'] ?? null,
-            ], fn ($value) => ! is_null($value)));
+            ], fn($value) => ! is_null($value)));
             break;
         }
 
