@@ -351,7 +351,7 @@ class VerifyFiles extends ManagedSubTask {
 
                 // Only update title from audioMetadata if not set or file is of type audio with an embedded title and was updated
                 if ((is_null($metadata->title) || $fileUpdated) && $is_audio && isset($audioMetadata['title'])) {
-                    $changes['title'] = $audioMetadata['title'] ?? $metadata->title;
+                    $changes['title'] = substr($audioMetadata['title'], 0, 255) ?? $metadata->title;
                 }
 
                 if (is_null($metadata->description)) {
@@ -363,15 +363,15 @@ class VerifyFiles extends ManagedSubTask {
                 }
 
                 if (is_null($metadata->artist) || $fileUpdated) {
-                    $changes['artist'] = $audioMetadata['artist'] ?? $metadata->artist;
+                    $changes['artist'] = substr($audioMetadata['artist'], 0, 255) ?? $metadata->artist;
                 }
 
                 if (is_null($metadata->album) || $fileUpdated) {
-                    $changes['album'] = $audioMetadata['album'] ?? $metadata->album;
+                    $changes['album'] = substr($audioMetadata['album'], 0, 255) ?? $metadata->album;
                 }
 
                 if (is_null($metadata->codec) && ! isset($changes['codec'])) {
-                    $changes['codec'] = $audioMetadata['codec'] ?? $metadata->codec;
+                    $changes['codec'] = substr($audioMetadata['codec'], 0, 255) ?? $metadata->codec;
                 }
 
                 if ((is_null($metadata->bitrate) || $fileUpdated) && ! isset($changes['bitrate']) && ! $is_audio) {
