@@ -363,15 +363,15 @@ class VerifyFiles extends ManagedSubTask {
                 }
 
                 if (is_null($metadata->artist) || $fileUpdated) {
-                    $changes['artist'] = substr($audioMetadata['artist'], 0, 255) ?? $metadata->artist;
+                    $changes['artist'] = substr($audioMetadata['artist'] ?? $metadata->artist, 0, 255);
                 }
 
                 if (is_null($metadata->album) || $fileUpdated) {
-                    $changes['album'] = substr($audioMetadata['album'], 0, 255) ?? $metadata->album;
+                    $changes['album'] = substr($audioMetadata['album'] ?? $metadata->album, 0, 255);
                 }
 
                 if (is_null($metadata->codec) && ! isset($changes['codec'])) {
-                    $changes['codec'] = substr($audioMetadata['codec'], 0, 255) ?? $metadata->codec;
+                    $changes['codec'] = substr($audioMetadata['codec'] ?? $metadata->codec, 0, 255);
                 }
 
                 if ((is_null($metadata->bitrate) || $fileUpdated) && ! isset($changes['bitrate']) && ! $is_audio) {
