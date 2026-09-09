@@ -97,8 +97,6 @@ export const useGetTasks = () => {
     return useQuery<{ data: TaskResource[] }>({
         queryKey: ['tasks'],
         queryFn: async () => {
-            if (userData.value?.id !== 1) return { data: [] };
-
             const { data: response } = await getTasks();
             return response;
         },

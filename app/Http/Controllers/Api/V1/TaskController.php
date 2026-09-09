@@ -10,10 +10,10 @@ use App\Models\Task;
 use App\Services\TaskService;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class TaskController extends Controller {
     use HttpResponses;
@@ -33,7 +33,7 @@ class TaskController extends Controller {
         );
     }
 
-    public function waitTimes(Request $request) {
+    public function waitTimes(Request $_) {
         return response()->json(Cache::remember('wait_times', 300, function () {
             return [
                 'sync' => $this->latestDuration(SubTask::class, 'Sync Files'),
@@ -46,7 +46,7 @@ class TaskController extends Controller {
         }));
     }
 
-    public function stats(Request $request) {
+    public function stats(Request $_) {
         return response()->json(Cache::flexible('task_stats', [15, 60], function () {
             $failValue = TaskStatus::FAILED->value;
             $cancelValue = TaskStatus::CANCELLED->value;
@@ -78,7 +78,6 @@ class TaskController extends Controller {
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy(Task $task) {
@@ -113,14 +112,14 @@ class TaskController extends Controller {
     }
 
     private function isNotAuthorised() {
-        if (Auth::id() != 1) {
+        if (! Gate::allows('admin')) {
             $this->forbidden('Unauthorised request.');
         }
 
         return null;
     }
 
-    private function latestDuration($model, $name, $like = false, $limit = 5) {
+    private function latestDuration(string $model, string $name, $like = false, $limit = 5) {
         $query = $model::where('status', TaskStatus::COMPLETED);
         $query = $like
             ? $query->where('name', 'like', $name)
