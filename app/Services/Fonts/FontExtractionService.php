@@ -114,10 +114,8 @@ class FontExtractionService {
         if ($metadata->raw_metadata === null) {
             return [];
         }
-        $rawMetadata = $metadata->raw_metadata;
 
-        $attachments = collect($rawMetadata['streams'])->filter(fn (array $stream) => ($stream['codec_type'] ?? null) === 'attachment');
-
+        $attachments = collect($metadata->raw_metadata['streams'])->filter(fn (array $stream) => ($stream['codec_type'] ?? null) === 'attachment');
         $fontAttachments = $attachments->map(function (array $stream): FontAttachmentData {
             $filename = $stream['tags']['filename'] ?? throw new RuntimeException('Font attachment is missing a filename.');
             $mimeType = $stream['tags']['mimetype'] ?? 'application/octet-stream';
