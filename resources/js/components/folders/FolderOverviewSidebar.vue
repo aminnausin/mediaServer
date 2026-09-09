@@ -64,7 +64,7 @@ const userInfoRows = computed(() => [
                     v-if="stateFolder.series?.studio"
                     :title="isAudio ? 'Album Artist' : 'Studios'"
                     valueClass="text-wrap"
-                    :value="stateFolder.series?.studio.split(';')"
+                    :value="stateFolder.series?.studio.replaceAll(';', '\n')"
                 />
                 <FolderInfoRow v-if="stateFolder.series?.started_at" title="Start Date" :value="stateFolder.series?.started_at" />
                 <FolderInfoRow v-if="stateFolder.series?.ended_at" title="End Date" :value="stateFolder.series?.ended_at" />
