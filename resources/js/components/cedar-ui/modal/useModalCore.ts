@@ -5,7 +5,7 @@ import { shallowRef, ref, reactive } from 'vue';
 const isAnimating = ref(false);
 const isOpen = ref(false);
 const animationTime = ref(300);
-const timeoutId = ref<NodeJS.Timeout | null>(null);
+const timeoutId = ref<number | null>(null);
 
 const props = reactive<Record<string, any>>({});
 const component = shallowRef<Component | null>(null);

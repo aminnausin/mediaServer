@@ -27,7 +27,7 @@ const selectableItemsList = useTemplateRef('selectableItemsList');
 const selectableItemsRoot = useTemplateRef('selectableItemsRoot');
 const select = useSelect(props.options, { selectableItemsList, selectButton });
 
-const closeFocusOutTimeout = ref<NodeJS.Timeout | null>(null);
+const closeFocusOutTimeout = ref<number | null>(null);
 
 const { hasScrollbar } = useScrollbarDetection(selectableItemsList);
 

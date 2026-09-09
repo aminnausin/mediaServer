@@ -45,8 +45,8 @@ const isBottom = computed(() => {
     return props.position.includes('bottom');
 });
 
-const closeTimeout = ref<NodeJS.Timeout | null>(null);
-const stackTimeout = ref<NodeJS.Timeout | null>(null);
+const closeTimeout = ref<number | null>(null);
+const stackTimeout = ref<number | null>(null);
 
 const toastHovered = ref(false);
 const isMounted = ref(false);

@@ -6,7 +6,7 @@ import axios, { AxiosError, type AxiosResponse } from 'axios';
 import nProgress from 'nprogress';
 
 // For progress bar
-let progressTimeout: NodeJS.Timeout;
+let progressTimeout: number;
 
 // For csrf handling
 let csrfRefreshPromise: Promise<AxiosResponse> | null = null;

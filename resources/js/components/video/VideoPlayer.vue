@@ -174,9 +174,9 @@ const currentSpeed = ref(1);
 const shouldUpdateUI = computed(() => (isShowingControls.value || isShowingStats.value) && !isScrubbing.value && !isLoading.value);
 
 const latestPlayRequestId = ref<number>(0);
-const controlsHideTimeout = ref<NodeJS.Timeout>();
-const volumeChangeTimeout = ref<NodeJS.Timeout>();
-const autoSeekTimeout = ref<NodeJS.Timeout>();
+const controlsHideTimeout = ref<number>();
+const volumeChangeTimeout = ref<number>();
+const autoSeekTimeout = ref<number>();
 const timeDisplay = ref<'timeElapsed' | 'timeRemaining'>('timeElapsed');
 
 const isShowingAudioGraphSettings = ref(false);

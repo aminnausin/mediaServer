@@ -16,8 +16,8 @@ const props = withDefaults(defineProps<HoverCardProps>(), {
 });
 
 const hoverCardHovered = ref<boolean>(false);
-const hoverCardTimout = ref<NodeJS.Timeout | null>(null);
-const hoverCardLeaveTimeout = ref<NodeJS.Timeout | null>(null);
+const hoverCardTimout = ref<number | null>(null);
+const hoverCardLeaveTimeout = ref<number | null>(null);
 const tooltipStyles = ref<Record<string, string>>({});
 
 const tooltip = useTemplateRef('tooltip');
