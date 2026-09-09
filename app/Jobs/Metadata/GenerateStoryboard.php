@@ -82,8 +82,11 @@ class GenerateStoryboard extends ManagedSubTask {
     }
 
     private function handleGenerateStoryboard(FFmpegCommandBuilder $builder): string {
-        $metadata = Metadata::where('uuid', $this->uuid)->firstOrFail();
-        $metadata->load('video');
+        $metadata = Metadata::with('video')->where('uuid', $this->uuid)->firstOrFail();
+
+        if (! $metadata->video) {
+            throw new FileNotFoundException("No video found for metadata: {$this->uuid}");
+        }
 
         $outputDir = 'metadata/metadata/' . Metadata::buildMetadataDirectory($metadata) . '/storyboard';
 

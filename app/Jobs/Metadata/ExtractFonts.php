@@ -74,8 +74,11 @@ class ExtractFonts extends ManagedSubTask {
     }
 
     private function handleExtractFonts(FontExtractionService $extractor): string {
-        $metadata = Metadata::where('uuid', $this->uuid)->firstOrFail();
-        $metadata->load('video');
+        $metadata = Metadata::with('video')->where('uuid', $this->uuid)->firstOrFail();
+
+        if (! $metadata->video) {
+            throw new FileNotFoundException("No video found for metadata: {$this->uuid}");
+        }
 
         $mediaPath = VerifyFiles::getAbsoluteMediaPath($metadata->video);
         if (! file_exists($mediaPath)) {
