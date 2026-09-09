@@ -19,8 +19,8 @@ class Font extends Model {
      *
      * hash                 -> varchar(64) (nullable)
      *
-     * created_at           -> timestamp (nullable)
-     * updated_at           -> timestamp (nullable)
+     * created_at           -> timestamptz (nullable)
+     * updated_at           -> timestamptz (nullable)
      */
     protected $fillable = [
         'metadata_uuid',
