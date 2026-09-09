@@ -98,6 +98,8 @@ class Series extends Model {
         'films' => 'integer',
     ];
 
+    public const IGNORED_EDITABLE_FIELDS = ['avg_intro_duration', 'rating', 'seasons', 'episodes', 'films', 'start_date', 'end_date', 'studio'];
+
     public function folder(): BelongsTo {
         return $this->belongsTo(Folder::class);
     }

@@ -3,6 +3,7 @@ import type { AxiosError } from 'axios';
 
 import { computed, onMounted, ref, useTemplateRef, watch, nextTick } from 'vue';
 import { handleStorageURL, toTimeSpan, formatFileSize, toPlural } from '@/service/util';
+import { resetSubtitles, runRegenerateFonts } from '@/service/media/attachments';
 import { getMediaDateDescription } from '@/service/media/mediaFormatter';
 import { runRegenerateStoryboard } from '@/service/media/storyboard';
 import { handleEditFolderImages } from '@/service/folder/folderActions';
@@ -11,7 +12,6 @@ import { handleEditMediaImages } from '@/service/media/mediaActions';
 import { getUserViewCount } from '@/service/mediaAPI';
 import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
 import { useContentStore } from '@/stores/ContentStore';
-import { resetSubtitles } from '@/service/media/subtitles';
 import { useModalStore } from '@/stores/ModalStore';
 import { BasePopover } from '@/components/cedar-ui/popover';
 import { storeToRefs } from 'pinia';
@@ -29,6 +29,7 @@ import useMetaData from '@/composables/useMetaData';
 import ShareModal from '@/components/modals/ShareModal.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
+import ProiconsTextFontSize from '~icons/proicons/text-font-size';
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import ProiconsInfoSquare from '~icons/proicons/info-square';
 import TablerDownload from '@/components/icons/TablerDownload.vue';
@@ -91,16 +92,22 @@ const popoverItems = computed(() => {
             hidden: !isAuthenticated.value,
         },
         {
+            icon: ProiconsPhoto,
+            text: (stateVideo.value.storyboard ? 'Reset' : 'Build') + ' Storyboard',
+            hidden: !isAuthenticated.value || stateVideo.value.metadata?.media_type === 1,
+            action: handleResetStoryboard,
+        },
+        {
             icon: IconCaptions,
             text: 'Reset Subtitles',
             hidden: stateVideo.value.metadata?.media_type === 1 || !isAuthenticated.value,
             action: handleResetSubtitles,
         },
         {
-            icon: ProiconsPhoto,
-            text: (stateVideo.value.storyboard ? 'Reset' : 'Build') + ' Storyboard',
-            hidden: !isAuthenticated.value || stateVideo.value.metadata?.media_type === 1,
-            action: handleResetStoryboard,
+            icon: ProiconsTextFontSize,
+            text: `${stateVideo.value.fonts?.length || stateVideo.value.metadata?.fonts_scanned_at ? 'Reset' : 'Build'} Fonts`,
+            hidden: stateVideo.value.metadata?.media_type === 1 || !isAuthenticated.value || stateVideo.value.subtitles.length === 0,
+            action: handleResetFonts,
         },
     ];
 });
@@ -153,6 +160,15 @@ const handleResetSubtitles = () => {
             return axiosErr.response?.data?.message ?? axiosErr.message;
         },
     });
+};
+
+const handleResetFonts = () => {
+    if (!stateVideo.value.metadata?.id) {
+        toast.error('ID Missing');
+        return;
+    }
+
+    runRegenerateFonts(stateVideo.value.id, stateVideo.value.metadata.id);
 };
 
 const handleResetStoryboard = () => {

@@ -3,8 +3,10 @@ import type { SubtitleResource } from '@/types/resources';
 import type { PopoverItem } from '@aminnausin/cedar-ui';
 import type { Ref } from 'vue';
 
-import { computed, inject, nextTick, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+import { computed, inject, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
+import { runRegenerateFonts } from '@/service/media/attachments';
 import { useContentStore } from '@/stores/ContentStore';
+import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { cn, toast } from '@aminnausin/cedar-ui';
 import { round } from 'lodash-es';
@@ -14,6 +16,8 @@ import VideoPopoverSlider from '@/components/video/popover/VideoPopoverSlider.vu
 import VideoPopoverItem from '@/components/video/popover/VideoPopoverItem.vue';
 import VideoPopover from '@/components/video/popover/VideoPopover.vue';
 
+import ProIconsTextHighlightColorOff from '@/components/icons/ProIconsTextHighlightColorOff.vue';
+import ProIconsTextHighlightColor from '~icons/proicons/text-highlight-color';
 import ProiconsTextFontSize from '~icons/proicons/text-font-size';
 import ProiconsCheckmark from '~icons/proicons/checkmark';
 import IconCaptionsOff from '@/components/icons/IconCaptionsOff.vue';
@@ -28,6 +32,7 @@ interface PlayerSubtitlesProps {
 const { instantiateOctopus, clearOctopus, debouncedResetOctopusCache, resizeOctopus } = useOctopusRenderer();
 
 //#region Shared State
+const { useEmbeddedFonts: useFonts } = storeToRefs(useAppStore());
 const { stateVideo } = storeToRefs(useContentStore());
 const player = inject<Ref<HTMLVideoElement>>('player');
 const props = defineProps<PlayerSubtitlesProps>();
@@ -71,6 +76,20 @@ const playerSubtitleItems = computed(() => {
         };
     });
 
+    const toggleFonts: PopoverItem = {
+        icon: useFonts.value ? ProIconsTextHighlightColor : ProIconsTextHighlightColorOff,
+        text: 'Custom Fonts',
+        selected: useFonts.value,
+        selectedIcon: ProiconsCheckmark,
+        selectedIconStyle: 'text-primary',
+        action: () => {
+            useFonts.value = !useFonts.value;
+            if (!stateVideo.value.metadata?.fonts_scanned_at && stateVideo.value.metadata?.id && items.length > 0 && useFonts.value) {
+                runRegenerateFonts(stateVideo.value.id, stateVideo.value.metadata?.id);
+            }
+        },
+    };
+
     const subtitlesOff: PopoverItem = {
         icon: IconCaptionsOff,
         text: 'Off',
@@ -80,7 +99,7 @@ const playerSubtitleItems = computed(() => {
         action: clearSubtitles,
     };
 
-    return [subtitlesOff, ...items];
+    return [toggleFonts, subtitlesOff, ...items].filter(Boolean);
 });
 
 const defaultSubtitleTrack = computed<SubtitleResource | undefined>(() => {
@@ -110,14 +129,14 @@ const handleSizeWheel = (event: WheelEvent) => {
  * Handle Subtitles Toggle
  * @param track -> Defaults to first available subtitle only if not currently showing anything
  */
-const handleSubtitles = (track?: SubtitleResource) => {
+const handleSubtitles = (track?: SubtitleResource, reloadCurrentTrack = false, showToast = true) => {
     const nextTrack = track ?? (isShowingSubtitles.value ? undefined : defaultSubtitleTrack.value);
 
     isShowingSubtitles.value = !!nextTrack;
-    subtitlesPopover.value?.handleClose();
+    if (!reloadCurrentTrack) subtitlesPopover.value?.handleClose();
 
     // If no change, don't bother calculating anything
-    if (currentSubtitleTrack.value?.id === nextTrack?.id && currentSubtitleTrack.value?.metadata_uuid === nextTrack?.metadata_uuid) return;
+    if (currentSubtitleTrack.value?.id === nextTrack?.id && currentSubtitleTrack.value?.metadata_uuid === nextTrack?.metadata_uuid && !reloadCurrentTrack) return;
 
     currentSubtitleTrack.value = nextTrack;
 
@@ -126,14 +145,31 @@ const handleSubtitles = (track?: SubtitleResource) => {
         return;
     }
 
-    if (nextTrack.codec === 'ass') {
-        instantiateOctopus(nextTrack, props.getCurrentTime, stateVideo.value.metadata?.frame_rate);
-        hideNativeTracks();
+    if (nextTrack.codec !== 'ass') {
+        clearOctopus();
+        handleNativeSubtitles(nextTrack);
         return;
     }
 
-    clearOctopus();
-    handleNativeSubtitles(nextTrack);
+    let fontDescription: string | undefined;
+
+    if (useFonts.value && !stateVideo.value.fonts?.length) {
+        switch (stateVideo.value.metadata?.fonts_scanned_at) {
+            case '...scanning':
+                fontDescription = 'Scanning for custom fonts...';
+                break;
+            case null:
+            case undefined:
+            case '':
+                fontDescription = "Custom fonts aren't available yet\nUse “Build Fonts” in the menu to generate them";
+                break;
+            default:
+                fontDescription = 'No custom fonts were found in this file';
+                break;
+        }
+    }
+    instantiateOctopus(nextTrack, props.getCurrentTime, stateVideo.value.metadata?.frame_rate, useFonts.value ? stateVideo.value.fonts : [], fontDescription, showToast);
+    hideNativeTracks();
 };
 
 const handleNativeSubtitles = async (nextTrack: SubtitleResource) => {
@@ -202,6 +238,32 @@ const buildSubtitleUrl = (subtitle?: SubtitleResource): string => {
     const extension = codec === 'ass' ? '.ass' : '.vtt';
     return `/data/subtitles/${metadata_uuid}/${track_id}${languageSlug}${extension}`;
 };
+
+watch(
+    () => useFonts.value,
+    () => {
+        if (!isShowingSubtitles.value || !currentSubtitleTrack.value) {
+            return;
+        }
+
+        handleSubtitles(currentSubtitleTrack.value, true);
+    },
+);
+
+watch(
+    () => ({
+        id: stateVideo.value.id,
+        fonts: stateVideo.value.fonts,
+    }),
+    (current, previous) => {
+        if (!isShowingSubtitles.value || !currentSubtitleTrack.value || !useFonts.value) {
+            return;
+        }
+
+        if (current.id !== previous.id) return;
+        handleSubtitles(currentSubtitleTrack.value, true, false);
+    },
+);
 
 onMounted(() => {
     window.addEventListener('resize', debouncedResetOctopusCache);

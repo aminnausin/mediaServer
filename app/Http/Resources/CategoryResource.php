@@ -43,6 +43,7 @@ class CategoryResource extends JsonResource {
             'downloads_enabled' => $authenticatedRequest ? $this->downloads_enabled : false,
             'downloads_require_auth' => $authenticatedRequest ? $this->downloads_require_auth : true,
             'storyboard_enabled' => $this->storyboard_enabled,
+            'fonts_enabled' => $this->fonts_enabled,
         ];
     }
 }

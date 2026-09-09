@@ -45,6 +45,7 @@ class MetadataResource extends JsonResource {
             'file_modified_at' => $this->first_file_modified_at ?: $this->file_modified_at,
             'first_file_modified_at' => $this->first_file_modified_at,
             'subtitles_scanned_at' => $this->subtitles_scanned_at,
+            'fonts_scanned_at' => $this->fonts_scanned_at,
         ];
     }
 }

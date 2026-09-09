@@ -6,6 +6,7 @@ use App\Exceptions\ForbiddenLibraryException;
 use App\Http\Resources\FolderResource;
 use App\Models\Category;
 use App\Models\Folder;
+use App\Models\Font;
 use App\Models\Subtitle;
 use App\Services\Auth\GuestIdentity;
 use App\Services\PathResolverService;
@@ -114,6 +115,9 @@ class DirectoryController extends Controller {
             'videos.metadata.playbackProgress' => fn ($q) => GuestIdentity::scope($q)->limit(1),
             'videos.metadata.subtitles' => function ($q) {
                 $q->select(Subtitle::getVisibleFields());
+            },
+            'videos.metadata.fonts' => function ($q) {
+                $q->select(Font::getVisibleFields());
             },
         ]);
 

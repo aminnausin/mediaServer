@@ -21,6 +21,7 @@ class Category extends Model {
         'downloads_enabled',
         'downloads_require_auth',
         'storyboard_enabled',
+        'fonts_enabled',
         'is_private',
     ];
 
@@ -29,6 +30,7 @@ class Category extends Model {
         'downloads_enabled' => 'boolean',
         'downloads_require_auth' => 'boolean',
         'storyboard_enabled' => 'boolean',
+        'fonts_enabled' => 'boolean',
     ];
 
     public function folders(): HasMany {
@@ -53,6 +55,10 @@ class Category extends Model {
 
     public function storyboardEnabled(): bool {
         return $this->storyboard_enabled;
+    }
+
+    public function fontsEnabled(): bool {
+        return $this->fonts_enabled;
     }
 
     public function isVisibleTo(?User $user): bool {

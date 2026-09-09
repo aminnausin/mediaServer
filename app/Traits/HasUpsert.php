@@ -9,8 +9,8 @@ trait HasUpsert {
      * Generates tag relationships for any model
      *
      * @param  string  $context  Custom Error Message
-     * @param  Throwable  $th  Original Error
-     * @param  array  $transactions  Upsert Transactions
+     * @param  \Throwable  $th  Original Error
+     * @param  array  $ids  Upsert transactions by id
      * @param  int  $updateCount  Number of updates attempted
      * @param  int|null  $checkCount  Number of checks attempted (optional)
      */

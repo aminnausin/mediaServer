@@ -14,7 +14,7 @@ const player = ref<null | HTMLVideoElement>(null);
 const canvas = ref<null | HTMLCanvasElement>(null);
 const ctx = ref<null | CanvasRenderingContext2D>(null);
 
-const adjustTimeout = ref<NodeJS.Timeout | null>(null); //timeout for resizing canvas
+const adjustTimeout = ref<number | null>(null); //timeout for resizing canvas
 const canUseAmbient = ref<null | boolean>(null);
 const drawInterval = ref<null | number>(null); //interval for fading between frames
 const videoPlayer = useTemplateRef('video-player');

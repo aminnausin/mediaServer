@@ -29,10 +29,11 @@ function setupCanvasMock() {
     });
 }
 
+vi.mock('canvas', () => ({}));
+
 describe('frameService', () => {
     beforeEach(() => {
         vi.resetAllMocks();
-        vi.mock('canvas', () => ({}));
 
         setupCanvasMock();
 

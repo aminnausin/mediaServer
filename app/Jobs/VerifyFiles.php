@@ -6,6 +6,7 @@ use App\Data\Subtitles\SubtitleScanTarget;
 use App\Enums\ImageType;
 use App\Enums\MediaType;
 use App\Enums\TaskStatus;
+use App\Jobs\Metadata\ExtractFonts;
 use App\Jobs\Metadata\GenerateStoryboard;
 use App\Jobs\Utility\Subtitles\ScanSubtitles;
 use App\Models\Metadata;
@@ -31,6 +32,8 @@ class VerifyFiles extends ManagedSubTask {
     protected $embedChain = [];
 
     protected $storyboardChain = [];
+
+    protected $fontChain = [];
 
     protected $scannedDirectories = []; // this could go in the indexer but realistically it is only scanning each directory once and caching the "result" to later batch actual subtitle indexing
 
@@ -69,7 +72,7 @@ class VerifyFiles extends ManagedSubTask {
                 );
             }
 
-            $additionalTaskChain = array_merge($this->embedChain, $this->subtitleScanChain, $this->storyboardChain);
+            $additionalTaskChain = array_merge($this->embedChain, $this->subtitleScanChain, $this->storyboardChain, $this->fontChain);
             $additionalTaskCount = count($additionalTaskChain);
 
             $taskCountUpdates = [
@@ -348,7 +351,7 @@ class VerifyFiles extends ManagedSubTask {
 
                 // Only update title from audioMetadata if not set or file is of type audio with an embedded title and was updated
                 if ((is_null($metadata->title) || $fileUpdated) && $is_audio && isset($audioMetadata['title'])) {
-                    $changes['title'] = $audioMetadata['title'] ?? $metadata->title;
+                    $changes['title'] = substr($audioMetadata['title'], 0, 255) ?? $metadata->title;
                 }
 
                 if (is_null($metadata->description)) {
@@ -360,15 +363,15 @@ class VerifyFiles extends ManagedSubTask {
                 }
 
                 if (is_null($metadata->artist) || $fileUpdated) {
-                    $changes['artist'] = $audioMetadata['artist'] ?? $metadata->artist;
+                    $changes['artist'] = substr($audioMetadata['artist'] ?? $metadata->artist, 0, 255);
                 }
 
                 if (is_null($metadata->album) || $fileUpdated) {
-                    $changes['album'] = $audioMetadata['album'] ?? $metadata->album;
+                    $changes['album'] = substr($audioMetadata['album'] ?? $metadata->album, 0, 255);
                 }
 
                 if (is_null($metadata->codec) && ! isset($changes['codec'])) {
-                    $changes['codec'] = $audioMetadata['codec'] ?? $metadata->codec;
+                    $changes['codec'] = substr($audioMetadata['codec'] ?? $metadata->codec, 0, 255);
                 }
 
                 if ((is_null($metadata->bitrate) || $fileUpdated) && ! isset($changes['bitrate']) && ! $is_audio) {
@@ -386,8 +389,17 @@ class VerifyFiles extends ManagedSubTask {
 
                 // If no storyboard and storyboard_scanned_at is null OR storyboard was scanned before file was last modified or file was just updated
                 $needsStoryboard = $fileUpdated || (! $metadata->storyboard_scanned_at && ! $metadata->storyboard) || $metadata->storyboard_scanned_at?->lt($metadata->file_modified_at);
-                if ($this->generateImageTasks && ! $is_audio && $video->folder->category->storyboard_enabled && ($needsStoryboard)) {
+                if ($this->generateImageTasks && ! $is_audio && $video->folder->category->storyboard_enabled && $needsStoryboard) {
                     $this->storyboardChain[] = new GenerateStoryboard(
+                        filePath: $filePath,
+                        uuid: $uuid,
+                        taskId: $this->taskId,
+                    );
+                }
+
+                $needsFonts = $fileUpdated || (! $metadata->fonts_scanned_at && count($metadata->fonts) === 0) || $metadata->fonts_scanned_at?->lt($metadata->file_modified_at);
+                if (! $is_audio && $video->folder->category->fonts_enabled && $needsFonts) {
+                    $this->fontChain[] = new ExtractFonts(
                         filePath: $filePath,
                         uuid: $uuid,
                         taskId: $this->taskId,
@@ -476,7 +488,7 @@ class VerifyFiles extends ManagedSubTask {
         }
     }
 
-    public static function getFileMetadata($filePath, $reason = 'und') {
+    public static function getFileMetadata(string $filePath, $reason = 'und') {
         try {
             // ? FFMPEG module with 6 test folders takes 35+ seconds but running the commands through shell takes 18 seconds
 

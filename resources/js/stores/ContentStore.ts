@@ -27,6 +27,7 @@ const emptyLibrary: CategoryResource = {
     downloads_enabled: false,
     downloads_require_auth: false,
     storyboard_enabled: false,
+    fonts_enabled: false,
 };
 const emptyFolder: FolderResource = { id: 0, name: '', title: '', path: '', file_count: 0, total_size: 0, is_majority_audio: false, category_id: 0, videos: [], last_scan: -1 };
 const emptyMedia: VideoResource = {
@@ -202,7 +203,7 @@ export const useContentStore = defineStore('Content', () => {
 
             // build based on folder title (from series) and category name
             const correctCategory = stateDirectory.value.name;
-            const correctFolder = stateFolder.value.title;
+            const correctFolder = stateFolder.value.title ?? stateFolder.value.name;
 
             // rebuilds url with exact values if url parameters were partial
             if (route.params.category !== correctCategory || route.params.folder !== correctFolder) {

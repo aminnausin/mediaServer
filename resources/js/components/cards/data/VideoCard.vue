@@ -179,6 +179,7 @@ const dateInformation = computed(() => getMediaDateDescription(videoData));
                             class="xs:block hidden"
                             v-if="videoData.progress_percentage === 100 || videoData.completion_count > 0"
                             :content-title="`Completed ${videoData.completion_count || 1} time${toPlural(videoData.completion_count || 1)}`"
+                            :content="`Last completed on ${toFormattedDate(videoData.last_completed_at)}`"
                             :hover-card-delay="400"
                             :hover-card-leave-delay="300"
                         >

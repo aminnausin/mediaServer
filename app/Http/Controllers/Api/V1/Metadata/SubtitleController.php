@@ -23,7 +23,7 @@ class SubtitleController extends Controller {
      * Route: /data/subtitles/{metadata:uuid}/{track}.{format?}
      */
     public function show(
-        Request $request,
+        Request $_,
         Metadata $metadata,
         int $track, // track number to specify file like 2.vtt or 3.vtt
         string $format = 'vtt'
@@ -33,7 +33,7 @@ class SubtitleController extends Controller {
     }
 
     public function showExternalTrack(
-        Request $request,
+        Request $_,
         Metadata $metadata,
         string $language,
         string $format = 'vtt'
@@ -42,7 +42,7 @@ class SubtitleController extends Controller {
     }
 
     public function reset(
-        Request $request,
+        Request $_,
         Metadata $metadata
     ) {
         $this->subtitleManager->resetSubtitleFiles($metadata);

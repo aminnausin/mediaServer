@@ -16,6 +16,7 @@ export interface CategoryResource {
     downloads_enabled: boolean;
     downloads_require_auth: boolean;
     storyboard_enabled: boolean;
+    fonts_enabled: boolean;
 }
 
 //#region Folders
@@ -37,6 +38,7 @@ export interface FolderResource {
     scanned_at?: string;
     updated_at?: string;
     edited_at?: string;
+    released_at?: string;
 }
 
 export interface SeriesResource {
@@ -120,6 +122,7 @@ export interface MetadataResource {
     file_modified_at?: string;
     first_file_modified_at?: string;
     subtitles_scanned_at?: string;
+    fonts_scanned_at?: string;
 }
 
 export interface VideoResource {
@@ -151,6 +154,7 @@ export interface VideoResource {
     progress_created_at?: string;
     progress_updated_at?: string;
     completion_count: number;
+    last_completed_at?: string;
 
     folder_id?: number;
     library_id?: number;
@@ -159,6 +163,8 @@ export interface VideoResource {
 
     folder_name?: string;
     library_name?: string;
+
+    fonts?: string[];
 }
 
 export interface SubtitleResource {
@@ -170,6 +176,11 @@ export interface SubtitleResource {
     codec?: string;
     is_default: boolean;
     is_forced: boolean;
+}
+
+export interface FontResource {
+    file_name: string;
+    path: string;
 }
 
 export interface StoryboardResource {

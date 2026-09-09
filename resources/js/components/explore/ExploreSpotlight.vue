@@ -45,8 +45,8 @@ const folderInfoTags = computed(() => {
 
     const getCount = (title: string, value: number = activeFolder.value.file_count) => `${value} ${title}${toPlural(value)}`;
 
-    if (!activeFolder.value.series?.seasons) return [getCount('File')];
     if (activeFolder.value.is_majority_audio) return [getCount('Track')];
+    if (!activeFolder.value.series?.seasons) return [getCount('File')];
 
     const tags = [getCount('Episode', activeFolder.value.series.episodes)];
 

@@ -85,6 +85,7 @@ class CategoryController extends Controller {
             'downloads_enabled' => 'sometimes|boolean',
             'downloads_require_auth' => 'sometimes|boolean',
             'storyboard_enabled' => 'sometimes|boolean',
+            'fonts_enabled' => 'sometimes|boolean',
         ]);
 
         $category->update(array_merge($validated, ['editor_id' => Auth::id()]));

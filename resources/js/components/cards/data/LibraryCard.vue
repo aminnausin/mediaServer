@@ -84,7 +84,7 @@ const handleGenerateStoryboards = async () => {
 };
 
 const handleToggleSetting = async (
-    setting: keyof Pick<CategoryResource, 'is_private' | 'downloads_enabled' | 'downloads_require_auth' | 'storyboard_enabled'>,
+    setting: keyof Pick<CategoryResource, 'is_private' | 'downloads_enabled' | 'downloads_require_auth' | 'storyboard_enabled' | 'fonts_enabled'>,
     currentValue: boolean,
     successMessage: (newValue: boolean) => string,
 ) => {

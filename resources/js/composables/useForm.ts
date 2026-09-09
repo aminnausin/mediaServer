@@ -28,7 +28,7 @@ interface FormState<T> {
 
 export default function useForm<T extends Record<string, any>>(fields: FormFields<T>) {
     let defaults = fields;
-    let recentlySuccessfulTimeoutId: NodeJS.Timeout;
+    let recentlySuccessfulTimeoutId: number;
 
     const form = reactive<FormState<T>>({
         fields: cloneDeep(fields),

@@ -2,7 +2,7 @@ import { reactive, ref } from 'vue';
 
 export function useTooltipVisibility(delay: number = 200, leaveDelay: number = 100) {
     const tooltipVisible = ref(false);
-    const timeouts = reactive<{ enter: NodeJS.Timeout | null; leave: NodeJS.Timeout | null }>({
+    const timeouts = reactive<{ enter: number | null; leave: number | null }>({
         enter: null,
         leave: null,
     });

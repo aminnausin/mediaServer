@@ -70,6 +70,7 @@ class Metadata extends Model {
      *
      * storyboard_scanned_at    -> timestamptz (nullable)
      * poster_scanned_at        -> timestamptz (nullable)
+     * fonts_scanned_at         -> timestamptz (nullable)
      */
     protected $fillable = [
         // Id
@@ -115,6 +116,7 @@ class Metadata extends Model {
         'file_modified_at',
         'subtitles_scanned_at',
         'storyboard_scanned_at',
+        'fonts_scanned_at',
         'poster_scanned_at',
         'first_file_modified_at',
         'edited_at',
@@ -130,6 +132,7 @@ class Metadata extends Model {
         'file_modified_at' => 'datetime',
         'first_file_modified_at' => 'datetime',
         'storyboard_scanned_at' => 'datetime',
+        'fonts_scanned_at' => 'datetime',
         'poster_scanned_at' => 'datetime',
 
         'edited_at' => 'datetime',
@@ -140,6 +143,8 @@ class Metadata extends Model {
 
         'raw_metadata' => 'array',
     ];
+
+    public const IGNORED_EDITABLE_FIELDS = ['intro_start', 'intro_duration', 'episode', 'season', 'release_date'];
 
     public function video(): BelongsTo {
         return $this->belongsTo(Video::class);
@@ -167,6 +172,10 @@ class Metadata extends Model {
 
     public function subtitles(): HasMany {
         return $this->hasMany(Subtitle::class, 'metadata_uuid', 'uuid')->orderBy('track_id');
+    }
+
+    public function fonts(): HasMany {
+        return $this->hasMany(Font::class, 'metadata_uuid', 'uuid');
     }
 
     public function images(): MorphMany {
