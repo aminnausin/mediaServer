@@ -127,10 +127,9 @@ class ResetDemo extends Command {
 
         foreach ($nonGeneratedPosterImages as $image) {
             try {
-                if (!Storage::disk('public')->delete($image->path)) {
-                    throw new \RuntimeException("Operation Failed");
+                if (! Storage::disk('public')->delete($image->path)) {
+                    throw new \RuntimeException('Operation Failed');
                 }
-
 
                 $deletedImageIds[] = $image->id;
                 $deletedLog[] = ['id' => $image->id, 'imageable_id' => $image->imageable_id, 'type' => $image->image_type, 'source' => $image->image_source, 'source_url' => $image->source_url, 'path' => $image->path];
