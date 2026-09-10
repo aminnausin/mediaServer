@@ -175,6 +175,7 @@ const submitSubTaskDelete = async (id: number) => {
         await deleteSubTask(id);
         toast.add('Success', { type: 'success', description: `Sub Task ${id} deleted successfully!`, life: 3000 });
         loadData();
+        // This needs to reset subtasks for the card that owns the task
     } catch (error) {
         toast.add('Error', { type: 'warning', description: 'Unable to delete sub task. Please try again.', life: 3000 });
         console.error(error);
