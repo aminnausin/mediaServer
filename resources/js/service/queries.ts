@@ -93,12 +93,10 @@ export const useGetUsers = () => {
 };
 
 export const useGetTasks = () => {
-    const { isAuthenticated, userData } = useAuth();
+    const { isAuthenticated } = useAuth();
     return useQuery<{ data: TaskResource[] }>({
         queryKey: ['tasks'],
         queryFn: async () => {
-            if (userData.value?.id !== 1) return { data: [] };
-
             const { data: response } = await getTasks();
             return response;
         },

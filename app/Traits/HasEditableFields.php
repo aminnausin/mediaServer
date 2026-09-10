@@ -2,27 +2,34 @@
 
 namespace App\Traits;
 
+use Illuminate\Database\Eloquent\Builder;
+
+/**
+ * @method static Builder query()
+ * @method bool save(array $options = [])
+ */
 trait HasEditableFields {
+    abstract protected function getEditableFields(): array;
+
     public function resetEditableFields(): void {
-        $fresh = new static;
+        $defaults = new static;
 
         foreach ($this->getEditableFields() as $field) {
-            $this->{$field} = $fresh->{$field};
+            $this->{$field} = $defaults->{$field};
         }
 
         $this->save();
     }
 
     /**
-     * Static method: resets editable fields for all rows in the table (SQL bulk update).
+     * Reset editable fields for all rows in the table (SQL bulk update).
      */
-    public static function resetAllEditableFields(): void {
-        $fresh = new static;
-        $fields = $fresh->getEditableFields();
+    public static function resetAllEditableFields(array $extraFields = []): void {
+        $defaults = new static;
 
         $updates = [];
-        foreach ($fields as $field) {
-            $updates[$field] = $fresh->{$field};
+        foreach ([...$defaults->getEditableFields(), ...$extraFields] as $field) {
+            $updates[$field] = $defaults->{$field};
         }
 
         static::query()->update($updates);

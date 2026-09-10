@@ -122,12 +122,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/user-view-count/{metadata}', [RecordController::class, 'userViewCount']);
 
     // Server
-    Route::resource('/tasks', TaskController::class)->only(['index', 'destroy']);
-    Route::resource('/sub-tasks', SubTaskController::class)->only(['show', 'destroy']);
     Route::resource('/analytics', AnalyticsController::class)->only(['index']);
+    Route::prefix('sub-tasks')->middleware('can:admin')->group(function () {
+        Route::get('/{task}', [SubTaskController::class, 'show']);
+        Route::delete('/{subTask}', [SubTaskController::class, 'destroy']);
+    });
 
-    Route::post('/sub-tasks/{task}', [SubTaskController::class, 'show']);
-
+    Route::resource('/tasks', TaskController::class)->only(['index', 'destroy']);
     Route::prefix('tasks')->group(function () {
         Route::get('/stats', [TaskController::class, 'stats']);
         Route::get('/wait-times', [TaskController::class, 'waitTimes']);

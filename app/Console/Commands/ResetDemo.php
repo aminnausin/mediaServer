@@ -77,7 +77,7 @@ class ResetDemo extends Command {
 
         $this->clearStructureFiles();
 
-        Metadata::resetAllEditableFields();
+        Metadata::resetAllEditableFields(['poster_scanned_at']);
         Series::resetAllEditableFields();
 
         Artisan::call('mediaServer:scan', ['library_id' => 1]);
@@ -116,18 +116,21 @@ class ResetDemo extends Command {
     }
 
     /**
-     * Resets the poster for `metadata` to the auto generated image if exists
+     * Resets the poster for `metadata` to the auto generated or embedded image if exists
      * Deletes all other images for `metadata` and `series` (including ogp images)
      */
     private function resetGeneratedPosters(): void {
-        $nonGeneratedPosterImages = Image::where('image_source', '!=', ImageSource::GENERATED->value)->orWhere('image_type', ImageType::OGP->value)->get();
+        $nonGeneratedPosterImages = Image::whereNotIn('image_source', [ImageSource::GENERATED->value, ImageSource::EMBEDDED->value])->orWhere('image_type', ImageType::OGP->value)->get();
 
         $deletedImageIds = [];
         $deletedLog = [];
 
         foreach ($nonGeneratedPosterImages as $image) {
             try {
-                Storage::disk('public')->delete($image->path);
+                if (! Storage::disk('public')->delete($image->path)) {
+                    throw new \RuntimeException('Operation Failed');
+                }
+
                 $deletedImageIds[] = $image->id;
                 $deletedLog[] = ['id' => $image->id, 'imageable_id' => $image->imageable_id, 'type' => $image->image_type, 'source' => $image->image_source, 'source_url' => $image->source_url, 'path' => $image->path];
             } catch (\Throwable $e) {
@@ -140,18 +143,21 @@ class ResetDemo extends Command {
         Image::whereIn('id', $deletedImageIds)->delete();
         $this->info("✅ Deleted {$deletedCount} non-generated images from disk and DB.");
         if ($deletedCount > 0) {
-            Log::info("Deleted {$deletedCount} non-generated images from disk and DB.", $deletedLog);
+            Log::info("Deleted {$deletedCount} non-generated images from disk and DB.", [
+                'count' => $deletedCount,
+                'images' => $deletedLog,
+            ]);
         }
 
         // might have to handle replaced auto generated posters somehow
-        $generatedByMetadataUuid = Image::where('image_source', ImageSource::GENERATED->value)
+        $generatedPostersByMetadataUuid = Image::where('image_source', ImageSource::GENERATED->value)
             ->where('imageable_type', Metadata::class)
             ->where('image_type', ImageType::POSTER->value)
             ->get()
             ->groupBy('imageable_id');
 
-        Metadata::query()->each(function (Metadata $metadata) use ($generatedByMetadataUuid) {
-            $generatedId = $generatedByMetadataUuid->get($metadata->uuid)?->first()?->id;
+        Metadata::query()->each(function (Metadata $metadata) use ($generatedPostersByMetadataUuid) {
+            $generatedId = $generatedPostersByMetadataUuid->get($metadata->uuid)?->first()?->id;
 
             if ($generatedId && $metadata->primary_poster_id !== $generatedId) {
                 $metadata->primary_poster_id = $generatedId;
