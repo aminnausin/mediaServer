@@ -150,7 +150,7 @@ class ResetDemo extends Command {
         }
 
         // might have to handle replaced auto generated posters somehow
-        $generatedPostersByMetadataUuid = Image::where('image_source', ImageSource::GENERATED->value)
+        $generatedPostersByMetadataUuid = Image::whereIn('image_source', [ImageSource::GENERATED->value, ImageSource::EMBEDDED->value])
             ->where('imageable_type', Metadata::class)
             ->where('image_type', ImageType::POSTER->value)
             ->get()
