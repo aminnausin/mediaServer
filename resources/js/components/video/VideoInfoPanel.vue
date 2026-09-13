@@ -74,7 +74,14 @@ const popoverItems = computed(() => {
                     return;
                 }
 
-                window.open(`/api/media/${stateVideo.value.id}/download`, '_blank');
+                const link = document.createElement('a');
+                link.href = `/api/media/${stateVideo.value.id}/download`;
+                link.setAttribute('download', '');
+                link.style.display = 'none';
+
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             },
             hidden: !stateDirectory.value.downloads_enabled || !stateFolder.value.series?.downloads_enabled,
             disabled: !stateVideo.value.id,
