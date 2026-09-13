@@ -86,6 +86,7 @@ const popoverItems = computed(() => {
             hidden: !stateDirectory.value.downloads_enabled || !stateFolder.value.series?.downloads_enabled,
             disabled: !stateVideo.value.id,
         },
+        { divider: true, hidden: !isAuthenticated.value },
         {
             icon: IconEdit,
             text: 'Edit Metadata',
@@ -274,12 +275,11 @@ onMounted(() => {
                 <template #content>
                     <ContextMenuItem
                         v-for="popoverItem in popoverItems.filter((itm) => !itm.hidden)"
+                        v-bind="popoverItem"
                         :key="popoverItem.text"
-                        :icon="popoverItem.icon"
-                        :text="popoverItem.text"
-                        :disabled="popoverItem.disabled"
                         :action="
                             () => {
+                                if (!popoverItem.action) return;
                                 mobilePopover?.handleClose();
                                 popoverItem.action();
                             }
@@ -414,12 +414,11 @@ onMounted(() => {
                         <template #content>
                             <ContextMenuItem
                                 v-for="popoverItem in popoverItems.filter((itm) => itm.text !== 'Edit Metadata' && !itm.hidden)"
+                                v-bind="popoverItem"
                                 :key="popoverItem.text"
-                                :icon="popoverItem.icon"
-                                :text="popoverItem.text"
-                                :disabled="popoverItem.disabled"
                                 :action="
                                     () => {
+                                        if (!popoverItem.action) return;
                                         popover?.handleClose();
                                         popoverItem.action();
                                     }
