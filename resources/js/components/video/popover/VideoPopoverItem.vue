@@ -7,7 +7,7 @@ const props = withDefaults(defineProps<PopoverItem>(), {});
 </script>
 <template>
     <button
-        :title="title ?? 'Popover Item'"
+        :title="title ?? ''"
         :class="
             cn(
                 'disabled:button-disabled transition-input flex w-full cursor-pointer items-center rounded-md px-2 py-1.5 text-xs ease-in-out select-none',
