@@ -10,9 +10,9 @@ import { cn } from '@aminnausin/cedar-ui';
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
-import ProiconsMusicNote2 from '~icons/proicons/music-note-2';
 import CircumPlay1 from '~icons/circum/play-1';
 import IconFolder from '@/components/icons/IconFolder.vue';
+import IconMusic from '@/components/icons/IconMusic.vue';
 
 const props = defineProps<{
     videos?: VideoResource[];
@@ -31,7 +31,7 @@ const groups = computed(() => groupActivityFeed(feed.value));
 const typeIcon = (type: string) => {
     switch (type) {
         case 'audio':
-            return ProiconsMusicNote2;
+            return IconMusic;
         case 'folder':
             return IconFolder;
         default:
