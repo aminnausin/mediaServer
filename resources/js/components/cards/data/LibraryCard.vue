@@ -277,7 +277,7 @@ watch(
 
                 <div class="bg-hr dark:bg-hr/30 -mx-3 mt-1 h-px shrink-0"></div>
 
-                <div class="xms:flex-nowrap flex flex-wrap items-center justify-between gap-1 gap-x-2 gap-y-1">
+                <div class="xms:flex-nowrap flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                     <p v-if="defaultFolder" class="space-x-1 truncate">
                         <span class="text-foreground-2 shrink-0">Default:</span>
                         <RouterLink class="hover:text-primary dark:hover:text-primary-muted" title="Open Default Folder" :to="`/${data.name}/${defaultFolder.name}`">
