@@ -29,7 +29,19 @@ const emptyLibrary: CategoryResource = {
     storyboard_enabled: false,
     fonts_enabled: false,
 };
-const emptyFolder: FolderResource = { id: 0, name: '', title: '', path: '', file_count: 0, total_size: 0, is_majority_audio: false, category_id: 0, videos: [], last_scan: -1 };
+const emptyFolder: FolderResource = {
+    id: 0,
+    name: '',
+    title: '',
+    path: '',
+    file_count: 0,
+    completion_count: 0,
+    total_size: 0,
+    is_majority_audio: false,
+    category_id: 0,
+    videos: [],
+    last_scan: -1,
+};
 const emptyMedia: VideoResource = {
     id: 0,
     name: '',

@@ -31,6 +31,7 @@ export interface FolderResource {
     title: string;
     episodes?: number;
     file_count: number;
+    completion_count: number;
     total_size: number;
     is_majority_audio: boolean;
     videos: VideoResource[];
