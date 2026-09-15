@@ -75,7 +75,7 @@ const { isAdmin, isAuthenticated } = useAuth();
                     @click="handleToggleDownloads(data.series.id, data.series.downloads_enabled ?? false)"
                     :disabled="processing"
                 >
-                    <p class="flex-1 text-start">{{ data.series?.downloads_enabled ? 'Disable Downloads' : 'Enable Downloads' }}</p>
+                    <p class="flex-1 text-start">{{ data.series?.downloads_enabled ? 'Disable' : 'Enable' }} Downloads</p>
                     <template #icon> <TablerDownload v-if="data.series?.downloads_enabled" class="size-4" /> <TablerDownloadOff v-else class="size-4" /></template>
                 </ButtonText>
 

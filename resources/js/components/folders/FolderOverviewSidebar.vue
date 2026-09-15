@@ -23,7 +23,11 @@ const avgDuration = computed(() => totalDuration.value / (stateFolder.value.file
 const watchProgress = computed(() => `${stateFolder.value.videos.reduce((acc, vid) => acc + (vid.completion_count ? 1 : 0), 0)}/${stateFolder.value.file_count}`);
 
 const userInfoRows = computed(() => [
-    { title: 'Progress', tooltip: `You have completed ${watchProgress.value} files`, value: watchProgress.value },
+    {
+        title: 'Progress',
+        tooltip: `You have completed ${watchProgress.value} ${stateFolder.value.is_majority_audio ? 'track' : 'video'}s`,
+        value: watchProgress.value,
+    },
     { title: 'Views', value: totalViews },
 ]);
 </script>

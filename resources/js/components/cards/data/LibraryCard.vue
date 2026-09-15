@@ -221,7 +221,7 @@ watch(
                     </BasePopover>
                 </span>
             </div>
-            <div class="text-foreground-1 font-commit-mono mt-1 flex h-full w-full flex-col gap-2 text-xs" v-if="data">
+            <div class="text-foreground-1 mt-1 flex h-full w-full flex-col gap-2 text-xs" v-if="data">
                 <div class="flex flex-wrap items-start justify-between gap-3 gap-y-1">
                     <span class="flex gap-2">
                         <span class="flex items-center gap-1">
@@ -253,14 +253,3 @@ watch(
         </section>
     </div>
 </template>
-
-<style lang="css" scoped>
-img {
-    image-rendering: auto;
-    image-rendering: crisp-edges;
-    image-rendering: pixelated;
-
-    /* Safari seems to support, but seems deprecated and does the same thing as the others. */
-    image-rendering: -webkit-optimize-contrast;
-}
-</style>

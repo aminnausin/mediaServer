@@ -128,10 +128,10 @@ const handleToggleDownloads = async (id: number, currentValue: boolean) => {
                     </BasePopover>
                 </div>
             </div>
-            <div class="text-foreground-1 font-commit-mono mt-1 flex size-full flex-col gap-2 text-xs">
+            <div class="text-foreground-1 mt-1 flex size-full flex-col gap-2 text-xs">
                 <div class="mt-auto flex flex-wrap items-center justify-between gap-3 gap-y-1">
                     <div class="flex items-center gap-2">
-                        <span class="flex items-center gap-1" :title="`${data.file_count} ${data.is_majority_audio ? 'Track' : 'Video'}${toPlural(data.file_count)}`">
+                        <span class="-ms-0.5 flex items-center gap-1" :title="`${data.file_count} ${data.is_majority_audio ? 'Track' : 'Video'}${toPlural(data.file_count)}`">
                             <template v-if="data.is_majority_audio">
                                 <IconMusic class="size-3.5" />
                                 {{ data.file_count }}
@@ -174,15 +174,6 @@ const handleToggleDownloads = async (id: number, currentValue: boolean) => {
 </template>
 
 <style lang="css" scoped>
-img {
-    image-rendering: auto;
-    image-rendering: crisp-edges;
-    image-rendering: pixelated;
-
-    /* Safari seems to support, but seems deprecated and does the same thing as the others. */
-    image-rendering: -webkit-optimize-contrast;
-}
-
 .data-card {
     &:hover .playback-progress-bar {
         opacity: 1;
