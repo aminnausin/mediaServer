@@ -23,7 +23,11 @@ const avgDuration = computed(() => totalDuration.value / (stateFolder.value.file
 const watchProgress = computed(() => `${stateFolder.value.videos.reduce((acc, vid) => acc + (vid.completion_count ? 1 : 0), 0)}/${stateFolder.value.file_count}`);
 
 const userInfoRows = computed(() => [
-    { title: 'Progress', tooltip: `You have completed ${watchProgress.value} files`, value: watchProgress.value },
+    {
+        title: 'Progress',
+        tooltip: `You have completed ${watchProgress.value} ${stateFolder.value.is_majority_audio ? 'track' : 'video'}s`,
+        value: watchProgress.value,
+    },
     { title: 'Views', value: totalViews },
 ]);
 </script>
@@ -63,8 +67,8 @@ const userInfoRows = computed(() => [
                 <FolderInfoRow
                     v-if="stateFolder.series?.studio"
                     :title="isAudio ? 'Album Artist' : 'Studios'"
-                    valueClass="text-wrap"
-                    :value="stateFolder.series?.studio.replaceAll(';', '\n')"
+                    :value="stateFolder.series?.studio.replaceAll(/\s*;\s*/g, '\n').trim()"
+                    valueClass="text-wrap whitespace-pre-wrap"
                 />
                 <FolderInfoRow v-if="stateFolder.series?.started_at" title="Start Date" :value="stateFolder.series?.started_at" />
                 <FolderInfoRow v-if="stateFolder.series?.ended_at" title="End Date" :value="stateFolder.series?.ended_at" />

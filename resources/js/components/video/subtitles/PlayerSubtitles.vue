@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { SubtitleResource } from '@/types/resources';
-import type { PopoverItem } from '@aminnausin/cedar-ui';
+import type { PopoverItem } from '@/types/types';
 import type { Ref } from 'vue';
 
 import { computed, inject, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
@@ -50,7 +50,7 @@ const subtitleSizeDelta = 0.1;
 
 const subtitlesPopover = useTemplateRef('subtitles-popover');
 
-const playerSubtitleItems = computed(() => {
+const playerSubtitleItems = computed<PopoverItem[]>(() => {
     const items: PopoverItem[] = stateVideo.value.subtitles.map((track) => {
         const isCurrentTrack = isShowingSubtitles.value && currentSubtitleTrack.value?.id === track.id;
 
@@ -99,7 +99,7 @@ const playerSubtitleItems = computed(() => {
         action: clearSubtitles,
     };
 
-    return [toggleFonts, subtitlesOff, ...items].filter(Boolean);
+    return [toggleFonts, { divider: true }, subtitlesOff, ...items].filter(Boolean);
 });
 
 const defaultSubtitleTrack = computed<SubtitleResource | undefined>(() => {
@@ -307,7 +307,12 @@ defineExpose({
             <IconCaptionsOff v-else class="*:stroke-1.5 size-4" />
         </template>
         <template #content>
-            <section :class="['scrollbar-minimal flex h-fit max-h-21 flex-col overflow-y-auto transition-transform md:max-h-35', { 'pe-0.5': playerSubtitleItems.length > 3 }]">
+            <section
+                :class="[
+                    'scrollbar-minimal group/popover-items flex h-fit max-h-21 flex-col overflow-y-auto transition-transform md:max-h-35',
+                    { 'pe-0.5': playerSubtitleItems.length > 3 },
+                ]"
+            >
                 <VideoPopoverSlider
                     v-if="playerSubtitleItems.length > 1 && currentSubtitleTrack && currentSubtitleTrack?.codec !== 'ass'"
                     v-model="subtitleSizeMultiplier"
@@ -321,7 +326,7 @@ defineExpose({
                     :wheel-action="handleSizeWheel"
                     :title="'Change Subtitle Font Size'"
                 />
-                <VideoPopoverItem v-for="(item, index) in playerSubtitleItems" :key="index" v-bind="item" class="*:truncate" />
+                <VideoPopoverItem v-for="(item, index) in playerSubtitleItems" :key="index" v-bind="item" :class="{ '*:truncate': !item.divider }" />
             </section>
         </template>
     </VideoPopover>

@@ -91,6 +91,11 @@ export interface PopoverItem {
     icon?: Component;
     selectedIcon?: Component;
     hidden?: boolean;
+
+    divider?: boolean;
+    children?: ContextMenuItem[];
+    submenuStyle?: string;
+    showLeftIcon?: boolean;
 }
 
 export interface PopoverSlider {

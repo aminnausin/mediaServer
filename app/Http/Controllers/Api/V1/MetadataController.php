@@ -11,10 +11,12 @@ use App\Http\Requests\MetadataStoreRequest;
 use App\Http\Requests\MetadataUpdateRequest;
 use App\Http\Resources\MetadataResource;
 use App\Http\Resources\VideoResource;
+use App\Models\Font;
 use App\Models\Metadata;
 use App\Models\Subtitle;
 use App\Models\Video;
 use App\Models\VideoTag;
+use App\Services\Auth\GuestIdentity;
 use App\Services\Images\ImageService;
 use App\Traits\HasMeaningfulChanges;
 use App\Traits\HasTags;
@@ -137,13 +139,17 @@ class MetadataController extends Controller {
 
     private function eagerLoadVideo(Video $video, Metadata $metadata): Video {
         $metadata->load([
-            'subtitles' => function ($q) {
-                $q->select(Subtitle::getVisibleFields());
-            },
             'videoTags.tag',
             'storyboard',
             'images.user',
             'primaryPoster',
+            'playbackProgress' => fn ($q) => GuestIdentity::scope($q)->limit(1),
+            'subtitles' => function ($q) {
+                $q->select(Subtitle::getVisibleFields());
+            },
+            'fonts' => function ($q) {
+                $q->select(Font::getVisibleFields());
+            },
         ]);
 
         $video->setRelation('metadata', $metadata);

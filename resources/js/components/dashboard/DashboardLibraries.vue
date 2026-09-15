@@ -26,6 +26,7 @@ import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsLibrary from '~icons/proicons/library';
 import ProiconsHome2 from '~icons/proicons/home-2';
 import ProiconsAdd from '~icons/proicons/add';
+import IconFolder from '@/components/icons/IconFolder.vue';
 
 const { stateLibraries, isLoadingLibraries, stateLibraryId, stateLibraryFolders, isLoadingLibraryFolders } = storeToRefs(useDashboardStore());
 const { pageTitle } = storeToRefs(useAppStore());
@@ -61,6 +62,7 @@ const breadCrumbs = computed(() => {
             {
                 name: currentLibrary.value.name,
                 url: `/dashboard/libraries/${currentLibrary.value.id}`,
+                icon: IconFolder,
             },
         ];
     return items;
@@ -144,7 +146,7 @@ const handleScanLibrary = async (id?: number) => {
 const handleFolderAction = (_: any, id: number, action: 'edit' | 'share' = 'edit') => {
     const folder = stateLibraryFolders.value?.find((folder: FolderResource) => folder.id === id);
 
-    if (action === 'edit') modal.open(EditFolderModal, { cachedFolder: folder, queryKeys: [['libraryFolders']] });
+    if (action === 'edit') modal.open(EditFolderModal, { cachedFolder: folder, queryKeys: [['auth-only', 'libraryFolders']] });
 };
 
 watch(

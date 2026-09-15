@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { PopoverItem } from '@/types/types';
 import type { Ref } from 'vue';
 
 import { computed, inject, onMounted, ref, useTemplateRef } from 'vue';
@@ -30,7 +31,7 @@ const player = inject<Ref<HTMLVideoElement>>('player');
 const activeTracks = ref<AudioTrack[]>([]);
 const activeTrackId = ref<string>();
 
-const playerAudioTracks = computed(() =>
+const playerAudioTracks = computed<PopoverItem[]>(() =>
     activeTracks.value.map((track) => {
         const lang = track.language || 'und';
         const text = toTitleCase([lang, track.id].filter(Boolean).join(' '));
@@ -103,8 +104,13 @@ defineExpose({ audioTracksPopover });
             <IconSpeech class="ms-0.5 mb-0.5 size-4.5" />
         </template>
         <template #content>
-            <section :class="['scrollbar-minimal flex h-fit max-h-21 flex-col overflow-y-auto transition-transform md:max-h-35', { 'pe-0.5': playerAudioTracks.length > 3 }]">
-                <VideoPopoverItem v-for="(item, index) in playerAudioTracks" :key="index" v-bind="item" class="capitalize *:truncate" />
+            <section
+                :class="[
+                    'scrollbar-minimal group/popover-items flex h-fit max-h-21 flex-col overflow-y-auto transition-transform md:max-h-35',
+                    { 'pe-0.5': playerAudioTracks.length > 3 },
+                ]"
+            >
+                <VideoPopoverItem v-for="(item, index) in playerAudioTracks" :key="index" v-bind="item" :class="{ 'capitalize *:truncate': !item.divider }" />
             </section>
         </template>
     </VideoPopover>

@@ -28,6 +28,7 @@ class FolderResource extends JsonResource {
             'path' => $this->path,
             'episodes' => $this->series?->episodes ?? 0,
             'file_count' => $this->series?->file_count ?? 0,
+            'completion_count' => 0,
             'total_size' => $this->series?->total_size ?? 0,
             'is_majority_audio' => $this->series?->primary_media_type?->value === MediaType::AUDIO->value,
             'category_id' => $this->category_id,

@@ -141,7 +141,7 @@ onUnmounted(() => {
                 v-if="popoverOpen"
                 :class="
                     cn(
-                        'scrollbar-dark absolute right-2 z-7 w-75 max-w-lg overflow-clip rounded-md border border-neutral-700/10 bg-neutral-800/90 p-1 shadow-xs backdrop-blur-xs',
+                        'scrollbar-dark absolute right-2 z-7 w-75 max-w-lg overflow-clip rounded-md border border-neutral-700/10 bg-neutral-800/90 py-1 shadow-xs backdrop-blur-xs',
                         verticalOffset ? `bottom-${verticalOffset}` : `bottom-16`, // This wont generate classes
                         popoverClass,
                     )

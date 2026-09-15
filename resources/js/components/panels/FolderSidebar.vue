@@ -12,6 +12,7 @@ import { storeToRefs } from 'pinia';
 import { ButtonIcon } from '@/components/cedar-ui/button';
 import { sortObject } from '@/service/sort/baseSort';
 import { TableBase } from '@/components/cedar-ui/table';
+import { useAuth } from '@/composables/auth/useAuth';
 import { FLAGS } from '@/config/featureFlags';
 import { cn } from '@aminnausin/cedar-ui';
 
@@ -28,14 +29,15 @@ const stickyFilters = true;
 
 defineProps<{ urlPrefix?: string; urlSuffix?: string }>();
 
-const modal = useModalStore();
-
 const folderSearchQuery = ref<string>('');
 const folderSortDir = ref<SortDir>(1);
 const folderSortKey = ref<keyof FolderResource>(folderSortingOptions[0].value);
 const showFilters = ref(true);
 
 const { stateDirectory, stateFolder, isLoadingContent } = storeToRefs(useContentStore());
+const { isAuthenticated } = useAuth();
+
+const modal = useModalStore();
 
 const breakpoints = useBreakpoints({ ...breakpointsTailwind, xs: 320, xms: 400, '3xl': 2000 });
 const isDesktop = breakpoints.greaterOrEqual('lg');
@@ -80,9 +82,10 @@ const handleFolderAction = (e: Event, id: number, action: 'edit' | 'share' = 'ed
 <template>
     <span v-if="stickyFilters" :class="['bg-surface-1 absolute top-7.75 left-0 z-1 h-10.75 w-full shrink-0 lg:hidden', { 'h-32': showFilters }]"></span>
     <SidebarHeader
-        :class="['gap-2', { 'sticky top-0 z-1 lg:static': stickyFilters }]"
         :text="stateDirectory.name || 'Folders'"
         :title="stateDirectory.name ? toTitleCase(stateDirectory.name) : 'Library not loaded'"
+        :class="['gap-2', { 'sticky top-0 z-1 lg:static': stickyFilters, 'hover:text-primary dark:hover:text-primary-muted focus:outline-none': isAuthenticated }]"
+        :to="isAuthenticated ? `/dashboard/libraries/${stateDirectory.id}` : ''"
     >
         <ButtonIcon
             v-if="FLAGS.USE_TOGGLE_FOLDER_FILTERS"

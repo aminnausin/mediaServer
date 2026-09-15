@@ -8,6 +8,8 @@ import { cn } from '@aminnausin/cedar-ui';
 
 import ProiconsChevronRight from '~icons/proicons/chevron-right';
 
+defineOptions({ inheritAttrs: false });
+
 const props = withDefaults(defineProps<ContextMenuItem & { divider?: boolean; children?: ContextMenuItem[]; submenuStyle?: string; showLeftIcon?: boolean }>(), {
     selectedStyle: 'dark:text-primary',
     showLeftIcon: true,
@@ -38,6 +40,7 @@ useMutationObserver(subMenu, () => (isFloating.value = subMenu.value?.dataset.fl
                 cn(
                     'hocus:bg-overlay-accent focus-visible:ring-foreground-0 h-7 w-full justify-start rounded-md px-2 py-1.5 ring ring-transparent select-none ring-inset focus:outline-none dark:focus-visible:bg-neutral-950/90',
                     style,
+                    $attrs.class,
                 )
             "
             :disabled="disabled"

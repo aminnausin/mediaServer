@@ -74,11 +74,19 @@ const popoverItems = computed(() => {
                     return;
                 }
 
-                window.open(`/api/media/${stateVideo.value.id}/download`, '_blank');
+                const link = document.createElement('a');
+                link.href = `/api/media/${stateVideo.value.id}/download`;
+                link.setAttribute('download', '');
+                link.style.display = 'none';
+
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             },
             hidden: !stateDirectory.value.downloads_enabled || !stateFolder.value.series?.downloads_enabled,
             disabled: !stateVideo.value.id,
         },
+        { divider: true, hidden: !isAuthenticated.value },
         {
             icon: IconEdit,
             text: 'Edit Metadata',
@@ -267,12 +275,11 @@ onMounted(() => {
                 <template #content>
                     <ContextMenuItem
                         v-for="popoverItem in popoverItems.filter((itm) => !itm.hidden)"
+                        v-bind="popoverItem"
                         :key="popoverItem.text"
-                        :icon="popoverItem.icon"
-                        :text="popoverItem.text"
-                        :disabled="popoverItem.disabled"
                         :action="
                             () => {
+                                if (!popoverItem.action) return;
                                 mobilePopover?.handleClose();
                                 popoverItem.action();
                             }
@@ -407,12 +414,11 @@ onMounted(() => {
                         <template #content>
                             <ContextMenuItem
                                 v-for="popoverItem in popoverItems.filter((itm) => itm.text !== 'Edit Metadata' && !itm.hidden)"
+                                v-bind="popoverItem"
                                 :key="popoverItem.text"
-                                :icon="popoverItem.icon"
-                                :text="popoverItem.text"
-                                :disabled="popoverItem.disabled"
                                 :action="
                                     () => {
+                                        if (!popoverItem.action) return;
                                         popover?.handleClose();
                                         popoverItem.action();
                                     }

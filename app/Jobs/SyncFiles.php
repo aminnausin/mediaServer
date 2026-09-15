@@ -15,7 +15,7 @@ class SyncFiles extends ManagedSubTask {
     /**
      * Create a new job instance.
      */
-    public function __construct($taskId) {
+    public function __construct(int $taskId) {
         if (config('queue.default') === 'redis') {
             $this->onQueue('pipeline');
         }
@@ -93,7 +93,7 @@ class SyncFiles extends ManagedSubTask {
         $taskService->updateSubTask($this->subTaskId, ['summary' => 'Generating Categories']);
 
         $data = Storage::json('categories.json') ?? ['next_ID' => 1, 'categoryStructure' => []]; // array("anime"=>1,"tv"=>2,"yogscast"=>3); // read from json
-        $scanned = Category::all();  // read folder structure
+        $scanned = Category::select(['id', 'name'])->get();  // read folder structure
 
         $currentID = $data['next_ID'];
         $stored = $data['categoryStructure'];
@@ -111,12 +111,12 @@ class SyncFiles extends ManagedSubTask {
             if (! isset($stored[$name])) {
                 // category is not cached locally
                 // add
-                array_push($changes, ['id' => $id, 'name' => $name, 'action' => 'ADD']);
+                $changes[] = ['id' => $id, 'name' => $name, 'action' => 'ADD'];
             } elseif (isset($stored[$name])) {
                 if ($stored[$name] != $id) {
                     // category is cached locally but id is not the same
                     // overwrite
-                    array_push($changes, ['id' => $id, 'name' => $name, 'action' => 'OVERWRITE']);
+                    $changes[] = ['id' => $id, 'name' => $name, 'action' => 'OVERWRITE'];
                 }
                 // else category is cached locally and id is correct
                 // no action
@@ -139,7 +139,7 @@ class SyncFiles extends ManagedSubTask {
 
         $data = Storage::json('folders.json') ?? ['next_ID' => 1, 'folderStructure' => []]; // array("anime/frieren"=>array("id"=>0,"name"=>"frieren"),"starwars/andor"=>array("id"=1,"name"="andor")); // read from json
         $cost = 0;
-        $scanned = Folder::all();
+        $scanned = Folder::select(['id', 'name', 'path'])->get();
 
         $currentID = $data['next_ID'];
         $stored = $data['folderStructure'];
@@ -158,12 +158,12 @@ class SyncFiles extends ManagedSubTask {
                 // folder is not cached locally
                 // add
                 // no last scan
-                array_push($changes, ['id' => $id, 'name' => $name, 'last_scan' => -1, 'action' => 'ADD']);
+                $changes[] = ['id' => $id, 'name' => $name, 'last_scan' => -1, 'action' => 'ADD'];
             } else {
                 if ($stored[$path]['id'] != $id || ! isset($stored[$path]['last_scan'])) {
                     // folder is cached locally but id is not the same
                     // overwrite
-                    array_push($changes, ['id' => $id, 'name' => $name, 'last_scan' => -1, 'action' => 'OVERWRITE']);
+                    $changes[] = ['id' => $id, 'name' => $name, 'last_scan' => -1, 'action' => 'OVERWRITE'];
                 }
                 // else folder is cached locally and is correct
                 // no action
@@ -171,7 +171,7 @@ class SyncFiles extends ManagedSubTask {
                 unset($stored[$path]);
             }
 
-            $cost += 1;
+            $cost++;
             if ($id >= $currentID) {
                 $currentID = $id + 1;
             }
@@ -187,14 +187,13 @@ class SyncFiles extends ManagedSubTask {
         $taskService->updateSubTask($this->subTaskId, ['summary' => 'Generating Videos', 'progress' => 50]);
 
         $data = Storage::json('videos.json') ?? ['next_ID' => 1, 'videoStructure' => []]; // array("anime/frieren/S1E01.mp4"=>array("id"=>0,"name"=>"S1E01"),"starwars/andor/S1E01.mkv"=>array("id"=1,"name"="S1E01.mkv")); // read from json
-        $scanned = Video::all();
-        $cost = 0;
+        $scanned = Video::select(['id', 'name', 'path'])->get();
 
+        $cost = 0;
         $currentID = $data['next_ID'];
         $stored = $data['videoStructure'];
         $changes = []; // send to db
         $current = []; // save into json
-
         $foldersCopy = $folderStructure;
 
         foreach ($scanned as $video) {
@@ -206,26 +205,26 @@ class SyncFiles extends ManagedSubTask {
             // Should remove local entries if they dont exist on the database and cause a rescan
 
             $name = $video->name;
-            $path = dirname($video->path) . '/' . basename($video->path);
+            $path = $video->path;
             $id = $video->id;
             $current[$path] = $id;
 
             if (! isset($stored[$path])) {
                 // video is not cached locally
                 // add
-                array_push($changes, ['id' => $id, 'name' => $name, 'action' => 'ADD']);
+                $changes[] = ['id' => $id, 'name' => $name, 'action' => 'ADD'];
             } elseif (isset($stored[$path])) {
                 if ($stored[$path] != $id) {
                     // video is cached locally but id is not the same
                     // overwrite
-                    array_push($changes, ['id' => $id, 'name' => $name, 'action' => 'OVERWRITE']);
+                    $changes[] = ['id' => $id, 'name' => $name, 'action' => 'OVERWRITE'];
                 }
                 // else video is cached locally and id is correct
                 // no action
                 unset($stored[$path]);
             }
 
-            $cost += 1;
+            $cost++;
             if ($id >= $currentID) {
                 $currentID = $id + 1;
             }
