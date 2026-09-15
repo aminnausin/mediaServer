@@ -381,96 +381,93 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
     ].map((item) => ({ ...item, selectedStyle: '' })),
 );
 
-const videoPopoverItems = computed(() => {
-    const items: PopoverItem[] = [
-        {
-            text: 'Ambient Mode',
-            title: 'Toggle Ambient Mode',
-            icon: ProiconsSparkle2,
-            selectedIcon: ProiconsCheckmark,
-            selected: ambientMode.value,
-            disabled: lightMode.value,
-            action: () => {
-                ambientMode.value = !ambientMode.value;
-            },
+const videoPopoverItems = computed<PopoverItem[]>(() => [
+    {
+        text: 'Ambient Mode',
+        title: 'Toggle Ambient Mode',
+        icon: ProiconsSparkle2,
+        selectedIcon: ProiconsCheckmark,
+        selected: ambientMode.value,
+        disabled: lightMode.value,
+        action: () => {
+            ambientMode.value = !ambientMode.value;
         },
-        {
-            text: 'Heatmap',
-            title: 'Toggle Playback Heatmap',
-            icon: ProiconsArrowTrending,
-            selectedIcon: ProiconsCheckmark,
-            selected: playbackHeatmap.value,
-            action: () => {
-                playbackHeatmap.value = !playbackHeatmap.value;
-            },
+    },
+    {
+        text: 'Heatmap',
+        title: 'Toggle Playback Heatmap',
+        icon: ProiconsArrowTrending,
+        selectedIcon: ProiconsCheckmark,
+        selected: playbackHeatmap.value,
+        action: () => {
+            playbackHeatmap.value = !playbackHeatmap.value;
         },
-        {
-            text: 'Lyrics',
-            title: `Toggle Lyrics`,
-            icon: isShowingLyrics.value ? TablerMicrophone2 : TablerMicrophone2Off,
-            iconStyle: `*:stroke-[1.4px]`,
-            selectedIcon: ProiconsCheckmark,
-            selected: isShowingLyrics.value,
-            selectedIconStyle: 'stroke-none',
-            disabled: getScreenSize() !== 'default' || (!isAudio.value && !stateFolder.value.is_majority_audio),
-            action: () => {
-                isShowingLyrics.value = !isShowingLyrics.value;
-            },
+    },
+    {
+        text: 'Lyrics',
+        title: `Toggle Lyrics`,
+        icon: isShowingLyrics.value ? TablerMicrophone2 : TablerMicrophone2Off,
+        iconStyle: `*:stroke-[1.4px]`,
+        selectedIcon: ProiconsCheckmark,
+        selected: isShowingLyrics.value,
+        selectedIconStyle: 'stroke-none',
+        disabled: getScreenSize() !== 'default' || (!isAudio.value && !stateFolder.value.is_majority_audio),
+        action: () => {
+            isShowingLyrics.value = !isShowingLyrics.value;
         },
-        {
-            text: 'Autoplay',
-            title: `Toggle autoplaying the next ${isAudio.value ? 'track' : 'video'}`,
-            icon: MagePlaylist,
-            selectedIcon: ProiconsCheckmark,
-            selected: isPlaylist.value,
-            action: handleToggleAutoplay,
+    },
+    {
+        text: 'Autoplay',
+        title: `Toggle autoplaying the next ${isAudio.value ? 'track' : 'video'}`,
+        icon: MagePlaylist,
+        selectedIcon: ProiconsCheckmark,
+        selected: isPlaylist.value,
+        action: handleToggleAutoplay,
+    },
+    {
+        text: 'Auto Subtitles',
+        title: `Automatically select the default subtitle track`,
+        icon: showAutoSubtitles.value ? IconCaptions : IconCaptionsOff,
+        selectedIcon: ProiconsCheckmark,
+        selected: showAutoSubtitles.value,
+        action: () => (showAutoSubtitles.value = !showAutoSubtitles.value),
+        disabled: isAudio.value,
+    },
+    {
+        text: 'Audio Graph',
+        title: 'Toggle Audio Visualiser',
+        icon: IconSpectrograph,
+        selectedIcon: ProiconsCheckmark,
+        selected: isAudioGraphEnabled.value,
+        action: () => {
+            isAudioGraphEnabled.value = !isAudioGraphEnabled.value;
+            if (!isAudioGraphEnabled.value) isShowingAudioGraphSettings.value = false;
         },
-        {
-            text: 'Auto Subtitles',
-            title: `Automatically select the default subtitle track`,
-            icon: showAutoSubtitles.value ? IconCaptions : IconCaptionsOff,
-            selectedIcon: ProiconsCheckmark,
-            selected: showAutoSubtitles.value,
-            action: () => (showAutoSubtitles.value = !showAutoSubtitles.value),
-            disabled: isAudio.value,
+    },
+    {
+        text: 'Modern UI',
+        title: `Toggle backgrounds on player controls`,
+        icon: ProiconsTextHighlightColor,
+        selectedIcon: ProiconsCheckmark,
+        selected: usingPlayerModernUI.value,
+        action: () => {
+            usingPlayerModernUI.value = FLAGS.FORCE_MODERN_PLAYER_UI ? true : !usingPlayerModernUI.value;
         },
-        {
-            text: 'Audio Graph',
-            title: 'Toggle Audio Visualiser',
-            icon: IconSpectrograph,
-            selectedIcon: ProiconsCheckmark,
-            selected: isAudioGraphEnabled.value,
-            action: () => {
-                isAudioGraphEnabled.value = !isAudioGraphEnabled.value;
-                if (!isAudioGraphEnabled.value) isShowingAudioGraphSettings.value = false;
-            },
+        disabled: FLAGS.FORCE_MODERN_PLAYER_UI,
+    },
+    {
+        text: 'Miniplayer',
+        title: 'Toggle Picture-in-picture',
+        icon: isPictureInPicture.value ? ProiconsPictureInPictureExit : ProiconsPictureInPictureEnter,
+        selectedIcon: ProiconsCheckmark,
+        selected: isPictureInPicture.value,
+        disabled: !document.pictureInPictureEnabled || isAudio.value,
+        action: () => {
+            if (isLoading.value) return;
+            togglePictureInPicture();
         },
-        {
-            text: 'Modern UI',
-            title: `Toggle backgrounds on player controls`,
-            icon: ProiconsTextHighlightColor,
-            selectedIcon: ProiconsCheckmark,
-            selected: usingPlayerModernUI.value,
-            action: () => {
-                usingPlayerModernUI.value = FLAGS.FORCE_MODERN_PLAYER_UI ? true : !usingPlayerModernUI.value;
-            },
-            disabled: FLAGS.FORCE_MODERN_PLAYER_UI,
-        },
-        {
-            text: 'Miniplayer',
-            title: 'Toggle Picture-in-picture',
-            icon: isPictureInPicture.value ? ProiconsPictureInPictureExit : ProiconsPictureInPictureEnter,
-            selectedIcon: ProiconsCheckmark,
-            selected: isPictureInPicture.value,
-            disabled: !document.pictureInPictureEnabled || isAudio.value,
-            action: () => {
-                if (isLoading.value) return;
-                togglePictureInPicture();
-            },
-        },
-    ];
-    return items;
-});
+    },
+]);
 
 // Computed Player State
 
@@ -1811,7 +1808,7 @@ defineExpose({
                                 />
                             </template>
                             <VideoPopover
-                                :popoverClass="cn('max-w-42! rounded-lg h-fit')"
+                                :popoverClass="cn('max-w-44 md:max-w-42 rounded-lg h-fit')"
                                 ref="player-popover"
                                 :margin="80"
                                 :player="player ?? undefined"

@@ -29,13 +29,13 @@ const props = withDefaults(defineProps<PopoverItem>(), {});
         >
             <component v-if="icon" :is="icon" :class="cn('mr-2 size-4 shrink-0', iconStyle)" />
 
-            <span class="text-nowrap">{{ text }}</span>
+            <span class="truncate text-nowrap">{{ text }}</span>
             <span class="ml-auto text-xs tracking-widest opacity-60">{{ shortcut ?? '' }}</span>
             <slot name="selectedIcon">
                 <component
                     v-if="selectedIcon"
                     :is="selectedIcon"
-                    :class="cn('size-4 shrink-0', { 'text-primary-muted dark:text-primary': selected }, selected ? selectedIconStyle : 'invisible')"
+                    :class="cn('ms-1 size-4 shrink-0', { 'text-primary-muted dark:text-primary': selected }, selected ? selectedIconStyle : 'invisible')"
                 />
                 <span
                     v-else
