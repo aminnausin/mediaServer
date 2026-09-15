@@ -12,16 +12,16 @@ import { HoverCard } from '@/components/cedar-ui/hover-card';
 import { cn, toast } from '@aminnausin/cedar-ui';
 
 import LibraryCardMenu from '@/components/menus/LibraryCardMenu.vue';
-import TablerDownload from '@/components/icons/TablerDownload.vue';
 import PlayerOSDBase from '@/components/video/OSD/PlayerOSDBase.vue';
-import IconShare from '@/components/icons/IconShare.vue';
-import LazyImage from '@/components/lazy/LazyImage.vue';
+import BlurhashImage from '@/components/lazy/BlurhashImage.vue';
 
 import ProiconsTextFontSize from '~icons/proicons/text-font-size';
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
+import TablerDownload from '@/components/icons/TablerDownload.vue';
 import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
 import ProiconsLock from '~icons/proicons/lock';
 import IconFolder from '@/components/icons/IconFolder.vue';
+import IconShare from '@/components/icons/IconShare.vue';
 import IconFile from '@/components/icons/IconFile.vue';
 
 const props = defineProps<{ data?: CategoryResource }>();
@@ -127,25 +127,17 @@ watch(
 </script>
 
 <template>
-    <div
-        :class="
-            cn(
-                'data-card group relative flex w-full flex-col rounded-lg shadow-sm',
-                'ring-1 ring-gray-900/5 [contain-intrinsic-size:auto_260px]',
-                'transition-input ease-out hover:ring-2',
-                'hover:ring-primary-muted hover:dark:ring-primary focus-within:ring-primary-muted dark:focus-within:ring-primary',
-            )
-        "
-    >
+    <div :class="cn('data-card group transition-input library-card')">
         <RouterLink
             :to="`/dashboard/libraries/${data?.id}`"
             class="peer content-auto h-40 w-full [contain-intrinsic-size:auto_160px] focus:-outline-offset-2"
             aria-label="View Folders"
         >
-            <LazyImage
+            <BlurhashImage
                 class="peer mb-auto h-full w-full rounded-t-lg object-cover shadow-xs ring-1 ring-gray-900/5 ring-inset hover:ring-4"
-                :src="defaultFolder?.series?.poster_image?.path ?? handleStorageURL(defaultFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Cover Art"
+                :src="defaultFolder?.series?.poster_image?.path ?? handleStorageURL(defaultFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
+                :blurhash="defaultFolder?.series?.poster_image?.blur_hash"
             />
             <span class="absolute inset-0 flex h-full w-full flex-col items-end gap-2 rounded-t-lg p-2.5" hidden>
                 <HoverCard :content-title="'Private Library'" :content="'Only you have access to this library.'" v-if="data?.is_private">
