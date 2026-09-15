@@ -13,12 +13,16 @@ import { cn, toast } from '@aminnausin/cedar-ui';
 
 import LibraryCardMenu from '@/components/menus/LibraryCardMenu.vue';
 import TablerDownload from '@/components/icons/TablerDownload.vue';
-import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
+import PlayerOSDBase from '@/components/video/OSD/PlayerOSDBase.vue';
 import IconShare from '@/components/icons/IconShare.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
+import ProiconsTextFontSize from '~icons/proicons/text-font-size';
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
+import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
 import ProiconsLock from '~icons/proicons/lock';
+import IconFolder from '@/components/icons/IconFolder.vue';
+import IconFile from '@/components/icons/IconFile.vue';
 
 const props = defineProps<{ data?: CategoryResource }>();
 const defaultFolder = ref<FolderResource>();
@@ -31,6 +35,15 @@ const folders = computed(() => {
     const foldersCopy = [...(props.data?.folders || [])];
     return foldersCopy.sort((itemA, itemB) => itemA.name.localeCompare(itemB.name));
 });
+
+const formattedDate = computed(() => {
+    if (!props.data?.created_at) return { short: 'N/A', long: 'N/A' };
+    return {
+        short: toFormattedDate(new Date(props.data.created_at + ' UTC'), false, { year: 'numeric', month: '2-digit', day: '2-digit' }),
+        long: toFormattedDate(new Date(props.data.created_at + ' UTC')),
+    };
+});
+const activeFeatureCount = computed(() => [props.data?.is_private, props.data?.downloads_enabled, props.data?.storyboard_enabled].filter(Boolean).length);
 
 const handleSetDefaultFolder = async (newFolder: { value: number }) => {
     if (processing.value || !props.data?.id || newFolder.value === props.data.default_folder_id) return;
@@ -107,7 +120,6 @@ watch(
     () => props.data,
     () => {
         if (!props.data?.folders || props.data.folders.length < 1) return;
-
         defaultFolder.value = props.data.default_folder_id ? props.data.folders.find((folder) => folder.id === props.data?.default_folder_id) : props.data.folders[0];
     },
     { immediate: true },
@@ -118,19 +130,24 @@ watch(
     <div
         :class="
             cn(
-                'data-card group relative flex w-full flex-col rounded-lg shadow-sm ring-1 ring-gray-900/5 [contain-intrinsic-size:auto_260px] sm:[contain-intrinsic-size:auto_280px]',
-                'transition-input hover:ring-primary-muted hover:dark:ring-primary ring-1 ease-in-out hover:ring-2',
-                'focus-within:ring-primary-muted dark:focus-within:ring-primary',
+                'data-card group relative flex w-full flex-col rounded-lg shadow-sm',
+                'ring-1 ring-gray-900/5 [contain-intrinsic-size:auto_260px]',
+                'transition-input ease-out hover:ring-2',
+                'hover:ring-primary-muted hover:dark:ring-primary focus-within:ring-primary-muted dark:focus-within:ring-primary',
             )
         "
     >
-        <RouterLink :to="`/dashboard/libraries/${data?.id}`" class="peer content-auto h-40 w-full [contain-intrinsic-size:auto_160px] focus:-outline-offset-2" title="View Folders">
+        <RouterLink
+            :to="`/dashboard/libraries/${data?.id}`"
+            class="peer content-auto h-40 w-full [contain-intrinsic-size:auto_160px] focus:-outline-offset-2"
+            aria-label="View Folders"
+        >
             <LazyImage
                 class="peer mb-auto h-full w-full rounded-t-lg object-cover shadow-xs ring-1 ring-gray-900/5 ring-inset hover:ring-4"
                 :src="defaultFolder?.series?.poster_image?.path ?? handleStorageURL(defaultFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 alt="Folder Cover Art"
             />
-            <span class="absolute inset-0 flex h-full w-full flex-col items-end gap-2 rounded-t-lg p-2.5">
+            <span class="absolute inset-0 flex h-full w-full flex-col items-end gap-2 rounded-t-lg p-2.5" hidden>
                 <HoverCard :content-title="'Private Library'" :content="'Only you have access to this library.'" v-if="data?.is_private">
                     <template #trigger>
                         <div class="bg-surface-2 text-primary dark:text-foreground-0 ring-r-button size-7 shrink-0 cursor-default rounded-full p-1 ring-1">
@@ -161,13 +178,66 @@ watch(
                     </template>
                 </HoverCard>
             </span>
+            <div v-if="activeFeatureCount" :class="cn('absolute inset-x-0 bottom-2 px-2.5 transition-[padding] duration-200', { 'px-2': activeFeatureCount > 1 })">
+                <PlayerOSDBase
+                    :class="
+                        cn('ml-auto flex w-fit items-center justify-start gap-2 p-1 text-white backdrop-blur-sm transition-[padding] duration-200', {
+                            'px-2': activeFeatureCount > 1,
+                        })
+                    "
+                >
+                    <HoverCard :content-title="'Auto Generates Fonts'" :content="'Fonts are auto extracted for every video in this library.'" v-if="data?.fonts_enabled">
+                        <template #trigger>
+                            <ProiconsTextFontSize class="peer size-4.5 shrink-0" :title="'Fonts enabled'" />
+                        </template>
+                    </HoverCard>
+                    <HoverCard
+                        :content-title="'Downloadable Library'"
+                        :content="`${data?.downloads_require_auth ? 'Only authenticated users' : 'Any user'} can download from this library.`"
+                        v-if="data?.downloads_enabled"
+                    >
+                        <template #trigger>
+                            <TablerDownload class="peer size-4.5 shrink-0" :title="'Downloads enabled'" />
+                        </template>
+                    </HoverCard>
+                    <HoverCard :content-title="'Private Library'" :content="'Only you have access to this library.'" v-if="data?.is_private">
+                        <template #trigger>
+                            <div class="flex w-fit items-center">
+                                <ProiconsLock class="peer size-4.5 shrink-0" :title="'Private library'" />
+                                <div
+                                    :class="
+                                        cn(
+                                            'flex items-center overflow-clip drop-shadow-md duration-400',
+                                            'max-w-0 origin-left transition-[max-width,padding,margin] ease-out',
+                                            'peer-hover:-ms-1 peer-hover:max-w-32 peer-hover:ps-1.5 peer-hover:ease-in',
+                                            'hover:-ms-1 hover:max-w-32 hover:ps-1.5 hover:ease-in',
+                                        )
+                                    "
+                                    hidden
+                                >
+                                    <span class="w-full truncate"> Private </span>
+                                </div>
+                            </div>
+                        </template>
+                    </HoverCard>
+                    <HoverCard
+                        :content-title="'Auto Generates Storyboards'"
+                        :content="'Storyboards are auto generated for every video in this library.'"
+                        v-if="data?.storyboard_enabled"
+                    >
+                        <template #trigger>
+                            <ProIconsPhoto class="peer size-4.5 shrink-0" :title="'Storyboards enabled'" />
+                        </template>
+                    </HoverCard>
+                </PlayerOSDBase>
+            </div>
         </RouterLink>
         <section class="flex h-full flex-1 flex-col gap-2 p-3">
-            <div class="flex flex-wrap items-center justify-between gap-1">
-                <RouterLink title="Open Default Folder" class="group-hover:text-primary dark:group-hover:text-primary-muted" :to="`/${data?.name}`">
-                    <h3 class="capitalize">{{ data?.name }}</h3>
+            <div class="flex items-start gap-1.5">
+                <RouterLink title="Open Default Folder" class="group-hover:text-primary dark:group-hover:text-primary-muted min-w-0 flex-1" :to="`/${data?.name}`">
+                    <h3 class="truncate capitalize">{{ data?.name }}</h3>
                 </RouterLink>
-                <span class="flex gap-2 text-sm *:h-6">
+                <span class="flex shrink-0 gap-1.5 *:h-6">
                     <ButtonIcon :title="'Open Default Folder In New Tab'" :to="`/${data?.name}`" :target="'_blank'" class="size-6 p-0">
                         <template #icon><IconShare class="size-4" /></template>
                     </ButtonIcon>
@@ -190,39 +260,35 @@ watch(
                     </BasePopover>
                 </span>
             </div>
-            <span class="text-foreground-1 mt-auto flex h-full w-full flex-col text-sm sm:gap-1" v-if="data">
-                <span class="flex flex-wrap items-start justify-between">
-                    <span class="flex flex-col gap-1 sm:gap-0">
-                        <p class="">Files: {{ data?.videos_count ?? '?' }}</p>
-
-                        <p class="">Folders: {{ data?.folders_count }}</p>
+            <div class="text-foreground-1 font-commit-mono mt-1 flex h-full w-full flex-col gap-2 text-xs" v-if="data">
+                <div class="flex flex-wrap items-start justify-between gap-3 gap-y-1">
+                    <span class="flex gap-2">
+                        <span class="flex items-center gap-1">
+                            <IconFile class="size-3.5" />
+                            {{ data?.videos_count ?? '?' }}
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <IconFolder class="size-3.5" />
+                            {{ data?.folders_count }}
+                        </span>
                     </span>
-                    <p class="hidden sm:block" :title="`Total Size ${formatFileSize(data.total_size)}`">
-                        {{ formatFileSize(data.total_size) }}
-                    </p>
-                    <p class="sm:hidden">{{ defaultFolder ? `Default Folder: ${defaultFolder.name}` : 'No Default Folder' }}</p>
-                </span>
-                <span class="mt-auto hidden items-center justify-between gap-x-2 truncate sm:flex">
-                    <p v-if="defaultFolder">
-                        Default:
-                        <RouterLink title="Open Default Folder" class="hover:text-primary dark:hover:text-primary-muted" :to="`/${data.name}/${defaultFolder.name}`">
+                    <span class="shrink-0" :title="`Total Size ${formatFileSize(data.total_size)}`">{{ formatFileSize(data.total_size) }}</span>
+                </div>
+
+                <div class="bg-hr dark:bg-hr/30 -mx-3 mt-1 h-px shrink-0"></div>
+
+                <div class="xms:flex-nowrap flex flex-wrap items-center justify-between gap-1 gap-x-2 gap-y-1">
+                    <p v-if="defaultFolder" class="space-x-1 truncate">
+                        <span class="text-foreground-2 shrink-0">Default:</span>
+                        <RouterLink class="hover:text-primary dark:hover:text-primary-muted" title="Open Default Folder" :to="`/${data.name}/${defaultFolder.name}`">
                             {{ defaultFolder.name }}
                         </RouterLink>
                     </p>
-                    <p v-else>No Default Folder</p>
-                    <p class="truncate" :title="`Date Added ${data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A'}`">
-                        {{ data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A' }}
-                    </p>
-                </span>
-                <span class="flex flex-wrap items-center justify-between gap-x-2 pt-1 sm:hidden sm:pt-0">
-                    <p class="" :title="`Date Added ${data?.created_at ? toFormattedDate(new Date(data?.created_at + ' EST')) : 'N/A'}`">
-                        {{ toFormattedDate(data?.created_at) }}
-                    </p>
-                    <p class="" :title="`Total Size ${formatFileSize(data.total_size)}`">
-                        {{ formatFileSize(data.total_size) }}
-                    </p>
-                </span>
-            </span>
+                    <p v-else class="text-foreground-2 flex-1">No Default Folder</p>
+
+                    <p class="text-nowrap" :title="`Date Added ${formattedDate.long}`">{{ formattedDate.short }}</p>
+                </div>
+            </div>
         </section>
     </div>
 </template>
