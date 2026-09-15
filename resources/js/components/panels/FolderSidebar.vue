@@ -12,6 +12,7 @@ import { storeToRefs } from 'pinia';
 import { ButtonIcon } from '@/components/cedar-ui/button';
 import { sortObject } from '@/service/sort/baseSort';
 import { TableBase } from '@/components/cedar-ui/table';
+import { useAuth } from '@/composables/auth/useAuth';
 import { FLAGS } from '@/config/featureFlags';
 import { cn } from '@aminnausin/cedar-ui';
 
@@ -23,15 +24,10 @@ import ShareModal from '@/components/modals/ShareModal.vue';
 
 import ProiconsFilterCancel from '~icons/proicons/filter-cancel';
 import ProiconsFilter from '~icons/proicons/filter';
-import { useAuth } from '@/composables/auth/useAuth';
 
 const stickyFilters = true;
 
 defineProps<{ urlPrefix?: string; urlSuffix?: string }>();
-
-const modal = useModalStore();
-
-const { isAuthenticated } = useAuth();
 
 const folderSearchQuery = ref<string>('');
 const folderSortDir = ref<SortDir>(1);
@@ -39,6 +35,9 @@ const folderSortKey = ref<keyof FolderResource>(folderSortingOptions[0].value);
 const showFilters = ref(true);
 
 const { stateDirectory, stateFolder, isLoadingContent } = storeToRefs(useContentStore());
+const { isAuthenticated } = useAuth();
+
+const modal = useModalStore();
 
 const breakpoints = useBreakpoints({ ...breakpointsTailwind, xs: 320, xms: 400, '3xl': 2000 });
 const isDesktop = breakpoints.greaterOrEqual('lg');
