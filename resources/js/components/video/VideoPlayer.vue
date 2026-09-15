@@ -1399,6 +1399,7 @@ defineExpose({
         @mousemove="playerMouseActivity"
         @touchmove="playerMouseActivity"
         @mouseleave="handleControlsTimeout"
+        @focusin="playerMouseActivity"
         @contextmenu="
             (e: any) => {
                 setContextMenu(e, { items: playerContextMenuItems }, isNormalView);
