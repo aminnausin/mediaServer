@@ -134,43 +134,12 @@ watch(
             aria-label="View Folders"
         >
             <BlurhashImage
-                class="peer mb-auto h-full w-full rounded-t-lg object-cover shadow-xs ring-1 ring-gray-900/5 ring-inset hover:ring-4"
+                class="peer mb-auto h-full w-full rounded-t-lg object-cover"
                 alt="Folder Cover Art"
                 :src="defaultFolder?.series?.poster_image?.path ?? handleStorageURL(defaultFolder?.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
                 :blurhash="defaultFolder?.series?.poster_image?.blur_hash"
             />
-            <span class="absolute inset-0 flex h-full w-full flex-col items-end gap-2 rounded-t-lg p-2.5" hidden>
-                <HoverCard :content-title="'Private Library'" :content="'Only you have access to this library.'" v-if="data?.is_private">
-                    <template #trigger>
-                        <div class="bg-surface-2 text-primary dark:text-foreground-0 ring-r-button size-7 shrink-0 cursor-default rounded-full p-1 ring-1">
-                            <ProiconsLock class="size-5" />
-                        </div>
-                    </template>
-                </HoverCard>
-                <HoverCard
-                    :content-title="'Downloadable Library'"
-                    :content="`${data?.downloads_require_auth ? 'Only authenticated users' : 'Any user'} can download from this library.`"
-                    v-if="data?.downloads_enabled"
-                >
-                    <template #trigger>
-                        <div class="bg-surface-2 text-primary dark:text-foreground-0 ring-r-button size-7 shrink-0 cursor-default rounded-full p-1 pt-0.5 ring-1">
-                            <TablerDownload class="size-5" />
-                        </div>
-                    </template>
-                </HoverCard>
-                <HoverCard
-                    :content-title="'Auto Generates Storyboards'"
-                    :content="'Storyboards are auto generated for every video in this library.'"
-                    v-if="data?.storyboard_enabled"
-                >
-                    <template #trigger>
-                        <div class="bg-surface-2 text-primary dark:text-foreground-0 ring-r-button size-7 shrink-0 cursor-default rounded-full p-1 ring-1">
-                            <ProIconsPhoto class="size-5" />
-                        </div>
-                    </template>
-                </HoverCard>
-            </span>
-            <div v-if="activeFeatureCount" :class="cn('absolute inset-x-0 bottom-2 px-2.5 transition-[padding] duration-200', { 'px-2': activeFeatureCount > 1 })">
+            <div v-if="activeFeatureCount" :class="cn('absolute inset-x-0 bottom-2 z-1 px-2.5 transition-[padding] duration-200', { 'px-2': activeFeatureCount > 1 })">
                 <PlayerOSDBase
                     :class="
                         cn('ml-auto flex w-fit items-center justify-start gap-2 p-1 text-white backdrop-blur-sm transition-[padding] duration-200', {

@@ -34,7 +34,7 @@ class FolderController extends Controller {
                 FolderResource::collection(
                     Folder::query()->select('folders.*')
                         ->join('series', 'series.folder_id', '=', 'folders.id')
-                        ->with(['series.folderTags.tag', 'series.primaryPoster', 'series.images.user'])
+                        ->with(['series.folderTags.tag', 'series.primaryPoster', 'series.primaryBanner', 'series.images.user'])
                         ->where('category_id', $validated['category_id'])
                         ->orderByRaw('COALESCE(series.title, folders.name) ASC')
                         ->get() // do not eager load videos... because in this instance, the request is not asking for videos, simply a list of folders

@@ -9,10 +9,10 @@ import { FLAGS } from '@/config/featureFlags';
 import TablerDownloadOff from '@/components/icons/TablerDownloadOff.vue';
 import TablerDownload from '@/components/icons/TablerDownload.vue';
 
-import ProiconsInfoSquare from '~icons/proicons/info-square';
 import ProiconsDelete from '~icons/proicons/delete';
 import ProiconsPhoto from '~icons/proicons/photo';
 import IconEdit from '@/components/icons/IconEdit.vue';
+import IconPlay from '@/components/icons/IconPlay.vue';
 
 const props = withDefaults(
     defineProps<{
@@ -36,9 +36,9 @@ const { isAdmin, isAuthenticated } = useAuth();
         </div>
 
         <div class="flex flex-col gap-2 dark:*:bg-neutral-900">
-            <ButtonText title="Details" :to="`/${data.category_id}/${data.title}/details`">
-                <p class="flex-1 text-start">Details</p>
-                <template #icon> <ProiconsInfoSquare class="size-4" /></template>
+            <ButtonText title="Play" :to="`/${data.category_id}/${data.title}`">
+                <p class="flex-1 text-start">Play</p>
+                <template #icon> <IconPlay class="size-4" /></template>
             </ButtonText>
             <template v-if="isAuthenticated">
                 <ButtonText

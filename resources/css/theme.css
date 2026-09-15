@@ -272,6 +272,13 @@
         @apply bg-surface-2 hover:bg-surface-3 dark:hover:bg-primary-dark-600 dark:bg-surface-2/70;
     }
 
+    .data-card.library-card {
+        @apply @container relative flex w-full flex-col rounded-lg shadow-sm;
+        @apply ring-1 ring-gray-900/5 [contain-intrinsic-size:auto_260px];
+        @apply ease-out hover:ring-2;
+        @apply hover:ring-primary-muted hover:dark:ring-primary focus-within:ring-primary-muted dark:focus-within:ring-primary;
+    }
+
     .content-auto {
         content-visibility: auto;
         contain-intrinsic-size: auto 64px;
