@@ -31,9 +31,9 @@ const wrapperProps = computed(() => {
 useMutationObserver(subMenu, () => (isFloating.value = subMenu.value?.dataset.floating !== 'false'), { attributeFilter: ['data-floating'] });
 </script>
 <template>
-    <div v-if="divider" class="bg-hr dark:bg-hr/30 -mx-1 my-1 h-px" />
+    <div v-if="divider" class="bg-hr dark:bg-hr/30 -mx-1 my-1 h-px" v-bind="$attrs" />
 
-    <div v-else class="relative" :class="{ 'group/submenu': hasChildren }">
+    <div v-else class="relative" :class="{ 'group/submenu': hasChildren }" v-bind="{ ...$attrs, class: '' }">
         <ButtonBase
             v-bind="wrapperProps"
             :class="
