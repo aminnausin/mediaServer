@@ -249,7 +249,7 @@ watch(tagsQuery, () => {
                 class="text-foreground-2 hover:text-foreground-0 xs:-ms-1 xs:mr-auto xs:max-h-none xs:px-1 max-h-6 gap-1.5 p-0 text-xs transition-colors"
                 @click="() => handleEditFolderImages(props.folder)"
             >
-                <ProIconsPhoto class="size-3.5" />
+                <ProIconsPhoto class="size-4" />
                 Edit Images
             </ButtonBase>
             <ButtonForm variant="reset" :disabled="form.processing" @click="$emit('handleFinish')">Cancel</ButtonForm>

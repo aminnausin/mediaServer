@@ -22,4 +22,5 @@ export interface MediaInfoResource {
     subtitles: SubtitleInfoResource[];
     fonts: FontInfoResource[];
     storyboard?: StoryboardResource;
+    raw_metadata: any;
 }
