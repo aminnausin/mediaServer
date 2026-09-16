@@ -66,7 +66,7 @@ const { data: mediaInfo } = useQuery({
 <template>
     <BaseModal>
         <template #title>{{ title }}</template>
-        <template #description v-if="data.edited_at && data.metadata?.editor_id">
+        <template #description v-if="data.edited_at && data.metadata?.editor_id && isAuthenticated">
             <EditItemHeader :edited_at="data.edited_at" :editor_id="data.metadata.editor_id" />
         </template>
         <div class="contents text-sm">
