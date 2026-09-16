@@ -1,4 +1,3 @@
-<!-- MediaInfoModal.vue -->
 <script setup lang="ts">
 import type { MediaMetadataEditorProps } from '@/types/modals.ts';
 import type { Component } from 'vue';
@@ -13,6 +12,7 @@ import { ButtonBase } from '@/components/cedar-ui/button/index.ts';
 import { MediaType } from '@/types/types';
 import { BaseModal } from '@/components/cedar-ui/modal';
 import { useQuery } from '@tanstack/vue-query';
+import { useAuth } from '@/composables/auth/useAuth';
 import { cn } from '@aminnausin/cedar-ui';
 
 import ModalFormFooter from '@/components/forms/ModalFormFooter.vue';
@@ -31,6 +31,7 @@ const modal = useModalStore();
 
 const { title, mediaResource: data } = modal.getProps<MediaMetadataEditorProps>();
 const { stateDirectory } = storeToRefs(useContentStore());
+const { isAuthenticated } = useAuth();
 
 const isAudio = computed(() => data.metadata?.media_type === MediaType.AUDIO);
 const mediaId = computed(() => data.id);
@@ -87,7 +88,7 @@ const { data: mediaInfo } = useQuery({
 
             <component :is="panels[activeTab]" :data="data" :media-info="mediaInfo" />
 
-            <ModalFormFooter class="*:h-9">
+            <ModalFormFooter class="*:h-9" v-if="isAuthenticated">
                 <ButtonBase
                     variant="transparent"
                     type="button"
