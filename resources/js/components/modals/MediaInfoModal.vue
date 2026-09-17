@@ -2,13 +2,13 @@
 import type { MediaMetadataEditorProps } from '@/types/modals.ts';
 import type { Component } from 'vue';
 
+import { ButtonBase, ButtonText } from '@/components/cedar-ui/button';
 import { handleEditMediaImages } from '@/service/media/mediaActions';
 import { useContentStore } from '@/stores/ContentStore.ts';
 import { getMediaDetails } from '@/service/media/media.ts';
 import { useModalStore } from '@/stores/ModalStore';
 import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
-import { ButtonBase } from '@/components/cedar-ui/button/index.ts';
 import { BaseModal } from '@/components/cedar-ui/modal';
 import { useQuery } from '@tanstack/vue-query';
 import { useAuth } from '@/composables/auth/useAuth';
@@ -65,20 +65,30 @@ const { data: mediaInfo, isLoading } = useQuery({
             <EditItemHeader :edited_at="data.edited_at" :editor_id="data.metadata.editor_id" />
         </template>
         <div class="contents text-sm">
-            <div class="bg-surface-3/50 dark:bg-surface-3 mr-auto flex w-fit gap-0.5 rounded-lg p-0.5">
+            <div class="bg-surface-3/50 dark:bg-surface-3 mr-auto flex w-fit gap-0.5 rounded-lg p-0.5" hidden>
                 <ButtonBase
-                    v-for="MediaInfoTab in tabs"
-                    :key="MediaInfoTab"
+                    v-for="mediaInfoTab in tabs"
+                    :key="mediaInfoTab"
                     :class="
                         cn('h-7 rounded-md px-3 py-1 capitalize transition-colors', {
-                            'bg-surface-1 dark:bg-surface-4 text-primary-active dark:text-primary-muted shadow-sm': activeTab === MediaInfoTab,
-                            'text-foreground-2 hover:text-foreground-0': activeTab !== MediaInfoTab,
+                            'bg-surface-1 dark:bg-surface-4 text-primary-active dark:text-primary-muted shadow-sm': activeTab === mediaInfoTab,
+                            'text-foreground-2 hover:text-foreground-0': activeTab !== mediaInfoTab,
                         })
                     "
-                    @click="activeTab = MediaInfoTab"
+                    @click="activeTab = mediaInfoTab"
                 >
-                    {{ MediaInfoTab }}
+                    {{ mediaInfoTab }}
                 </ButtonBase>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <ButtonText
+                    v-for="mediaInfoTab in tabs"
+                    :key="mediaInfoTab"
+                    :class="cn('hocus:ring-1 h-8 rounded-lg px-3 py-0.5 text-sm capitalize dark:bg-white/5', { 'bg-surface-i! text-foreground-i!': activeTab === mediaInfoTab })"
+                    @click="activeTab = mediaInfoTab"
+                >
+                    {{ mediaInfoTab }}
+                </ButtonText>
             </div>
 
             <MediaInfoSkeleton v-if="isLoading" />
