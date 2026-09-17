@@ -96,7 +96,11 @@ onMounted(() => {
     <section class="flex w-full flex-col gap-3">
         <section
             v-if="props.useToolbar"
-            :class="['flex flex-col flex-wrap justify-center gap-2', { 'sm:flex-row sm:justify-between': !forceVerticalToolbar }, sticky && cn('sticky top-10 z-1', stickyClass)]"
+            :class="[
+                'table-toolbar flex flex-col flex-wrap justify-center gap-2',
+                { 'sm:flex-row sm:justify-between': !forceVerticalToolbar },
+                sticky && cn('sticky top-10 z-1', stickyClass),
+            ]"
         >
             <div class="relative">
                 <TextInput
@@ -128,17 +132,17 @@ onMounted(() => {
             >
                 <div :class="['flex w-full flex-1 flex-col gap-2']">
                     <InputSelect
+                        title="Sort by..."
                         :name="'sort'"
-                        :placeholder="'Sort by...'"
                         :prefix="'By '"
                         :options="sortingOptions"
+                        :disabled="loading"
+                        :placeholder="'Sort by...'"
+                        :load-default-on-disabled="true"
                         :defaultItem="0"
                         :class="cn('h-(--table-input-height) w-full')"
-                        title="Sort by..."
-                        @selectItem="handleSortChange"
                         :menu-margin="{ bottom: 'mb-10', top: 'mt-10' }"
-                        :disabled="loading"
-                        :load-default-on-disabled="true"
+                        @selectItem="handleSortChange"
                     />
                 </div>
                 <ButtonIcon

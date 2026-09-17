@@ -42,11 +42,11 @@ const filteredFonts = computed<FontInfoResource[]>(() => {
 </script>
 
 <template>
-    <div class="flex flex-col gap-2 text-sm">
+    <div class="@container flex flex-col gap-2 text-sm">
         <TableBase
             ref="fontTable"
-            :class="'w-full flex-1'"
-            :pagination-class="'sm:justify-around! xl:justify-between!'"
+            :class="'modal-table w-full flex-1'"
+            :pagination-class="'@sm:justify-around! @md:justify-between!'"
             :table-styles="'w-full'"
             :data="filteredFonts"
             :row="FontCard"
@@ -58,6 +58,14 @@ const filteredFonts = computed<FontInfoResource[]>(() => {
             v-model="search"
         />
 
-        <p v-if="!filteredFonts.length" class="text-foreground-2 py-4 text-center text-xs tracking-wider uppercase">No fonts match "{{ search }}"</p>
+        <p v-if="!filteredFonts.length" class="text-foreground-2 py-4 text-center text-xs tracking-wider uppercase dark:bg-white/5">No fonts match "{{ search }}"</p>
     </div>
 </template>
+
+<style lang="css">
+.modal-table .table-pagination button,
+.modal-table .table-toolbar button,
+.modal-table .table-toolbar input {
+    background-color: color-mix(in oklab, var(--color-white) /* #fff = #ffffff */ 5%, transparent) !important;
+}
+</style>

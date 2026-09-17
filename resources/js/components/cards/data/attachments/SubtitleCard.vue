@@ -22,7 +22,7 @@ const parseSubtitleFormat = (format?: string) => {
 };
 </script>
 <template>
-    <div class="data-card bg-surface-2 text-foreground-2 w-full space-y-2 rounded-lg p-3 shadow-sm">
+    <div class="data-card bg-surface-2 text-foreground-2 w-full space-y-2 rounded-lg p-3 shadow-sm dark:bg-white/5">
         <div class="flex items-center justify-between gap-2">
             <p class="text-foreground-0 truncate">
                 <span class="text-foreground-2 font-normal">{{ track.track_id }}.</span>
