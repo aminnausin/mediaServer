@@ -1,36 +1,22 @@
 <script setup lang="ts">
+import type { MediaInfoResource } from '@/contracts/mediaInfo.ts';
 import type { VideoResource } from '@/contracts/media';
 
-import { formatFileSize, toFormattedDate } from '@/service/util';
-import { computed, ref } from 'vue';
+import { formatFileSize, toFormattedDate, toFormattedDuration } from '@/service/util';
+import { buildStreamCards, type FfprobeStream } from '@/service/media/ffprobe';
 import { MediaType } from '@/types/types';
+import { computed } from 'vue';
 
+import StreamInfoCard from '@/components/cards/data/attachments/StreamInfoCard.vue';
 import MediaTag from '@/components/labels/MediaTag.vue';
 
 import ProiconsChevronRight from '~icons/proicons/chevron-right';
 
-declare type Tab = 'metadata' | 'images' | 'subtitles' | 'fonts';
-
-const props = defineProps<{ data: VideoResource }>();
+const props = defineProps<{ data: VideoResource; mediaInfo: MediaInfoResource }>();
 
 const isAudio = computed(() => props.data.metadata?.media_type === MediaType.AUDIO);
 
-const tabs = computed<Tab[]>(() => {
-    const tabs: Tab[] = ['metadata', 'images'];
-
-    if (isAudio.value) return tabs;
-
-    if (props.data.subtitles.length) tabs.push('subtitles');
-    if (props.data.fonts?.length) tabs.push('fonts');
-
-    return tabs;
-});
-const activeTab = ref(tabs.value.at(0) ?? 'metadata');
-
 const sumBy = <T,>(arr: T[] | undefined, fn: (item: T) => number): number => (arr ?? []).reduce((acc, item) => acc + fn(item), 0);
-
-const videoInfo = computed(() => ({}));
-const audioInfo = computed(() => ({}));
 
 const metadataItems = computed<{ label: string; items: { label: string; value: any; to?: string }[] }[]>(() => {
     if (!props.data.metadata) return [];
@@ -42,10 +28,12 @@ const metadataItems = computed<{ label: string; items: { label: string; value: a
         {
             label: 'Metadata',
             items: [
+                { label: 'UUID', value: props.data.metadata.uuid },
+                { label: 'Metadata ID', value: props.data.metadata.id },
+                { label: 'Video ID', value: props.data.id },
                 { label: 'Title', value: props.data.title },
                 props.data.title !== props.data.name && { label: 'Name', value: props.data.name },
-                { label: 'Views', value: props.data.view_count },
-                props.data.duration && { label: 'Duration', value: props.data.duration },
+                props.data.duration && { label: 'Duration', value: `${toFormattedDuration(props.data.duration)} (${props.data.duration}s)` },
                 ...(isAudio?.value
                     ? [
                           { label: 'Artist', value: props.data.artist },
@@ -58,19 +46,8 @@ const metadataItems = computed<{ label: string; items: { label: string; value: a
                           { label: 'Episode', value: props.data.episode },
                       ]),
                 props.data.released_at && { label: 'Released', value: props.data.released_at },
+                { label: 'Views', value: props.data.view_count },
             ].filter(Boolean) as { label: string; value: any; to?: string }[],
-        },
-
-        !isAudio.value && {
-            label: 'Video',
-            items: [
-                { label: 'Resolution', value: `${props.data.metadata.resolution_width}x${props.data.metadata.resolution_height}` },
-                { label: 'Codec', value: props.data.metadata.codec },
-            ],
-        },
-        {
-            label: 'Audio',
-            items: [{ label: 'Bitrate', value: props.data.metadata.bitrate }],
         },
 
         {
@@ -96,10 +73,16 @@ const metadataItems = computed<{ label: string; items: { label: string; value: a
         },
     ].filter(Boolean) as { label: string; items: { label: string; value: any; to?: string }[] }[];
 });
+
+const ffprobe = computed(() => {
+    return props.mediaInfo.raw_metadata as { format: { filename: string; format_name: string; size: string }; streams: FfprobeStream[] };
+});
+
+const cards = computed(() => buildStreamCards(ffprobe.value.streams));
 </script>
 
 <template>
-    <div v-if="data" class="flex flex-col gap-4 text-sm">
+    <div class="flex flex-col gap-4 text-sm">
         <template v-for="(group, index) in metadataItems" :key="index">
             <div class="flex flex-col gap-0.5">
                 <p class="">{{ group.label }}</p>
@@ -131,5 +114,11 @@ const metadataItems = computed<{ label: string; items: { label: string; value: a
                 </div>
             </div>
         </template>
+        <div class="space-y-0.5" v-if="data">
+            <p>Streams</p>
+            <div class="ms-4 grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4">
+                <StreamInfoCard v-for="card in cards" :key="card.key" :title="card.title" :fields="card.fields" />
+            </div>
+        </div>
     </div>
 </template>
