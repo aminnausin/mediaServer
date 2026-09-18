@@ -34,9 +34,11 @@ import IconEdit from '@/components/icons/IconEdit.vue';
 
 const VALID_TABS = new Set(['overview', 'files', 'images', 'metadata', 'stats']);
 
+const appStore = useAppStore();
+
 const { stateDirectory, stateFolder, isLoadingContent, isStateFolderAudio: isAudio } = storeToRefs(useContentStore());
+const { pageTitle, selectedSideBar, sideBarTarget } = storeToRefs(appStore);
 const { activeFolderTab, tabs, setTab } = useFolderTabs(stateFolder, isAudio);
-const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 const { getCategory, getFolder } = useContentStore();
 const { isAuthenticated } = useAuth();
 
@@ -169,9 +171,13 @@ watch(
 );
 
 onMounted(async () => {
+    if (sideBarTarget.value === 'left-card') {
+        appStore.cycleSideBar('', 'left-card', false);
+    }
+
     await reload();
     await nextTick();
-    if (getScreenSizeRank() >= 3 && selectedSideBar.value !== 'folders') useAppStore().cycleSideBar('folders', 'list-card');
+    if (getScreenSizeRank() >= 3 && selectedSideBar.value !== 'folders') appStore.cycleSideBar('folders', 'list-card');
 });
 
 provide('data', stateFolder);

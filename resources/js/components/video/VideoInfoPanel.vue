@@ -25,6 +25,7 @@ import { useAuth } from '@/composables/auth/useAuth';
 
 import EditFolderModal from '@/components/modals/EditFolderModal.vue';
 import EditMediaModal from '@/components/modals/EditMediaModal.vue';
+import MediaInfoModal from '@/components/modals/MediaInfoModal.vue';
 import useMetaData from '@/composables/useMetaData';
 import ShareModal from '@/components/modals/ShareModal.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
@@ -64,6 +65,11 @@ const popoverItems = computed(() => {
             icon: IconShare,
             text: 'Share',
             action: handleShare,
+        },
+        {
+            icon: ProiconsInfoSquare,
+            text: 'Metadata',
+            action: handleMetadataInfo,
         },
         {
             icon: TablerDownload,
@@ -136,6 +142,20 @@ const handleShare = () => {
         title: `Share ${mediaTypeDescription.value}`,
         shareLink: `${document.location.origin}${route.path}?video=${stateVideo.value.id}`,
         defaultTimestamp: props.getCurrentTime(),
+    });
+};
+
+const handleMetadataInfo = () => {
+    if (!stateVideo.value.id) {
+        toast.error('ID Missing');
+        return;
+    }
+    const metadataInfo = stateVideo.value.metadata ? { titleTooltip: `UUID: ${stateVideo.value.metadata.uuid}` } : {};
+
+    modal.open(MediaInfoModal, {
+        title: `${mediaTypeDescription.value} Metadata`,
+        mediaResource: stateVideo.value,
+        ...metadataInfo,
     });
 };
 

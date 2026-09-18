@@ -189,6 +189,7 @@ Route::get('/folders', [FolderController::class, 'getFrom']);
 
 // Video Search and Views
 Route::patch('/videos/watch/{video}', [VideoController::class, 'watch']);
+Route::get('/videos/{video}/info', [VideoController::class, 'getMediaInfo']);
 Route::get('/videos', [VideoController::class, 'getFrom']);
 
 // Video playback history

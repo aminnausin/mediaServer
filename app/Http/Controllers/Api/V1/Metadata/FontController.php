@@ -19,7 +19,7 @@ class FontController extends Controller {
     public function __construct(protected FileJobService $fileJobService, protected RateLimitService $rateLimiter) {}
 
     /**
-     * List storyboard details for metadata.
+     * List font details for metadata.
      */
     public function show(Metadata $metadata) {
         return response()->json([

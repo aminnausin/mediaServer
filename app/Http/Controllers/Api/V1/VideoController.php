@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\VideoCollectionRequest;
+use App\Http\Resources\Metadata\MediaInfoResource;
 use App\Http\Resources\VideoResource;
 use App\Models\Record;
 use App\Models\Video;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 
 class VideoController extends Controller {
@@ -31,6 +33,29 @@ class VideoController extends Controller {
             return $this->success($result);
         } catch (\Throwable $th) {
             return $this->error(null, 'Unable to get videos. Error: ' . $th->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function getMediaInfo(Request $_, Video $video) {
+        try {
+            $category = $video->folder->category;
+            if (! $category || ($category->is_private && ! Gate::allows('admin'))) {
+                abort(404);
+            }
+
+            $video->load([
+                'metadata.fonts',
+                'metadata.subtitles',
+                'metadata.images.user',
+                'metadata.storyboard',
+            ]);
+
+            return response()->json(new MediaInfoResource($video));
+        } catch (\Throwable $th) {
+            Log::error('Unable to get video. Error: ' . $th->getMessage());
         }
     }
 

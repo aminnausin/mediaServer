@@ -50,7 +50,7 @@ const handleSetPage = async (page: number) => {
 </script>
 
 <template>
-    <div class="@container flex max-w-full scroll-mb-12 flex-col flex-wrap items-center gap-2 text-sm sm:flex-row sm:justify-between" ref="$element">
+    <div class="table-pagination @container flex max-w-full scroll-mb-12 flex-col flex-wrap items-center gap-2 text-sm sm:flex-row sm:justify-between" ref="$element">
         <p class="dark:text-foreground-7 text-nowrap">
             Showing
             <span class="dark:text-foreground-0 font-medium">{{ props.listLength ? props.itemsPerPage * (currentPage - 1) + 1 : 0 }}</span>
