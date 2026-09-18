@@ -61,7 +61,7 @@ const metadataItems = computed<{ label: string; items: { label: string; value: a
                           { label: 'Fonts', value: props.data.fonts?.length },
                       ]
                     : []),
-            ].filter(Boolean) as { label: string; value: any; to?: string }[],
+            ],
         },
         {
             label: 'Timestamps',
@@ -78,7 +78,7 @@ const ffprobe = computed(() => {
     return props.mediaInfo.raw_metadata as { format: { filename: string; format_name: string; size: string }; streams: FfprobeStream[] };
 });
 
-const cards = computed(() => buildStreamCards(ffprobe.value.streams));
+const cards = computed(() => buildStreamCards(ffprobe.value?.streams ?? []));
 </script>
 
 <template>
@@ -88,7 +88,7 @@ const cards = computed(() => buildStreamCards(ffprobe.value.streams));
                 <p class="">{{ group.label }}</p>
                 <div class="ms-4 flex flex-col gap-x-6">
                     <div v-for="item in group.items" :key="item.label" class="whitespace-pre-wrap">
-                        <span class="text-foreground-1">{{ item.label }}: </span>&Tab;<span class="text-foreground-0">{{ item.value }}</span>
+                        <span class="text-foreground-1">{{ item.label }}: </span>&Tab;<span class="text-foreground-0">{{ item.value ?? '—' }}</span>
                     </div>
 
                     <div v-if="group.label === 'Metadata' && data.video_tags.length" title="Tags" class="flex gap-1 pt-4">
@@ -114,7 +114,7 @@ const cards = computed(() => buildStreamCards(ffprobe.value.streams));
                 </div>
             </div>
         </template>
-        <div class="space-y-0.5" v-if="data">
+        <div class="space-y-0.5" v-if="data && cards.length > 0">
             <p>Streams</p>
             <div class="ms-4 grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4">
                 <StreamInfoCard v-for="card in cards" :key="card.key" :title="card.title" :fields="card.fields" />
