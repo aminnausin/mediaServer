@@ -96,8 +96,9 @@ class SeriesController extends Controller {
             }
 
             $this->logModelChanges($series, ['tags_changed' => $tagsChanged], $user);
-
+            $series->timestamps = false;
             $series->save();
+            $series->timestamps = true;
         }
 
         return response()->json(new SeriesResource($this->eagerLoadSeries($series)));
