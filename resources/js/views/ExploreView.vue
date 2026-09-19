@@ -66,7 +66,7 @@ onMounted(() => {
                 </ExploreShelf>
 
                 <ExploreShelf
-                    title="Recently Updated Folders"
+                    title="Recently Updated"
                     skeleton-class="w-40 aspect-2-3"
                     :item-count="recentlyUpdated?.length"
                     :is-loading="isLoadingRecentlyUpdated"
@@ -78,7 +78,7 @@ onMounted(() => {
                 </ExploreShelf>
 
                 <ExploreShelf
-                    title="Recently Added Series"
+                    title="Recently Added"
                     skeleton-class="w-40 aspect-2-3"
                     :item-count="recentlyAdded?.length"
                     :is-loading="isLoadingRecentlyAdded"
@@ -94,7 +94,7 @@ onMounted(() => {
                 </ExploreShelf>
 
                 <ExploreShelf
-                    title="Recently Released Series"
+                    title="Recently Released"
                     skeleton-class="w-40 aspect-2-3"
                     :item-count="recentlyReleased?.length"
                     :is-loading="isLoadingRecentlyReleased"

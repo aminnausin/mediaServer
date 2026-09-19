@@ -48,7 +48,7 @@ const audioToActivity = (media: VideoResource): ActivityItem => ({
 });
 
 const folderToActivity = (folder: FolderResource): ActivityItem => {
-    const isRecentActivity = isRecent(folder.series?.updated_at);
+    const isRecentActivity = isRecent(folder.series?.updated_at ?? folder.created_at);
     return {
         id: `folder-${folder.id}`,
         type: 'folder',
