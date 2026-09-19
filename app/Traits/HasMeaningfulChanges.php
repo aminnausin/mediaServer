@@ -6,6 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 trait HasMeaningfulChanges {
     protected function hasMeaningfulChanges(Model $model, array $ignoredFields = []): bool {
-        return collect($model->getDirty())->diff($ignoredFields)->isNotEmpty();
+        return collect($model->getDirty())->except($ignoredFields)->isNotEmpty();
     }
 }
