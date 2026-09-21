@@ -90,7 +90,7 @@
         "vue-tsc": "^3.2.7"
     },
     "dependencies": {
-        "@aminnausin/am-lyrics": "^1.0.2",
+        "@aminnausin/am-lyrics": "^1.0.3",
         "@jellyfin/libass-wasm": "4.2.3",
         "@tanstack/vue-query": "^5.77.2",
         "@vueuse/components": "^13.0.0",
