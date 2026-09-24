@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import type { RawLyricItem } from '@/types/types';
 
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { cn } from '@aminnausin/cedar-ui';
 
 const emit = defineEmits<{ clicked: [play?: boolean] }>();
+
+const hideFocusOutline = ref(false);
 
 const props = withDefaults(
     defineProps<{
@@ -24,6 +26,7 @@ function onClick(play = false) {
     const selection = globalThis.getSelection();
     if (selection && selection.toString().length > 0) return;
 
+    hideFocusOutline.value = true;
     emit('clicked', play);
 }
 
@@ -47,11 +50,18 @@ const distanceClasses = computed(() => {
             return 'opacity-40 blur-[2px]';
     }
 });
+
+watch(
+    () => [props.index, props.lyric.time, props.distance],
+    () => {
+        hideFocusOutline.value = true;
+    },
+);
 </script>
 
 <template>
     <div
-        :class="cn('w-full transition-colors duration-300 ease-out focus-within:outline', { 'bg-neutral-800/40': isActive })"
+        :class="cn('w-full transition-colors duration-300 ease-out', { 'has-focus-visible:outline': !hideFocusOutline }, { 'bg-neutral-800/40': isActive })"
         :id="`lyric-${lyric?.time ?? `-indexed-${index}`}`"
         :data-lyric-row="index"
         :data-active="isActive"
@@ -59,6 +69,7 @@ const distanceClasses = computed(() => {
         <button
             :class="
                 cn(
+                    'lyric-button',
                     'pointer-events-auto px-4 py-1 break-normal select-text sm:mx-auto sm:w-4/5 sm:px-0',
                     'transition-[color,opacity,filter,scale] duration-300 ease-out text-shadow-sm',
                     'focus:outline-none',
@@ -67,6 +78,7 @@ const distanceClasses = computed(() => {
                     { 'text-yellow-400 opacity-100 text-shadow-none': isActive },
                 )
             "
+            @focus="hideFocusOutline = false"
             @click="onClick()"
             @keydown.space.prevent="(event) => !event.repeat && onClick(true)"
         >
