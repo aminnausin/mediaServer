@@ -136,6 +136,7 @@ const {
     showSeekButtons,
     showLyricsMetadata,
     useAmLyrics,
+    selectedSideBar,
 } = storeToRefs(useAppStore());
 const { setContextMenu, closeContextMenu } = useAppStore();
 const { updateViewCount } = useContentStore();
@@ -333,6 +334,7 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
             hidden: isAudio.value,
             action: () => {
                 isShowingTranscript.value = !isShowingTranscript.value;
+                selectedSideBar.value = isShowingTranscript.value ? 'transcript' : selectedSideBar.value === 'transcript' ? '' : selectedSideBar.value;
             },
         },
         {
