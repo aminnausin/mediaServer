@@ -30,6 +30,7 @@ import VideoPopoverSlider from '@/components/video/popover/VideoPopoverSlider.vu
 import AudioSpectrograph from '@/components/video/audio/AudioSpectrograph.vue';
 import PlayerAudioTracks from '@/components/video/audio/PlayerAudioTracks.vue';
 import VideoPopoverItem from '@/components/video/popover/VideoPopoverItem.vue';
+import PlayerTranscript from '@/components/video/transcript/PlayerTranscript.vue';
 import PlayerSubtitles from '@/components/video/subtitles/PlayerSubtitles.vue';
 import VideoPartyPanel from '@/components/video/plugins/party/VideoPartyPanel.vue';
 import PlayerSkipIntro from '@/components/video/plugins/skip-intro/PlayerSkipIntro.vue';
@@ -182,6 +183,7 @@ const timeDisplay = ref<'timeElapsed' | 'timeRemaining'>('timeElapsed');
 const isShowingAudioGraphSettings = ref(false);
 const isPlayerSizeConstrained = computed(() => (isAudio.value || aspectRatio.value.isPortrait) && isNormalView.value); // Is size determined by album art or portrait video
 const isThumbnailDismissed = ref(false);
+const isShowingTranscript = ref(false);
 const isPictureInPicture = ref(false);
 const isShowingControls = ref(false);
 const isLoadingMetadata = ref(false);
@@ -321,6 +323,16 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
             disabled: !userData.value?.id,
             action: () => {
                 isShowingParty.value = !isShowingParty.value;
+            },
+        },
+        {
+            text: 'Transcript',
+            icon: isShowingTranscript.value ? ProiconsCheckmark : undefined,
+            selected: isShowingTranscript.value,
+            disabled: stateVideo.value.subtitles.length == 0,
+            hidden: isAudio.value,
+            action: () => {
+                isShowingTranscript.value = !isShowingTranscript.value;
             },
         },
         {
@@ -1555,9 +1567,9 @@ defineExpose({
 
         <!-- UI Panels Z-8 (Stats, Options)-->
         <div
-            style="z-index: 8; max-height: calc(100% - calc(var(--spacing) * 18))"
+            style="z-index: 7; height: calc(100% - calc(var(--spacing) * 18))"
             :class="
-                cn('ui-layer scrollbar-hide inset-x-0 flex h-fit flex-wrap justify-between gap-2 overflow-auto', 'xms:top-2 top-9 bottom-16 mx-2', {
+                cn('ui-layer scrollbar-hide inset-x-0 flex flex-wrap justify-between gap-2', 'xms:top-2 top-9 bottom-16 mx-2', {
                     'top-11! mx-4': isFullScreen || isTheatreView,
                 })
             "
@@ -1583,14 +1595,26 @@ defineExpose({
             </div>
 
             <!-- UI Panels Right -->
-            <div :class="cn('flex h-full flex-col gap-2', { 'xxs:mt-7': isNormalView })">
+            <div
+                :class="cn('flex h-full flex-1 flex-col items-end gap-2', { 'xxs:mt-7': isNormalView })"
+                :style="{
+                    maxHeight: isNormalView ? 'calc(100% - var(--spacing) * 7)' : 'calc(100% - var(--spacing) * 11)',
+                }"
+            >
                 <!-- Watch Party (Z-7) -->
                 <VideoPartyPanel :is-showing-party="isShowingParty" />
+                <PlayerTranscript
+                    :is-visible="isShowingTranscript && stateVideo.subtitles.length > 0"
+                    :player="player"
+                    :subtitle-track="playerSubtitles?.currentSubtitleTrack ?? playerSubtitles?.defaultSubtitleTrack"
+                    @seek="handleManualSeek"
+                    @close="isShowingTranscript = false"
+                />
             </div>
         </div>
 
         <!-- Overlay Controls and Notifications Z-7 (Skip Intro, Timeline) -->
-        <div style="z-index: 7" class="ui-layer inset-0 flex">
+        <div style="z-index: 8" class="ui-layer inset-0 flex">
             <!-- Overlay controls  -->
             <div :class="['absolute bottom-18 xl:bottom-23', isNormalView ? 'left-2' : 'left-4', '-ms-1 flex h-fit max-h-28 max-w-42 flex-col-reverse gap-1 overflow-clip p-1']">
                 <!-- Skip Intro (Z-7) -->
