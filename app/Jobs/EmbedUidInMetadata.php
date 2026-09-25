@@ -192,15 +192,33 @@ class EmbedUidInMetadata extends ManagedSubTask {
             throw new ProcessFailedException($process);
         }
 
-        if (file_exists($tempFilePath)) {
-            // Get the original file's timestamps
-            $originalModifiedTime = filemtime($this->filePath);
-            // Replace the original file with the temporary file
-            rename($tempFilePath, $this->filePath);
-            // Restore the original timestamps
-            touch($this->filePath, $originalModifiedTime);
-        } else {
-            throw new \Exception('Failed to create the temporary file with metadata.');
+        if (! file_exists($tempFilePath)) {
+            throw new \RuntimeException(
+                "FFmpeg completed successfully, but the output file was not created: {$tempFilePath}"
+            );
+        }
+
+        $originalModifiedTime = filemtime($this->filePath);
+
+        // Get the original file's timestamps
+        if ($originalModifiedTime === false) {
+            throw new \RuntimeException(
+                "Failed to read the original file's modification time: {$this->filePath}"
+            );
+        }
+
+        // Replace the original file with the temporary file
+        if (! rename($tempFilePath, $this->filePath)) {
+            throw new \RuntimeException(
+                "Failed to replace original file '{$this->filePath}' with temporary file '{$tempFilePath}'."
+            );
+        }
+
+        // Restore the original timestamps
+        if (! touch($this->filePath, $originalModifiedTime)) {
+            throw new \RuntimeException(
+                "File was replaced successfully, but failed to restore its modification time: {$this->filePath}"
+            );
         }
     }
 }
