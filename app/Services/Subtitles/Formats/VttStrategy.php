@@ -133,7 +133,6 @@ class VttStrategy implements SubtitleFormatStrategy {
 
         return preg_match('/^(?:[mnlbspc]|-?\d+(?:\.\d+)?|\s)+$/i', $text) === 1 && preg_match('/[mnlbspc]/i', $text) === 1 && preg_match('/\d/', $text) === 1;
 
-
         // less robust?
 
         if (! preg_match('/(?:^|\s)[mnlbspc](?=\s|$)/i', $text)) {
