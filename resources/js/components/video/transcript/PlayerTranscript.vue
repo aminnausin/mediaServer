@@ -8,6 +8,8 @@ import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { cn, toast } from '@aminnausin/cedar-ui';
 
+import GenerateTranscript from '@/components/video/transcript/GenerateTranscript.vue';
+
 import ProiconsCancel from '~icons/proicons/cancel';
 
 interface TranscriptLine {
@@ -20,7 +22,7 @@ interface TranscriptLine {
 const ALLOWED_TAG_PATTERN = /<(?!\/?(?:i|u|br)\b)[^>]*>/gi;
 
 const props = defineProps<{ isVisible: boolean; player: HTMLVideoElement | null; subtitleTrack?: SubtitleResource }>();
-const emit = defineEmits<{ seek: [value: number]; close: [] }>();
+const emit = defineEmits<{ seek: [value: number]; close: []; generated: [track: SubtitleResource] }>();
 
 const { loadedSideBar } = storeToRefs(useAppStore());
 
@@ -295,7 +297,7 @@ onUnmounted(() => {
                         <template #icon> <ProiconsCancel /> </template>
                     </ButtonCorner>
                 </div>
-                <div class="w-full space-y-1" v-if="isVisible">
+                <div class="w-full space-y-1" v-if="isVisible && subtitleTrack">
                     <div v-if="isLoading">
                         <button type="button" :class="['group flex w-full animate-pulse cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 text-left transition-colors']">
                             <span class="shrink-0 rounded-md px-1.5 py-0.5 font-mono text-xs tabular-nums transition-colors" :class="'bg-white/5 text-transparent'"> 00:00 </span>
@@ -336,6 +338,14 @@ onUnmounted(() => {
                         </button>
                     </div>
                 </div>
+                <GenerateTranscript
+                    v-else-if="!subtitleTrack"
+                    @generated="
+                        (data) => {
+                            emit('generated', data.track);
+                        }
+                    "
+                />
             </div>
             <Transition
                 enter-active-class="transition duration-150 ease-out"

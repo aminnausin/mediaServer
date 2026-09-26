@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ContextMenuItem, PopoverItem } from '@/types/types';
+import type { SubtitleResource } from '@/contracts/media';
 
 import { controlsHideTime, playbackDataBuffer, playerHealthBuffer, volumeDelta, playbackDelta, playbackMin, playbackMax } from '@/service/player/playerConstants';
 import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
@@ -330,11 +331,12 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
             text: 'Transcript',
             icon: isShowingTranscript.value ? ProiconsCheckmark : undefined,
             selected: isShowingTranscript.value,
-            disabled: stateVideo.value.subtitles.length == 0,
             hidden: isAudio.value,
             action: () => {
                 isShowingTranscript.value = !isShowingTranscript.value;
-                selectedSideBar.value = isShowingTranscript.value ? 'transcript' : selectedSideBar.value === 'transcript' ? '' : selectedSideBar.value;
+                if (isNormalView.value) {
+                    selectedSideBar.value = isShowingTranscript.value ? 'transcript' : selectedSideBar.value === 'transcript' ? '' : selectedSideBar.value;
+                }
             },
         },
         {
@@ -1606,11 +1608,16 @@ defineExpose({
                 <!-- Watch Party (Z-7) -->
                 <VideoPartyPanel :is-showing-party="isShowingParty" />
                 <PlayerTranscript
-                    :is-visible="isShowingTranscript && stateVideo.subtitles.length > 0"
+                    :is-visible="isShowingTranscript"
                     :player="player"
                     :subtitle-track="playerSubtitles?.currentSubtitleTrack ?? playerSubtitles?.defaultSubtitleTrack"
                     @seek="handleManualSeek"
                     @close="isShowingTranscript = false"
+                    @generated="
+                        (track: SubtitleResource) => {
+                            stateVideo.subtitles.push(track);
+                        }
+                    "
                 />
             </div>
         </div>
