@@ -1152,6 +1152,7 @@ type SupportedKeyBind = (typeof SUPPORTED_KEYBINDS)[number];
 const handleKeyBinds = (event: KeyboardEvent, override = false) => {
     if (!SUPPORTED_KEYBINDS.includes(event.key as SupportedKeyBind)) return;
     if (isInputLikeElement(event.target, event.key) && !override) return;
+    if (event.ctrlKey) return;
 
     const key = event.key as SupportedKeyBind;
 
@@ -1180,7 +1181,6 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
             handleMute();
             break;
         case 'c':
-            if (event.ctrlKey) return;
             if (isAudio.value || stateFolder.value.is_majority_audio) handleLyrics();
             else playerSubtitles.value?.handleSubtitles();
             break;
