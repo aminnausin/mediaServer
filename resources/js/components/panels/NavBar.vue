@@ -32,6 +32,8 @@ const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 const { cycleSideBar } = useAppStore();
 
 const breakpoints = useBreakpoints(breakpointsTailwind);
+const isDesktop = breakpoints.greaterOrEqual('lg');
+
 const route = useRoute();
 
 const showDropdown = ref(false);
@@ -72,8 +74,6 @@ const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings' | 'config') => {
         });
     }
 };
-
-const isDesktop = breakpoints.greaterOrEqual('lg');
 
 watch(isDesktop, (now) => {
     const currentSidebar = selectedSideBar.value;
