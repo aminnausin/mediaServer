@@ -48,7 +48,7 @@ class TranscriptController extends Controller {
             $response = Http::timeout(120)->attach('file', fopen($absolutePath, 'r'), basename($absolutePath))->post(config('services.transcribe.url'));
         } catch (ConnectionException $e) {
             return response()->json([
-                'message' => 'Transcription service is unavailable. It sleeps after a period of inactivity, so it may need a moment to spin up. Please try again shortly.',
+                'message' => 'Transcription service is unavailable.',
             ], 503);
         }
 
