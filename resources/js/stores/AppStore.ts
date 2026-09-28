@@ -52,7 +52,6 @@ export const useAppStore = defineStore('App', () => {
     const ws = ref<Echo<keyof Broadcaster> | null>(null);
 
     const selectedSideBar = ref('');
-    const loadedSideBar = ref('');
     const sideBarTarget = ref('');
     const pageTitle = ref('');
     const scrollLock = ref(false);
@@ -117,7 +116,6 @@ export const useAppStore = defineStore('App', () => {
 
     async function cycleSideBar(target = '', scrollTarget: '' | 'left-card' | 'list-card' | 'root' = '', scrollToTarget = true) {
         sideBarTarget.value = scrollTarget;
-        loadedSideBar.value = '';
 
         if (selectedSideBar.value === target) {
             selectedSideBar.value = '';
@@ -241,7 +239,6 @@ export const useAppStore = defineStore('App', () => {
         // Nav State
         cycleSideBar,
         selectedSideBar,
-        loadedSideBar,
         sideBarTarget,
         pageTitle,
 

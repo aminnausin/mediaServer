@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { ContextMenuItem, PopoverItem } from '@/types/types';
-import type { SubtitleResource } from '@/contracts/media';
 
 import { controlsHideTime, playbackDataBuffer, playerHealthBuffer, volumeDelta, playbackDelta, playbackMin, playbackMax } from '@/service/player/playerConstants';
 import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, useTemplateRef, watch } from 'vue';
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { copyVideoFrame, saveVideoFrame } from '@/service/player/frameService';
 import { usePlaybackProgress } from '@/composables/player/usePlaybackProgress';
 import { useRoute, useRouter } from 'vue-router';
@@ -13,6 +13,7 @@ import { useVideoPlayback } from '@/service/queries';
 import { ToastController } from '@/components/cedar-ui/toast';
 import { useContentStore } from '@/stores/ContentStore';
 import { debounce, round } from 'lodash-es';
+import { useTranscript } from './transcript/useTranscript';
 import { useAuthStore } from '@/stores/AuthStore';
 import { ContextMenu } from '@/components/cedar-ui/context-menu';
 import { GlobalModal } from '@/components/cedar-ui/modal';
@@ -225,6 +226,9 @@ const bufferHealth = computed(() => {
 
 //#endregion
 
+const breakpoints = useBreakpoints(breakpointsTailwind);
+const isDesktop = breakpoints.greaterOrEqual('lg');
+
 const videoButtonOffset = computed(() => {
     return 8 + (isNormalView.value ? 0 : 8);
 });
@@ -334,7 +338,7 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
             hidden: isAudio.value,
             action: () => {
                 isShowingTranscript.value = !isShowingTranscript.value;
-                if (isNormalView.value) {
+                if (isNormalView.value && isDesktop.value) {
                     selectedSideBar.value = isShowingTranscript.value ? 'transcript' : selectedSideBar.value === 'transcript' ? '' : selectedSideBar.value;
                 }
             },
@@ -1326,6 +1330,33 @@ const addJsonLd = () => {
 
 //#endregion
 
+//#region Transcript
+
+const {
+    player: transcriptPlayer,
+    playerViewMode: transcriptViewMode,
+    subtitleTrack: transcriptSubtitleTrack,
+    registerTranscriptContext,
+    unregisterTranscriptContext,
+} = useTranscript();
+
+watch(
+    player,
+    (el) => {
+        transcriptPlayer.value = el;
+    },
+    { immediate: true },
+);
+watch(
+    () => playerSubtitles.value?.currentSubtitleTrack ?? playerSubtitles.value?.defaultSubtitleTrack,
+    (track) => {
+        transcriptSubtitleTrack.value = track;
+    },
+    { immediate: true },
+);
+
+//#endregion
+
 //#region Hooks
 
 provide('player', player);
@@ -1334,6 +1365,13 @@ provide('isAudio', isAudio);
 watch(stateVideo, (_, old) => {
     initVideoPlayer(old.id);
 });
+
+watch(
+    () => viewMode.value,
+    async () => {
+        transcriptViewMode.value = viewMode.value;
+    },
+);
 
 watch(isShowingControls, async (visible) => {
     if (!visible || !shouldUpdateUI.value || !player.value) return;
@@ -1370,6 +1408,16 @@ onMounted(() => {
     globalThis.addEventListener('pointerup', stopScrub);
     globalThis.addEventListener('contextmenu', stopScrub);
     unSub = onSeek(handleManualSeek);
+
+    registerTranscriptContext({
+        seek: handleManualSeek,
+        close: () => {
+            isShowingTranscript.value = false;
+        },
+        generated: (track) => {
+            stateVideo.value.subtitles.push(track);
+        },
+    });
 });
 
 onBeforeUnmount(() => {
@@ -1378,6 +1426,8 @@ onBeforeUnmount(() => {
     globalThis.removeEventListener('keydown', handleKeyBinds);
     document.removeEventListener('fullscreenchange', handleFullScreenChange);
     document.removeEventListener('visibilitychange', handleVisibilityChange);
+
+    unregisterTranscriptContext();
 
     if (unSub) unSub();
 
@@ -1607,18 +1657,7 @@ defineExpose({
             >
                 <!-- Watch Party (Z-7) -->
                 <VideoPartyPanel :is-showing-party="isShowingParty" />
-                <PlayerTranscript
-                    :is-visible="isShowingTranscript"
-                    :player="player"
-                    :subtitle-track="playerSubtitles?.currentSubtitleTrack ?? playerSubtitles?.defaultSubtitleTrack"
-                    @seek="handleManualSeek"
-                    @close="isShowingTranscript = false"
-                    @generated="
-                        (track: SubtitleResource) => {
-                            stateVideo.subtitles.push(track);
-                        }
-                    "
-                />
+                <PlayerTranscript :is-visible="isShowingTranscript && selectedSideBar !== 'transcript'" />
             </div>
         </div>
 
