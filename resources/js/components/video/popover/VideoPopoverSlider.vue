@@ -18,7 +18,7 @@ const resetModel = () => {
 };
 </script>
 <template>
-    <div class="px-1">
+    <div class="px-1 text-[10px] sm:text-xs">
         <label
             v-show="!hidden"
             v-bind="$attrs"
@@ -26,7 +26,7 @@ const resetModel = () => {
             :title="title ?? 'Popover Slider'"
             :class="
                 cn(
-                    'transition-input flex w-full flex-wrap items-center gap-y-2 rounded-md px-2 py-1.5 text-xs',
+                    'transition-input flex w-full flex-wrap items-center gap-y-2 rounded-md px-2 py-1.5',
                     'ring-white outline-hidden ring-inset focus-within:bg-neutral-950 hover:bg-neutral-900 focus:outline-none has-focus-visible:ring',
                     { 'button-disabled': disabled },
                     style,
@@ -42,13 +42,13 @@ const resetModel = () => {
             <ButtonBase
                 v-if="defaultValue !== undefined"
                 type="button"
-                class="text-foreground-1 dark ml-auto h-fit cursor-pointer p-0 text-xs tracking-wide focus-visible:outline-offset-2"
+                class="text-foreground-1 dark ml-auto h-fit cursor-pointer p-0 tracking-wide focus-visible:outline-offset-2"
                 :title="defaultValue !== undefined ? `Reset ${text}` : undefined"
                 @click="resetModel"
             >
                 {{ shortcut }}
             </ButtonBase>
-            <span v-else class="text-foreground-1 dark ml-auto cursor-pointer text-xs tracking-wide">
+            <span v-else class="text-foreground-1 dark ml-auto cursor-pointer tracking-wide">
                 {{ shortcut }}
             </span>
             <input
