@@ -82,7 +82,11 @@ async function requestTranscript() {
 
         status.value = 'processing';
 
-        const { data } = await API.post(`/metadata/${stateVideo.value.metadata.id}/transcript`);
+        const { data } = await API.post(`/metadata/${stateVideo.value.metadata.id}/transcript`, {
+            headers: {
+                'X-Skip-Toast': true,
+            },
+        });
 
         status.value = 'idle';
         emit('generated', {
@@ -91,30 +95,29 @@ async function requestTranscript() {
         });
     } catch (error) {
         status.value = 'error';
-        toast.error(error instanceof Error ? error.message : 'Failed to generate transcript');
     }
 }
 </script>
 
 <template>
-    <div class="flex h-full flex-col items-center justify-center gap-3 px-8 py-10 text-center" role="status" aria-live="polite">
+    <div :class="cn('flex h-full flex-col items-center justify-center gap-3 px-8 py-10 text-center', $attrs.class)" role="status" aria-live="polite">
         <div
             :class="
-                cn('flex size-11 items-center justify-center rounded-full transition-colors', {
+                cn('flex size-8 shrink-0 items-center justify-center rounded-full transition-colors sm:size-11', {
                     'bg-danger-2/10 text-danger-2': status === 'error',
                     'bg-white/8 text-white/40': status === 'idle',
                     'bg-white/8 text-white/70': isBusy,
                 })
             "
         >
-            <ProiconsArrowClockwise v-if="isBusy" class="size-5 animate-spin" />
-            <ProiconsAlertTriangle v-else-if="status === 'error'" class="size-5" />
-            <IconCaptions v-else class="size-5" />
+            <ProiconsArrowClockwise v-if="isBusy" class="size-4 animate-spin sm:size-5" />
+            <ProiconsAlertTriangle v-else-if="status === 'error'" class="size-4 sm:size-5" />
+            <IconCaptions v-else class="size-4 sm:size-5" />
         </div>
 
         <div class="max-w-64 space-y-1">
-            <p class="text-sm font-medium text-white/90">{{ copy.heading }}</p>
-            <p class="text-xs leading-5 text-white/40">{{ copy.description }}</p>
+            <p class="text-xs font-medium text-white/90 sm:text-sm">{{ copy.heading }}</p>
+            <p class="leading-5 text-white/40">{{ copy.description }}</p>
         </div>
 
         <ButtonBase
@@ -122,7 +125,7 @@ async function requestTranscript() {
             :disabled="isBusy"
             :use-size="false"
             :aria-busy="isBusy"
-            class="mt-1 flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-neutral-900 transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60"
+            class="mt-1 flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 font-medium text-neutral-900 transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60"
             @click="requestTranscript"
         >
             <ProiconsArrowClockwise v-if="isBusy" class="size-3.5 animate-spin" />
