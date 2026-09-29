@@ -127,7 +127,7 @@ services:
   #     - web # This is so the queue worker can access analytics (optional)
 
   postgres:
-    image: ${POSTGRES_IMAGE:-bitnamilegacy/postgresql:17.6.0}
+    image: ${POSTGRES_IMAGE:-soldevelo/postgresql:17.6.0}
     container_name: database
     platform: linux/amd64
     restart: always
