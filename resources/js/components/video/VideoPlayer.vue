@@ -52,6 +52,7 @@ import ProiconsPictureInPictureExit from '~icons/proicons/picture-in-picture-exi
 import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
 import ProiconsFullScreenMinimize from '~icons/proicons/full-screen-minimize';
 import ProiconsTextHighlightColor from '~icons/proicons/text-highlight-color';
+import ProiconsTextAlignLeft from '~icons/proicons/text-align-left';
 import ProiconsArrowTrending from '~icons/proicons/arrow-trending';
 import TablerMicrophone2Off from '~icons/tabler/microphone-2-off';
 import ProiconsFastForward from '~icons/proicons/fast-forward';
@@ -332,18 +333,6 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
             },
         },
         {
-            text: 'Transcript',
-            icon: isShowingTranscript.value ? ProiconsCheckmark : undefined,
-            selected: isShowingTranscript.value,
-            hidden: isAudio.value,
-            action: () => {
-                isShowingTranscript.value = !isShowingTranscript.value;
-                if (isNormalView.value && isDesktop.value) {
-                    selectedSideBar.value = isShowingTranscript.value ? 'transcript' : selectedSideBar.value === 'transcript' ? '' : selectedSideBar.value;
-                }
-            },
-        },
-        {
             text: 'Show Miniplayer',
             icon: isPictureInPicture.value ? ProiconsCheckmark : undefined,
             selected: isPictureInPicture.value,
@@ -452,6 +441,20 @@ const videoPopoverItems = computed<PopoverItem[]>(() => [
         selected: showAutoSubtitles.value,
         action: () => (showAutoSubtitles.value = !showAutoSubtitles.value),
         disabled: isAudio.value,
+    },
+    {
+        text: 'Transcript',
+        title: `Toggle video transcript`,
+        icon: ProiconsTextAlignLeft,
+        selected: isShowingTranscript.value,
+        selectedIcon: ProiconsCheckmark,
+        hidden: isAudio.value,
+        action: () => {
+            isShowingTranscript.value = !isShowingTranscript.value;
+            if (isNormalView.value && isDesktop.value) {
+                selectedSideBar.value = isShowingTranscript.value ? 'transcript' : selectedSideBar.value === 'transcript' ? '' : selectedSideBar.value;
+            }
+        },
     },
     {
         text: 'Audio Graph',
