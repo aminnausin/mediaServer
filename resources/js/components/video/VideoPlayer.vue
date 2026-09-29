@@ -52,6 +52,7 @@ import ProiconsPictureInPictureExit from '~icons/proicons/picture-in-picture-exi
 import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
 import ProiconsFullScreenMinimize from '~icons/proicons/full-screen-minimize';
 import ProiconsTextHighlightColor from '~icons/proicons/text-highlight-color';
+import ProiconsTextAlignLeft from '~icons/proicons/text-align-left';
 import ProiconsArrowTrending from '~icons/proicons/arrow-trending';
 import TablerMicrophone2Off from '~icons/tabler/microphone-2-off';
 import ProiconsFastForward from '~icons/proicons/fast-forward';
@@ -401,10 +402,6 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
         },
     ].map((item) => ({ ...item, selectedStyle: '' })),
 );
-import TablerAlignLeft from '~icons/tabler/align-left';
-import ProiconsScript from '~icons/proicons/script';
-import ProiconsDocument from '~icons/proicons/document';
-import ProiconsTextAlignLeft from '~icons/proicons/text-align-left';
 
 const videoPopoverItems = computed<PopoverItem[]>(() => [
     {
@@ -428,6 +425,7 @@ const videoPopoverItems = computed<PopoverItem[]>(() => [
             playbackHeatmap.value = !playbackHeatmap.value;
         },
     },
+    { divider: true },
     {
         text: 'Lyrics',
         title: `Toggle Lyrics`,
@@ -450,15 +448,6 @@ const videoPopoverItems = computed<PopoverItem[]>(() => [
         action: handleToggleAutoplay,
     },
     {
-        text: 'Auto Subtitles',
-        title: `Automatically select the default subtitle track`,
-        icon: showAutoSubtitles.value ? IconCaptions : IconCaptionsOff,
-        selectedIcon: ProiconsCheckmark,
-        selected: showAutoSubtitles.value,
-        action: () => (showAutoSubtitles.value = !showAutoSubtitles.value),
-        disabled: isAudio.value,
-    },
-    {
         text: 'Transcript',
         title: `Toggle video transcript`,
         icon: ProiconsTextAlignLeft,
@@ -472,6 +461,16 @@ const videoPopoverItems = computed<PopoverItem[]>(() => [
             }
         },
     },
+    {
+        text: 'Auto Subtitles',
+        title: `Automatically select the default subtitle track`,
+        icon: showAutoSubtitles.value ? IconCaptions : IconCaptionsOff,
+        selectedIcon: ProiconsCheckmark,
+        selected: showAutoSubtitles.value,
+        action: () => (showAutoSubtitles.value = !showAutoSubtitles.value),
+        disabled: isAudio.value,
+    },
+    { divider: true },
     {
         text: 'Audio Graph',
         title: 'Toggle Audio Visualiser',
