@@ -21,6 +21,11 @@ const currentTime = ref(0);
 const rawTranscript = ref('');
 const loadedTranscriptUrl = ref<string>();
 
+const hasError = ref(false);
+const transcriptUrl = computed(() => buildTranscriptUrl(subtitleTrack.value));
+
+let controller: AbortController | null = null;
+
 const canUseSidebar = computed(() => isNormalView.value && isDesktop.value);
 
 const placement = computed<'hidden' | 'sidebar' | 'overlay'>(() => {
@@ -82,26 +87,46 @@ function handleTimeUpdate(this: HTMLVideoElement) {
     currentTime.value = this.currentTime;
 }
 
-async function loadTranscript() {
-    const url = buildTranscriptUrl(subtitleTrack.value);
+function reset() {
+    controller?.abort();
+    controller = null;
+    rawTranscript.value = '';
+    loadedTranscriptUrl.value = undefined;
+    hasError.value = false;
+    isLoading.value = false;
+}
 
-    if (!url || loadedTranscriptUrl.value === url) return;
+async function loadTranscript(url: string | undefined, force = false) {
+    // const url = buildTranscriptUrl(subtitleTrack.value);
+
+    // if (!url || loadedTranscriptUrl.value === url) return;
+
+    if (!url || (!force && url === loadedTranscriptUrl.value)) return;
+
+    controller?.abort();
+    const current = (controller = new AbortController());
+    isLoading.value = true;
 
     try {
-        isLoading.value = true;
-
-        const response = await fetch(url);
-
+        const response = await fetch(url, { signal: current.signal });
         if (!response.ok) throw new Error(`Failed to fetch transcript: ${response.status}`);
 
         rawTranscript.value = await response.text();
         loadedTranscriptUrl.value = url;
+        hasError.value = false;
     } catch (error) {
+        if (current.signal.aborted) return;
+
+        hasError.value = true;
         toast.error('Failed to load transcript');
         console.error('Failed to load transcript:', error);
     } finally {
-        isLoading.value = false;
+        if (controller === current) isLoading.value = false;
     }
+}
+
+function retry() {
+    void loadTranscript(transcriptUrl.value, true);
 }
 
 //#endregion
@@ -116,19 +141,26 @@ watch(isShowingTranscript, (show) => {
     else if (!show && selectedSideBar.value === 'transcript') selectedSideBar.value = '';
 });
 
+watch(transcriptUrl, reset);
+
+watch([isShowingTranscript, transcriptUrl], ([show, url]) => show && void loadTranscript(url), { immediate: true });
+
 export function useTranscript() {
     return {
         // transcript
         isShowingTranscript,
         rawTranscript,
         currentTime,
-        isLoading,
-        loadedTranscriptUrl,
         parsedTranscript,
         activeIndex,
         isActiveLive,
-        loadTranscript,
         placement,
+        // api
+        loadedTranscriptUrl,
+        isLoading,
+        hasError,
+        loadTranscript,
+        retry,
         // player-owned state
         player,
         isNormalView,
