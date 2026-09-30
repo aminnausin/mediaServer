@@ -1,6 +1,6 @@
 import { timestampToSeconds } from '@/components/video/transcript/transcriptUtil';
 
-const ALLOWED_TAG_PATTERN = /<(?!\/?(?:i|u|br)\b)[^>]*>/gi;
+const STRIP_TAGS = /<(?!\/?(?:i|u)>|br\s*\/?>)[^>]*>/gi;
 
 export interface TranscriptLine {
     index: number;
@@ -11,9 +11,7 @@ export interface TranscriptLine {
 
 export function parseTranscript(rawTranscript: string): TranscriptLine[] {
     const lines: TranscriptLine[] = [];
-
-    const vtt = rawTranscript.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-    const cueLines = vtt.split('\n');
+    const cueLines = rawTranscript.replace(/\r\n?/g, '\n').split('\n');
 
     for (let i = 0; i < cueLines.length; i++) {
         const line = cueLines[i].trim();
@@ -30,7 +28,7 @@ export function parseTranscript(rawTranscript: string): TranscriptLine[] {
 
         const startTime = timestampToSeconds(start);
         const endTime = timestampToSeconds(end);
-        const text = textLines.join('\n').trim().replace(ALLOWED_TAG_PATTERN, '');
+        const text = textLines.join('\n').trim().replace(STRIP_TAGS, '');
 
         if (!text) continue;
 
