@@ -46,6 +46,9 @@
         background-color: white;
         color: black;
     }
+    * {
+        outline-color: white;
+    }
 }
 
 @layer base {
