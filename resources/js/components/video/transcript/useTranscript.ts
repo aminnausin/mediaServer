@@ -1,98 +1,80 @@
 import type { SubtitleResource } from '@/contracts/media';
+import type { TranscriptLine } from '@/components/video/transcript/transcriptParser';
 import type { PlayerViewMode } from '@/components/video/VideoPlayer.vue';
+import type { Ref } from 'vue';
 
+import { buildTranscriptUrl, findActiveTranscriptIndex } from '@/components/video/transcript/transcriptUtil.ts';
 import { computed, ref, shallowRef, watch } from 'vue';
+import { useReactiveBreakpoints } from '@/service/breakpoints/useReactiveBreakpoints';
+import { parseTranscript } from '@/components/video/transcript/transcriptParser';
+import { useAppStore } from '@/stores/AppStore';
+import { storeToRefs } from 'pinia';
 import { toast } from '@aminnausin/cedar-ui';
 
-export interface TranscriptLine {
-    index: number;
-    text: string;
-    start: number;
-    end: number;
-}
+const { selectedSideBar } = storeToRefs(useAppStore());
+const { isDesktop } = useReactiveBreakpoints();
 
-const ALLOWED_TAG_PATTERN = /<(?!\/?(?:i|u|br)\b)[^>]*>/gi;
-
-const player = shallowRef<HTMLVideoElement | null>(null);
-const playerViewMode = ref<PlayerViewMode>('normal');
-const isNormalView = computed(() => playerViewMode.value === 'normal');
-const subtitleTrack = ref<SubtitleResource>();
-
-const rawTranscript = ref('');
-const currentTime = ref(0);
+const isShowingTranscript = ref(false);
 const isLoading = ref(false);
+
+const currentTime = ref(0);
+const rawTranscript = ref('');
 const loadedTranscriptUrl = ref<string>();
 
-const parsedTranscript = computed<TranscriptLine[]>(() => {
-    const lines: TranscriptLine[] = [];
+const canUseSidebar = computed(() => isNormalView.value && isDesktop.value);
 
-    const vtt = rawTranscript.value.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-    const cueLines = vtt.split('\n');
-
-    for (let i = 0; i < cueLines.length; i++) {
-        const line = cueLines[i].trim();
-        if (!line.includes(' --> ')) continue;
-
-        const [start, end] = line.split(' --> ');
-        const textLines: string[] = [];
-        i++;
-
-        while (i < cueLines.length && cueLines[i].trim() !== '') {
-            textLines.push(cueLines[i]);
-            i++;
-        }
-
-        const startTime = timestampToSeconds(start);
-        const endTime = timestampToSeconds(end);
-        const text = textLines.join('\n').trim().replace(ALLOWED_TAG_PATTERN, '');
-
-        if (!text) continue;
-
-        const previous = lines[lines.length - 1];
-        if (previous && previous.text === text && startTime <= previous.end) {
-            previous.end = Math.max(previous.end, endTime);
-            continue;
-        }
-
-        lines.push({ start: startTime, end: endTime, text, index: lines.length });
-    }
-    return lines;
+const placement = computed<'hidden' | 'sidebar' | 'overlay'>(() => {
+    if (!isShowingTranscript.value) return 'hidden';
+    return canUseSidebar.value && selectedSideBar.value === 'transcript' ? 'sidebar' : 'overlay';
 });
 
-const activeIndex = computed(() => {
-    const lines = parsedTranscript.value;
-    const time = currentTime.value;
+const parsedTranscript = computed<TranscriptLine[]>(() => parseTranscript(rawTranscript.value));
 
-    let low = 0;
-    let high = lines.length - 1;
+const activeIndex = computed(() => findActiveTranscriptIndex(parsedTranscript.value, currentTime.value));
 
-    while (low <= high) {
-        const mid = (low + high) >> 1;
-        const line = lines[mid];
-        const next = lines[mid + 1];
+//#region Context
 
-        if (time < line.start) high = mid - 1;
-        else if (!next || time < next.start) return mid;
-        else low = mid + 1;
-    }
+type TranscriptContext = {
+    player: Readonly<Ref<HTMLVideoElement | null>>;
+    viewMode: Readonly<Ref<PlayerViewMode>>;
+    subtitleTrack: Readonly<Ref<SubtitleResource | undefined>>;
+    seek: (seconds: number) => void;
+    close: () => void;
+    generated: (track: SubtitleResource) => void;
+};
 
-    return -1;
-});
+const context = shallowRef<TranscriptContext | null>(null);
 
-function timestampToSeconds(timestamp: string): number {
-    const parts = timestamp.trim().split(':').map(Number);
-    if (parts.length === 2) return parts[0] * 60 + parts[1];
-    if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
-    return 0;
+const player = computed(() => context.value?.player.value ?? null);
+const isNormalView = computed(() => context.value?.viewMode.value === 'normal');
+const subtitleTrack = computed(() => context.value?.subtitleTrack.value);
+
+function registerTranscriptContext(c: TranscriptContext) {
+    context.value = c;
 }
 
-function buildTranscriptUrl(subtitle?: SubtitleResource): string | undefined {
-    if (!subtitle) return undefined;
+function unregisterTranscriptContext() {
+    context.value = null;
+}
 
-    const { metadata_uuid, track_id, language } = subtitle;
-    const languageSlug = track_id === 0 ? `.${language}` : '';
+function seek(seconds: number) {
+    context.value?.seek(seconds);
+}
 
-    return `/data/subtitles/${metadata_uuid}/${track_id}${languageSlug}.vtt`;
+function close() {
+    context.value?.close();
+}
+
+function generated(track: SubtitleResource) {
+    context.value?.generated(track);
+}
+
+//#endregion
+
+//#region API
+
+function handleTimeUpdate(this: HTMLVideoElement) {
+    currentTime.value = this.currentTime;
 }
 
 async function loadTranscript() {
@@ -117,47 +99,22 @@ async function loadTranscript() {
     }
 }
 
-type TranscriptHandlers = {
-    seek: (seconds: number) => void;
-    close: () => void;
-    generated: (track: SubtitleResource) => void;
-};
-
-let handlers: TranscriptHandlers | null = null;
-
-function registerTranscriptContext(h: TranscriptHandlers) {
-    handlers = h;
-}
-
-function unregisterTranscriptContext() {
-    handlers = null;
-    player.value = null;
-}
-
-function seek(seconds: number) {
-    handlers?.seek(seconds);
-}
-
-function close() {
-    handlers?.close();
-}
-
-function generated(track: SubtitleResource) {
-    handlers?.generated(track);
-}
-
-function handleTimeUpdate(this: HTMLVideoElement) {
-    currentTime.value = this.currentTime;
-}
+//#endregion
 
 watch(player, (newPlayer, oldPlayer) => {
     oldPlayer?.removeEventListener('timeupdate', handleTimeUpdate);
     newPlayer?.addEventListener('timeupdate', handleTimeUpdate);
 });
 
+watch(isShowingTranscript, (show) => {
+    if (show && canUseSidebar.value) selectedSideBar.value = 'transcript';
+    else if (!show && selectedSideBar.value === 'transcript') selectedSideBar.value = '';
+});
+
 export function useTranscript() {
     return {
         // transcript
+        isShowingTranscript,
         rawTranscript,
         currentTime,
         isLoading,
@@ -165,15 +122,15 @@ export function useTranscript() {
         parsedTranscript,
         activeIndex,
         loadTranscript,
+        placement,
         // player-owned state
         player,
-        playerViewMode,
         isNormalView,
         subtitleTrack,
-        // owner registration (VideoPlayer.vue calls these)
+        // context setup
         registerTranscriptContext,
         unregisterTranscriptContext,
-        // consumer actions (PlayerTranscript.vue / TranscriptSidebar.vue call these)
+        // actions
         seek,
         close,
         generated,
