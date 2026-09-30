@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Component } from 'vue';
 
-import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
+import { useReactiveBreakpoints } from '@/service/breakpoints/useReactiveBreakpoints';
 import { useDropdownMenuItems } from '@/components/panels/DropdownMenuItems';
 import { RouterLink, useRoute } from 'vue-router';
 import { NavButton, NavLink } from '@/components/cedar-ui/button-nav';
@@ -31,8 +31,7 @@ const { userData, isLoadingUserData } = storeToRefs(useAuthStore());
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 const { cycleSideBar } = useAppStore();
 
-const breakpoints = useBreakpoints(breakpointsTailwind);
-const isDesktop = breakpoints.greaterOrEqual('lg');
+const { isDesktop } = useReactiveBreakpoints();
 
 const route = useRoute();
 

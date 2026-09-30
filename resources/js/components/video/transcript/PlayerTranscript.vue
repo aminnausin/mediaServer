@@ -3,8 +3,8 @@ import type { ComponentPublicInstance } from 'vue';
 import type { SubtitleResource } from '@/contracts/media';
 
 import { computed, nextTick, onBeforeUnmount, ref, useTemplateRef, watch } from 'vue';
-import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { ButtonBase, ButtonCorner } from '@/components/cedar-ui/button';
+import { useReactiveBreakpoints } from '@/service/breakpoints/useReactiveBreakpoints';
 import { useTranscript } from '@/components/video/transcript/useTranscript';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
@@ -18,8 +18,7 @@ import ProiconsCancel from '~icons/proicons/cancel';
 const props = defineProps<{ isVisible?: boolean }>();
 const emit = defineEmits<{ seek: [value: number]; close: []; generated: [track: SubtitleResource] }>();
 
-const breakpoints = useBreakpoints(breakpointsTailwind);
-const isDesktop = breakpoints.greaterOrEqual('lg');
+const { isDesktop } = useReactiveBreakpoints();
 
 const { selectedSideBar } = storeToRefs(useAppStore());
 const { cycleSideBar } = useAppStore();
