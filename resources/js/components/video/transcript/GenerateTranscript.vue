@@ -61,6 +61,7 @@ async function requestTranscript() {
     status.value = 'requesting';
 
     try {
+        // Todo: implement ws based transcript generation
         // const { jobId } = await api.requestTranscript(videoId);
         // status.value = 'queued';
         //
@@ -76,19 +77,25 @@ async function requestTranscript() {
         //     },
         // });
 
-        if (!stateVideo.value.metadata?.id) {
+        const metadataId = stateVideo.value.metadata?.id;
+
+        if (!metadataId) {
             throw new Error('requestTranscript is not implemented yet');
         }
 
         status.value = 'processing';
 
-        const { data } = await API.post(`/metadata/${stateVideo.value.metadata.id}/transcript`, {
+        const { data } = await API.post(`/metadata/${metadataId}/transcript`, undefined, {
             headers: {
                 'X-Skip-Toast': true,
             },
         });
 
         status.value = 'idle';
+        if (stateVideo.value.metadata?.id !== metadataId) {
+            console.error('Selected video changed while loading transcript.', { old: metadataId, new: stateVideo.value.metadata?.id });
+            return;
+        }
         emit('generated', {
             url: data.subtitle_url,
             track: data.subtitle as SubtitleResource,
