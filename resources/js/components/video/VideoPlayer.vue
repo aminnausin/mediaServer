@@ -4,7 +4,6 @@ import type { ContextMenuItem, PopoverItem } from '@/types/types';
 import { controlsHideTime, playbackDataBuffer, playerHealthBuffer, volumeDelta, playbackDelta, playbackMin, playbackMax } from '@/service/player/playerConstants';
 import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, useTemplateRef, watch } from 'vue';
-import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { copyVideoFrame, saveVideoFrame } from '@/service/player/frameService';
 import { usePlaybackProgress } from '@/composables/player/usePlaybackProgress';
 import { useRoute, useRouter } from 'vue-router';
@@ -187,7 +186,6 @@ const timeDisplay = ref<'timeElapsed' | 'timeRemaining'>('timeElapsed');
 const isShowingAudioGraphSettings = ref(false);
 const isPlayerSizeConstrained = computed(() => (isAudio.value || aspectRatio.value.isPortrait) && isNormalView.value); // Is size determined by album art or portrait video
 const isThumbnailDismissed = ref(false);
-const isShowingTranscript = ref(false);
 const isPictureInPicture = ref(false);
 const isShowingControls = ref(false);
 const isLoadingMetadata = ref(false);
@@ -226,9 +224,6 @@ const bufferHealth = computed(() => {
 });
 
 //#endregion
-
-const breakpoints = useBreakpoints(breakpointsTailwind);
-const isDesktop = breakpoints.greaterOrEqual('lg');
 
 const videoButtonOffset = computed(() => {
     return 8 + (isNormalView.value ? 0 : 8);
@@ -340,9 +335,6 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
             hidden: isAudio.value,
             action: () => {
                 isShowingTranscript.value = !isShowingTranscript.value;
-                if (isNormalView.value && isDesktop.value) {
-                    selectedSideBar.value = isShowingTranscript.value ? 'transcript' : selectedSideBar.value === 'transcript' ? '' : selectedSideBar.value;
-                }
             },
         },
         {
@@ -456,9 +448,6 @@ const videoPopoverItems = computed<PopoverItem[]>(() => [
         hidden: isAudio.value,
         action: () => {
             isShowingTranscript.value = !isShowingTranscript.value;
-            if (isNormalView.value && isDesktop.value) {
-                selectedSideBar.value = isShowingTranscript.value ? 'transcript' : selectedSideBar.value === 'transcript' ? '' : selectedSideBar.value;
-            }
         },
     },
     {
@@ -1354,6 +1343,7 @@ const {
     player: transcriptPlayer,
     playerViewMode: transcriptViewMode,
     subtitleTrack: transcriptSubtitleTrack,
+    isShowingTranscript,
     registerTranscriptContext,
     unregisterTranscriptContext,
 } = useTranscript();
