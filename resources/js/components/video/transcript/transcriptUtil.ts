@@ -37,7 +37,7 @@ export function findActiveTranscriptIndex(lines: TranscriptLine[], time: number)
 export function formatTimestamp(totalSeconds: number, duration = 0): string {
     const h = Math.floor(totalSeconds / 3600);
     const m = Math.floor((totalSeconds % 3600) / 60);
-    const s = totalSeconds % 60;
+    const s = Math.floor(totalSeconds % 60);
 
     const formattedSeconds = s.toFixed(0).padStart(2, '0');
 
