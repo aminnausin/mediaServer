@@ -4,11 +4,11 @@ import type { SubtitleResource } from '@/contracts/media';
 import { useContentStore } from '@/stores/ContentStore';
 import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
-import { ButtonBase } from '@/components/cedar-ui/button';
-import { cn, toast } from '@aminnausin/cedar-ui';
 import { API } from '@/service/api';
+import { cn } from '@aminnausin/cedar-ui';
 
-import ProiconsArrowClockwise from '~icons/proicons/arrow-rotate-clockwise';
+import TranscriptStatus from '@/components/video/transcript/TranscriptStatus.vue';
+
 import ProiconsAlertTriangle from '~icons/proicons/alert-triangle';
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsSparkle from '~icons/proicons/sparkle';
@@ -109,38 +109,20 @@ async function requestTranscript() {
 </script>
 
 <template>
-    <div :class="cn('flex h-full flex-col items-center justify-center gap-3 px-8 py-10 text-center', $attrs.class)" role="status" aria-live="polite">
-        <div
-            :class="
-                cn('flex size-8 shrink-0 items-center justify-center rounded-full transition-colors sm:size-11', {
-                    'bg-danger-2/10 text-danger-2': status === 'error',
-                    'bg-white/8 text-white/40': status === 'idle',
-                    'bg-white/8 text-white/70': isBusy,
-                })
-            "
-        >
-            <ProiconsArrowClockwise v-if="isBusy" class="size-4 animate-spin sm:size-5" />
-            <ProiconsAlertTriangle v-else-if="status === 'error'" class="size-4 sm:size-5" />
+    <TranscriptStatus
+        :class="$attrs.class"
+        :is-busy="isBusy"
+        :copy="copy"
+        :badge-class="cn({ 'bg-danger-2/10 text-danger-2': status === 'error', 'bg-white/8 text-white/40': status === 'idle' })"
+        @action="requestTranscript"
+    >
+        <template #icon>
+            <ProiconsAlertTriangle v-if="status === 'error'" class="size-4 sm:size-5" />
             <IconCaptions v-else class="size-4 sm:size-5" />
-        </div>
-
-        <div class="max-w-64 space-y-1">
-            <p class="text-xs font-medium text-white/90 sm:text-sm">{{ copy.heading }}</p>
-            <p class="leading-5 text-white/40">{{ copy.description }}</p>
-        </div>
-
-        <ButtonBase
-            type="button"
-            :disabled="isBusy"
-            :use-size="false"
-            :aria-busy="isBusy"
-            class="mt-1 flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 font-medium text-neutral-900 transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60"
-            @click="requestTranscript"
-        >
-            <ProiconsArrowClockwise v-if="isBusy" class="size-3.5 animate-spin" />
-            <ProiconsArrowSync v-else-if="status === 'error'" class="size-3.5" />
+        </template>
+        <template #buttonIcon>
+            <ProiconsArrowSync v-if="status === 'error'" class="size-3.5" />
             <ProiconsSparkle v-else class="size-3.5" />
-            <span>{{ copy.button }}</span>
-        </ButtonBase>
-    </div>
+        </template>
+    </TranscriptStatus>
 </template>
