@@ -137,7 +137,7 @@ onBeforeUnmount(() => {
         <div
             v-show="isVisible"
             :class="[
-                'pointer-events-auto w-full max-w-120 flex-1 overflow-y-auto',
+                'pointer-events-auto w-full max-w-80 flex-1 overflow-y-auto xl:max-w-120',
                 { 'rounded-xl border border-neutral-700/10 bg-neutral-800/90 p-1.5 text-[10px] backdrop-blur-md sm:text-xs': !isTeleported },
                 { 'relative text-xs': isTeleported },
             ]"
