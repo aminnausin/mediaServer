@@ -1658,9 +1658,10 @@ defineExpose({
 
             <!-- UI Panels Right -->
             <div
-                :class="cn('flex h-full flex-1 flex-col items-end gap-2', { 'xxs:mt-7': isNormalView })"
+                :class="cn('flex h-full flex-1 flex-col items-end gap-2', { 'xxs:mt-7': isNormalView && isShowingParty })"
                 :style="{
-                    maxHeight: isNormalView ? 'calc(100% - var(--spacing) * 7)' : 'calc(100% - var(--spacing) * 11)',
+                    '--watch-party-margin': isNormalView ? (isShowingParty ? 7 : 0) : 11,
+                    maxHeight: 'calc(100% - var(--spacing) * var(--watch-party-margin))',
                 }"
             >
                 <!-- Watch Party (Z-7) -->
