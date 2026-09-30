@@ -1438,6 +1438,9 @@ defineExpose({
                 isShowingControls ? 'cursor-auto' : 'cursor-none!',
             )
         "
+        :style="{
+            '--subtitles-z-index': isThumbnailDismissed ? 5 : 3,
+        }"
         ref="player-container"
         id="player-container"
         @mousemove="playerMouseActivity"
