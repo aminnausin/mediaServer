@@ -39,7 +39,7 @@ export function formatTimestamp(totalSeconds: number, duration = 0): string {
     const m = Math.floor((totalSeconds % 3600) / 60);
     const s = Math.floor(totalSeconds % 60);
 
-    const formattedSeconds = s.toFixed(0).padStart(2, '0');
+    const formattedSeconds = String(s).padStart(2, '0');
 
     if (duration >= 3600) return `${h}:${String(m).padStart(2, '0')}:${formattedSeconds}`;
     if (duration >= 600) return `${String(m).padStart(2, '0')}:${formattedSeconds}`;
