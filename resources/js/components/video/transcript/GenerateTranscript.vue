@@ -92,10 +92,12 @@ async function requestTranscript() {
         });
 
         status.value = 'idle';
+
         if (stateVideo.value.metadata?.id !== metadataId) {
             console.error('Selected video changed while loading transcript.', { old: metadataId, new: stateVideo.value.metadata?.id });
             return;
         }
+
         emit('generated', {
             url: data.subtitle_url,
             track: data.subtitle as SubtitleResource,

@@ -35,13 +35,12 @@ export function findActiveTranscriptIndex(lines: TranscriptLine[], time: number)
 }
 
 export function formatTimestamp(totalSeconds: number, duration = 0): string {
-    const h = Math.floor(totalSeconds / 3600);
-    const m = Math.floor((totalSeconds % 3600) / 60);
-    const s = Math.floor(totalSeconds % 60);
+    const total = Math.floor(totalSeconds);
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = String(total % 60).padStart(2, '0');
 
-    const formattedSeconds = String(s).padStart(2, '0');
-
-    if (duration >= 3600) return `${h}:${String(m).padStart(2, '0')}:${formattedSeconds}`;
-    if (duration >= 600) return `${String(m).padStart(2, '0')}:${formattedSeconds}`;
-    return `${m}:${formattedSeconds}`;
+    if (duration >= 3600) return `${h}:${String(m).padStart(2, '0')}:${s}`;
+    if (duration >= 600) return `${String(m).padStart(2, '0')}:${s}`;
+    return `${m}:${s}`;
 }

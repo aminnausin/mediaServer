@@ -32,6 +32,11 @@ const parsedTranscript = computed<TranscriptLine[]>(() => parseTranscript(rawTra
 
 const activeIndex = computed(() => findActiveTranscriptIndex(parsedTranscript.value, currentTime.value));
 
+const isActiveLive = computed(() => {
+    const line = parsedTranscript.value[activeIndex.value];
+    return !!line && line.end >= currentTime.value;
+});
+
 //#region Context
 
 type TranscriptContext = {
@@ -121,6 +126,7 @@ export function useTranscript() {
         loadedTranscriptUrl,
         parsedTranscript,
         activeIndex,
+        isActiveLive,
         loadTranscript,
         placement,
         // player-owned state
