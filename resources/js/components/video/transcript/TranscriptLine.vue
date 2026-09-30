@@ -3,7 +3,7 @@ import type { TranscriptLine } from '@/components/video/transcript/transcriptPar
 
 import { cn } from '@aminnausin/cedar-ui';
 
-defineProps<{ line: TranscriptLine; active: boolean; live: boolean }>();
+defineProps<{ line: TranscriptLine; active: boolean; live: boolean; timestamp: string }>();
 defineEmits<{ select: [start: number] }>();
 </script>
 
@@ -26,7 +26,7 @@ defineEmits<{ select: [start: number] }>();
                 })
             "
         >
-            <slot></slot>
+            {{ timestamp }}
         </span>
         <span class="font-dm-sans line-clamp-3 leading-5 select-text" role="text" v-html="line.text"></span>
     </button>

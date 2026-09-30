@@ -8,10 +8,10 @@ import { useAppStore } from '@/stores/AppStore';
 import { cn } from '@aminnausin/cedar-ui';
 
 import GenerateTranscript from '@/components/video/transcript/GenerateTranscript.vue';
+import TranscriptLine from '@/components/video/transcript/TranscriptLine.vue';
 
 import ProiconsPanelRight from '~icons/proicons/panel-right';
 import ProiconsCancel from '~icons/proicons/cancel';
-import TranscriptLine from './TranscriptLine.vue';
 
 const props = defineProps<{ isVisible?: boolean }>();
 
@@ -19,7 +19,6 @@ const { cycleSideBar } = useAppStore();
 const { isDesktop } = useReactiveBreakpoints();
 
 const {
-    player,
     isNormalView,
     subtitleTrack,
     rawTranscript,
@@ -41,6 +40,7 @@ const transcriptLineRefs = ref<(HTMLElement | null)[]>([]);
 const isFollowing = ref(true);
 
 const transcriptDuration = computed(() => parsedTranscript.value.at(-1)?.end ?? 0);
+const timestamps = computed(() => parsedTranscript.value.map((line) => formatTimestamp(line.start, transcriptDuration.value)));
 
 function onSelect(start: number) {
     isFollowing.value = true;
@@ -126,6 +126,9 @@ onBeforeUnmount(() => {
     transcriptContainer.value?.removeEventListener('wheel', handleUserScroll);
     transcriptContainer.value?.removeEventListener('touchmove', handleUserScroll);
 });
+
+import { onRenderTriggered } from 'vue';
+onRenderTriggered(console.log);
 </script>
 
 <template>
@@ -187,10 +190,9 @@ onBeforeUnmount(() => {
                         :active="line.index === activeIndex"
                         :live="line.index === activeIndex && isActiveLive"
                         :title="`${line.index + 1} of ${parsedTranscript.length}`"
+                        :timestamp="timestamps[line.index]"
                         @select="onSelect"
-                    >
-                        {{ formatTimestamp(line.start, transcriptDuration) }}
-                    </TranscriptLine>
+                    />
                 </div>
             </div>
             <GenerateTranscript
