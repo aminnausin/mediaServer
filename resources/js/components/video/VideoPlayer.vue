@@ -1339,29 +1339,7 @@ const addJsonLd = () => {
 
 //#region Transcript
 
-const {
-    player: transcriptPlayer,
-    playerViewMode: transcriptViewMode,
-    subtitleTrack: transcriptSubtitleTrack,
-    isShowingTranscript,
-    registerTranscriptContext,
-    unregisterTranscriptContext,
-} = useTranscript();
-
-watch(
-    player,
-    (el) => {
-        transcriptPlayer.value = el;
-    },
-    { immediate: true },
-);
-watch(
-    () => playerSubtitles.value?.currentSubtitleTrack ?? playerSubtitles.value?.defaultSubtitleTrack,
-    (track) => {
-        transcriptSubtitleTrack.value = track;
-    },
-    { immediate: true },
-);
+const { isShowingTranscript, placement: transcriptPlacement, registerTranscriptContext, unregisterTranscriptContext } = useTranscript();
 
 //#endregion
 
@@ -1373,13 +1351,6 @@ provide('isAudio', isAudio);
 watch(stateVideo, (_, old) => {
     initVideoPlayer(old.id);
 });
-
-watch(
-    () => viewMode.value,
-    async () => {
-        transcriptViewMode.value = viewMode.value;
-    },
-);
 
 watch(isShowingControls, async (visible) => {
     if (!visible || !shouldUpdateUI.value || !player.value) return;
@@ -1418,13 +1389,12 @@ onMounted(() => {
     unSub = onSeek(handleManualSeek);
 
     registerTranscriptContext({
+        player,
+        viewMode,
+        subtitleTrack: computed(() => playerSubtitles.value?.currentSubtitleTrack ?? playerSubtitles.value?.defaultSubtitleTrack),
         seek: handleManualSeek,
-        close: () => {
-            isShowingTranscript.value = false;
-        },
-        generated: (track) => {
-            stateVideo.value.subtitles.push(track);
-        },
+        close: () => (isShowingTranscript.value = false),
+        generated: (track) => stateVideo.value.subtitles.push(track),
     });
 });
 
@@ -1666,7 +1636,7 @@ defineExpose({
             >
                 <!-- Watch Party (Z-7) -->
                 <VideoPartyPanel :is-showing-party="isShowingParty" />
-                <PlayerTranscript :is-visible="isShowingTranscript && selectedSideBar !== 'transcript'" />
+                <PlayerTranscript :is-visible="transcriptPlacement === 'overlay'" />
             </div>
         </div>
 

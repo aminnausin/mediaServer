@@ -1,15 +1,15 @@
 <script setup lang="ts">
+import { useTranscript } from '@/components/video/transcript/useTranscript';
 import { ButtonCorner } from '@/components/cedar-ui/button';
 import { useAppStore } from '@/stores/AppStore';
-import { storeToRefs } from 'pinia';
 
 import PlayerTranscript from '@/components/video/transcript/PlayerTranscript.vue';
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
 
 import ProiconsPanelRight from '~icons/proicons/panel-right';
 
-const { selectedSideBar } = storeToRefs(useAppStore());
 const { cycleSideBar } = useAppStore();
+const { placement } = useTranscript();
 </script>
 
 <template>
@@ -26,6 +26,6 @@ const { cycleSideBar } = useAppStore();
     </SidebarHeader>
 
     <section id="list-content-transcript" class="full-height-sidebar flex flex-col flex-wrap gap-2">
-        <PlayerTranscript :is-visible="selectedSideBar === 'transcript'"> </PlayerTranscript>
+        <PlayerTranscript :is-visible="placement === 'sidebar'" />
     </section>
 </template>
