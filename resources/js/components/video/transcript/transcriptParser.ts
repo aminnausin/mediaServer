@@ -17,7 +17,9 @@ export function parseTranscript(rawTranscript: string): TranscriptLine[] {
         const line = cueLines[i].trim();
         if (!line.includes(' --> ')) continue;
 
-        const [start, end] = line.split(' --> ');
+        const [start, rest = ''] = line.split(' --> ');
+        const end = rest.trim().split(/\s+/)[0];
+
         const textLines: string[] = [];
         i++;
 
