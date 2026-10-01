@@ -444,7 +444,7 @@ const videoPopoverItems = computed<PopoverItem[]>(() => [
         icon: ProiconsTextAlignLeft,
         selected: isShowingTranscript.value,
         selectedIcon: ProiconsCheckmark,
-        hidden: isAudio.value,
+        disabled: isAudio.value,
         action: () => {
             isShowingTranscript.value = !isShowingTranscript.value;
         },
