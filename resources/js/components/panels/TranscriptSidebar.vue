@@ -18,7 +18,7 @@ const { placement } = useTranscript();
             @click="cycleSideBar('transcript', 'list-card')"
             title="Move to Player"
             colour-classes="hover:bg-transparent"
-            text-classes="text-white/70 hover:text-white"
+            text-classes="text-foreground-0/70 hover:text-foreground-0"
             position-classes="size-5"
         >
             <template #icon><ProiconsPanelRight class="scale-x-[-1]" /></template>

@@ -96,11 +96,14 @@ watch(activeIndex, async (index) => {
     >
         <div
             ref="transcript-container"
-            :class="['scrollbar-minimal scrollbar-dark relative flex h-full flex-col gap-1 overflow-y-auto pe-1', { 'max-h-(--min-page-height-derived)': placement === 'sidebar' }]"
+            :class="[
+                'scrollbar-minimal relative flex h-full flex-col gap-1 overflow-y-auto pe-1',
+                { 'max-h-(--min-page-height-derived)': placement === 'sidebar', 'scrollbar-dark': placement === 'overlay' },
+            ]"
             @wheel.passive="handleUserScroll"
             @touchmove.passive="handleUserScroll"
         >
-            <div :class="cn('sticky top-0 z-10 flex items-center justify-between gap-2 rounded-lg bg-neutral-700/30 px-2 py-1.5', { hidden: placement === 'sidebar' })">
+            <div :class="cn('sticky top-0 z-10 flex items-center justify-between gap-2 rounded-lg bg-[#2b2b2b] px-2 py-1.5', { hidden: placement === 'sidebar' })">
                 <p class="text-xs font-medium text-white/90 sm:text-sm">Transcript</p>
                 <div class="flex items-center gap-1">
                     <ButtonCorner
@@ -128,6 +131,7 @@ watch(activeIndex, async (index) => {
                     </ButtonCorner>
                 </div>
             </div>
+
             <div class="w-full space-y-1" v-if="subtitleTrack">
                 <div v-if="isLoading && !hasError">
                     <button type="button" :class="['group flex w-full animate-pulse cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 text-left transition-colors']">
@@ -154,7 +158,7 @@ watch(activeIndex, async (index) => {
                         <IconCaptionsOff class="size-4 sm:size-5" />
                     </template>
                 </TranscriptStatus>
-                <div class="space-y-0.5" v-else>
+                <div :class="['space-y-0.5']" v-else>
                     <TranscriptLine
                         v-for="line in parsedTranscript"
                         :key="line.index"
@@ -164,11 +168,12 @@ watch(activeIndex, async (index) => {
                         :live="line.index === activeIndex && isActiveLive"
                         :title="`${line.index + 1} of ${parsedTranscript.length}`"
                         :timestamp="timestamps[line.index]"
+                        :class="[{ dark: placement === 'overlay' }]"
                         @select="onSelect"
                     />
                 </div>
             </div>
-            <GenerateTranscript v-else :class="{ 'py-20': placement !== 'sidebar' }" />
+            <GenerateTranscript v-else :class="{ 'py-20': placement === 'overlay' }" />
         </div>
         <Transition
             enter-active-class="transition duration-150 ease-out"
@@ -181,7 +186,12 @@ watch(activeIndex, async (index) => {
             <ButtonBase
                 v-if="!isFollowing && !isLoading && activeIndex !== -1"
                 type="button"
-                class="text-foreground-0 dark:text-foreground-i absolute bottom-2 left-1/2 z-20 -translate-x-1/2 rounded-full bg-white px-2 py-1.5 font-medium transition hover:bg-white/90"
+                :class="
+                    cn(
+                        'text-foreground-0 dark:text-foreground-i absolute bottom-2 left-1/2 z-20 w-fit max-w-3/4 -translate-x-1/2 truncate rounded-full bg-white px-2 py-1.5 font-medium transition hover:bg-white/90',
+                        { 'shadow-sm dark:shadow-none': placement === 'sidebar' },
+                    )
+                "
                 :use-size="false"
                 @click="resync()"
             >

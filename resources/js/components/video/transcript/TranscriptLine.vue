@@ -11,7 +11,7 @@ defineEmits<{ select: [start: number] }>();
     <button
         :class="[
             'content-auto group flex w-full cursor-pointer items-start gap-2 rounded-lg p-1.5 pe-2 text-left transition-colors [contain-intrinsic-size:32px_auto]',
-            live ? 'bg-white/12 text-white' : 'text-white/70 hover:bg-white/7 hover:text-white',
+            live ? 'text-foreground-0 bg-white/12' : 'text-foreground-0/70 hover:text-foreground-0 hover:bg-neutral-200/40 dark:hover:bg-white/7',
         ]"
         type="button"
         @click="$emit('select', line.start)"
@@ -20,9 +20,9 @@ defineEmits<{ select: [start: number] }>();
             class="shrink-0 rounded-md px-1.5 py-0.5 font-mono text-xs tabular-nums transition-colors"
             :class="
                 cn({
-                    'bg-white/15 text-white': live,
-                    'bg-white/10 text-white/50 group-hover:text-white/80': active && !live,
-                    'bg-white/5 text-white/50 group-hover:text-white/80': !active,
+                    'bg-primary text-white dark:bg-white/15': live,
+                    'text-foreground-0/60 group-hover:text-foreground-0/80 dark:text-foreground-0/50 bg-neutral-300/90 dark:bg-white/10': active && !live,
+                    'text-foreground-0/50 group-hover:text-foreground-0/80 bg-neutral-200 dark:bg-white/5': !active,
                 })
             "
         >
