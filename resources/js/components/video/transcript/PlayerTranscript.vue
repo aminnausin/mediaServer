@@ -5,6 +5,8 @@ import { useReactiveBreakpoints } from '@/service/breakpoints/useReactiveBreakpo
 import { formatTimestamp } from '@/components/video/transcript/transcriptUtil';
 import { useTranscript } from '@/components/video/transcript/useTranscript';
 import { useAppStore } from '@/stores/AppStore';
+import { TextInput } from '@/components/cedar-ui/input';
+import { debounce } from 'lodash-es';
 import { cn } from '@aminnausin/cedar-ui';
 
 import GenerateTranscript from '@/components/video/transcript/GenerateTranscript.vue';
@@ -22,11 +24,11 @@ const props = defineProps<{ isVisible?: boolean }>();
 const { cycleSideBar } = useAppStore();
 const { isDesktop } = useReactiveBreakpoints();
 
-const { isNormalView, subtitleTrack, parsedTranscript, activeIndex, isActiveLive, isLoading, hasError, retry, generated, seek, close, placement } = useTranscript();
+const { isNormalView, subtitleTrack, filteredTranscript, activeIndex, isActiveLive, isLoading, hasError, retry, seek, close, placement, searchQuery } = useTranscript();
 
 const transcriptContainer = useTemplateRef('transcript-container');
-const transcriptDuration = computed(() => parsedTranscript.value.at(-1)?.end ?? 0);
-const timestamps = computed(() => parsedTranscript.value.map((line) => formatTimestamp(line.start, transcriptDuration.value)));
+const transcriptDuration = computed(() => filteredTranscript.value.at(-1)?.end ?? 0);
+const timestamps = computed(() => filteredTranscript.value.map((line) => formatTimestamp(line.start, transcriptDuration.value)));
 
 const isFollowing = ref(true);
 
@@ -69,6 +71,14 @@ async function resync(scrollBehavior: ScrollBehavior = 'smooth', waitForTick = f
     if (activeIndex.value !== -1) scrollToLine(activeIndex.value, scrollBehavior);
 }
 
+//#region Search
+
+const searchModel = ref(searchQuery);
+const applyQuery = debounce((value: string) => (searchQuery.value = value), 150);
+
+watch(searchModel, applyQuery);
+//#endregion
+
 watch(
     () => props.isVisible,
     async (visible) => {
@@ -103,35 +113,61 @@ watch(activeIndex, async (index) => {
             @wheel.passive="handleUserScroll"
             @touchmove.passive="handleUserScroll"
         >
-            <div :class="cn('sticky top-0 z-10 flex items-center justify-between gap-2 rounded-lg bg-[#2b2b2b] px-2 py-1.5', { hidden: placement === 'sidebar' })">
-                <p class="text-xs font-medium text-white/90 sm:text-sm">Transcript</p>
-                <div class="flex items-center gap-1">
-                    <ButtonCorner
-                        v-if="isDesktop && isNormalView"
-                        @click="
-                            () => {
-                                cycleSideBar('transcript', 'list-card');
-                            }
+            <div class="sticky top-0 z-10 flex flex-col gap-1">
+                <div :class="cn('flex items-center justify-between gap-2 rounded-lg bg-[#2b2b2b] px-2 py-1.5', { hidden: placement === 'sidebar' })">
+                    <p class="text-xs font-medium text-white/90 sm:text-sm">Transcript</p>
+                    <div class="flex items-center gap-1">
+                        <ButtonCorner
+                            v-if="isDesktop && isNormalView"
+                            @click="
+                                () => {
+                                    cycleSideBar('transcript', 'list-card');
+                                }
+                            "
+                            title="Move to Sidebar"
+                            colour-classes="hover:bg-transparent"
+                            text-classes="text-foreground-1 hover:text-foreground-0 dark"
+                            position-classes="size-5"
+                        >
+                            <template #icon> <ProiconsPanelRight class="size-4" /> </template>
+                        </ButtonCorner>
+                        <ButtonCorner
+                            title="Close Transcript"
+                            @click="close()"
+                            colour-classes="hover:bg-transparent"
+                            text-classes="text-foreground-1 dark hover:text-danger-2"
+                            position-classes="size-5"
+                        >
+                            <template #icon> <ProiconsCancel class="size-4" /> </template>
+                        </ButtonCorner>
+                    </div>
+                </div>
+
+                <div :class="['relative', { hidden: placement === 'overlay' }]">
+                    <TextInput
+                        v-model="searchModel"
+                        placeholder="Search"
+                        :class="
+                            cn('rounded-lg ring-inset', {
+                                'dark bg-[#2b2b2b]!': placement === 'overlay',
+                                'dark:bg-surface-2 h-(--table-input-height) w-full pe-8 ring-1': placement === 'sidebar',
+                                'button-disabled pointer-events-none': isLoading,
+                            })
                         "
-                        title="Move to Sidebar"
-                        colour-classes="hover:bg-transparent"
-                        text-classes="text-white/70 hover:text-white"
-                        position-classes="size-5"
-                    >
-                        <template #icon> <ProiconsPanelRight class="size-4" /> </template>
-                    </ButtonCorner>
-                    <ButtonCorner
-                        title="Close Transcript"
-                        @click="close()"
-                        colour-classes="hover:bg-transparent"
-                        text-classes="text-white/70 hover:text-danger-2"
-                        position-classes="size-5"
-                    >
-                        <template #icon> <ProiconsCancel class="size-4" /> </template>
-                    </ButtonCorner>
+                        title="Search with..."
+                        :disabled="isLoading"
+                    />
+
+                    <div v-show="!!searchModel" class="pointer-events-none absolute inset-0 flex items-center justify-end pe-1">
+                        <ButtonCorner
+                            class="text-foreground-1 hocus:text-foreground-0 pointer-events-auto p-0.5 *:size-5"
+                            :use-default-style="false"
+                            :title="'Clear'"
+                            @click="searchModel = ''"
+                        />
+                    </div>
                 </div>
             </div>
-
             <div class="w-full space-y-1" v-if="subtitleTrack">
                 <div v-if="isLoading && !hasError">
                     <button type="button" :class="['group flex w-full animate-pulse cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 text-left transition-colors']">
@@ -153,21 +189,21 @@ watch(activeIndex, async (index) => {
                         <ProiconsArrowSync class="size-3.5" />
                     </template>
                 </TranscriptStatus>
-                <TranscriptStatus v-else-if="!parsedTranscript.length" :copy="{ heading: 'Transcript is empty' }" badge-class="bg-white/8 text-white/40">
+                <TranscriptStatus v-else-if="!filteredTranscript.length" :copy="{ heading: 'Transcript is empty' }" badge-class="bg-white/8 text-white/40">
                     <template #icon>
                         <IconCaptionsOff class="size-4 sm:size-5" />
                     </template>
                 </TranscriptStatus>
                 <div :class="['space-y-0.5']" v-else>
                     <TranscriptLine
-                        v-for="line in parsedTranscript"
+                        v-for="(line, index) in filteredTranscript"
                         :key="line.index"
                         :data-transcript-index="line.index"
                         :line="line"
                         :active="line.index === activeIndex"
                         :live="line.index === activeIndex && isActiveLive"
-                        :title="`${line.index + 1} of ${parsedTranscript.length}`"
-                        :timestamp="timestamps[line.index]"
+                        :title="`${line.index + 1} of ${filteredTranscript.length}`"
+                        :timestamp="timestamps[index]"
                         :class="[{ dark: placement === 'overlay' }]"
                         @select="onSelect"
                     />

@@ -3,7 +3,7 @@ import type { TranscriptLine } from '@/components/video/transcript/transcriptPar
 
 import { cn } from '@aminnausin/cedar-ui';
 
-defineProps<{ line: TranscriptLine; active: boolean; live: boolean; timestamp: string }>();
+defineProps<{ line: TranscriptLine; active: boolean; live: boolean; timestamp?: string }>();
 defineEmits<{ select: [start: number] }>();
 </script>
 

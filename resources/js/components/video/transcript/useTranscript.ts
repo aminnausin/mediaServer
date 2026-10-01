@@ -31,12 +31,22 @@ const canUseSidebar = computed(() => isNormalView.value && isDesktop.value);
 
 const currentTime = ref(0);
 
+const searchQuery = ref('');
+
+const searchIndex = computed(() => parsedTranscript.value.map((l) => l.text.replace(/<[^>]*>/g, '').toLowerCase()));
+
 const placement = computed<'hidden' | 'sidebar' | 'overlay'>(() => {
     if (!isShowingTranscript.value) return 'hidden';
     return canUseSidebar.value && selectedSideBar.value === 'transcript' ? 'sidebar' : 'overlay';
 });
 
 const parsedTranscript = computed<TranscriptLine[]>(() => parseTranscript(rawTranscript.value));
+
+const filteredTranscript = computed(() => {
+    const q = searchQuery.value.trim().toLowerCase();
+    if (!q || placement.value === 'overlay') return parsedTranscript.value;
+    return parsedTranscript.value.filter((l) => searchIndex.value[l.index].includes(q));
+});
 
 const activeIndex = computed(() => findActiveTranscriptIndex(parsedTranscript.value, currentTime.value));
 
@@ -178,10 +188,11 @@ export function useTranscript() {
     return {
         // transcript
         isShowingTranscript,
-        parsedTranscript,
+        filteredTranscript,
         activeIndex,
         isActiveLive,
         placement,
+        searchQuery,
         // api
         isLoading,
         hasError,
