@@ -100,11 +100,9 @@ watch(activeIndex, async (index) => {
             @wheel.passive="handleUserScroll"
             @touchmove.passive="handleUserScroll"
         >
-            <div
-                :class="cn('sticky top-0 z-10 flex items-center justify-between gap-2 rounded-lg bg-neutral-800 px-2 py-1.5 backdrop-blur-xs', { hidden: placement === 'sidebar' })"
-            >
+            <div :class="cn('sticky top-0 z-10 flex items-center justify-between gap-2 rounded-lg bg-neutral-700/30 px-2 py-1.5', { hidden: placement === 'sidebar' })">
                 <p class="text-xs font-medium text-white/90 sm:text-sm">Transcript</p>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1">
                     <ButtonCorner
                         v-if="isDesktop && isNormalView"
                         @click="

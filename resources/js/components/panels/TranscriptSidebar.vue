@@ -7,9 +7,10 @@ import PlayerTranscript from '@/components/video/transcript/PlayerTranscript.vue
 import SidebarHeader from '@/components/headers/SidebarHeader.vue';
 
 import ProiconsPanelRight from '~icons/proicons/panel-right';
+import ProiconsCancel from '~icons/proicons/cancel';
 
 const { cycleSideBar } = useAppStore();
-const { placement } = useTranscript();
+const { placement, isShowingTranscript } = useTranscript();
 </script>
 
 <template>
@@ -19,9 +20,18 @@ const { placement } = useTranscript();
             title="Move to Player"
             colour-classes="hover:bg-transparent"
             text-classes="text-white/70 hover:text-white"
-            position-classes="size-5"
+            position-classes="size-5 me-1.5"
         >
             <template #icon><ProiconsPanelRight class="scale-x-[-1]" /></template>
+        </ButtonCorner>
+        <ButtonCorner
+            @click="isShowingTranscript = false"
+            title="Close Transcript"
+            colour-classes="hover:bg-transparent"
+            text-classes="text-white/70 hover:text-white"
+            position-classes="size-5"
+        >
+            <template #icon><ProiconsCancel class="scale-x-[-1]" /></template>
         </ButtonCorner>
     </SidebarHeader>
 
