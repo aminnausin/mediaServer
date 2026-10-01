@@ -137,7 +137,7 @@ watch(activeIndex, async (index) => {
                     </button>
                 </div>
                 <TranscriptStatus
-                    v-if="hasError"
+                    v-else-if="hasError"
                     :is-busy="isLoading"
                     :copy="isLoading ? { heading: 'Loading transcript', button: 'Loading...' } : { heading: 'Failed', description: 'Transcript failed to load', button: 'Retry' }"
                     :badge-class="cn({ 'bg-danger-2/10 text-danger-2': hasError && !isLoading })"
@@ -166,7 +166,7 @@ watch(activeIndex, async (index) => {
                 </div>
             </div>
             <GenerateTranscript
-                v-else-if="!subtitleTrack"
+                v-else
                 :class="{ 'py-20': placement !== 'sidebar' }"
                 @generated="
                     (data) => {
