@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import type { SubtitleResource } from '@/contracts/media';
 
-import { useContentStore } from '@/stores/ContentStore';
-import { computed, ref } from 'vue';
-import { storeToRefs } from 'pinia';
-import { API } from '@/service/api';
+import { useTranscript } from '@/components/video/transcript/useTranscript';
+import { computed } from 'vue';
 import { cn } from '@aminnausin/cedar-ui';
 
 import TranscriptStatus from '@/components/video/transcript/TranscriptStatus.vue';
@@ -14,13 +12,9 @@ import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsSparkle from '~icons/proicons/sparkle';
 import IconCaptions from '@/components/icons/IconCaptions.vue';
 
-type TranscriptStatus = 'idle' | 'requesting' | 'queued' | 'processing' | 'error';
-
 const emit = defineEmits<{ generated: [track: { url: string; track: SubtitleResource }] }>();
 
-const { stateVideo } = storeToRefs(useContentStore());
-
-const status = ref<TranscriptStatus>('idle');
+const { generationStatus: status, requestTranscript } = useTranscript();
 
 const isBusy = computed(() => status.value === 'requesting' || status.value === 'queued' || status.value === 'processing');
 
@@ -57,11 +51,9 @@ const copy = computed(() => {
     }
 });
 
-async function requestTranscript() {
-    status.value = 'requesting';
-
+// Todo: implement ws based transcript generation
+async function generateTranscript() {
     try {
-        // Todo: implement ws based transcript generation
         // const { jobId } = await api.requestTranscript(videoId);
         // status.value = 'queued';
         //
@@ -76,32 +68,7 @@ async function requestTranscript() {
         //         status.value = 'error';
         //     },
         // });
-
-        const metadataId = stateVideo.value.metadata?.id;
-
-        if (!metadataId) {
-            throw new Error('requestTranscript is not implemented yet');
-        }
-
-        status.value = 'processing';
-
-        const { data } = await API.post(`/metadata/${metadataId}/transcript`, undefined, {
-            headers: {
-                'X-Skip-Toast': true,
-            },
-        });
-
         status.value = 'idle';
-
-        if (stateVideo.value.metadata?.id !== metadataId) {
-            console.error('Selected video changed while loading transcript.', { old: metadataId, new: stateVideo.value.metadata?.id });
-            return;
-        }
-
-        emit('generated', {
-            url: data.subtitle_url,
-            track: data.subtitle as SubtitleResource,
-        });
     } catch (error) {
         status.value = 'error';
     }

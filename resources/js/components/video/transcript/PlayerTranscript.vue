@@ -165,15 +165,7 @@ watch(activeIndex, async (index) => {
                     />
                 </div>
             </div>
-            <GenerateTranscript
-                v-else
-                :class="{ 'py-20': placement !== 'sidebar' }"
-                @generated="
-                    (data) => {
-                        generated(data.track);
-                    }
-                "
-            />
+            <GenerateTranscript v-else :class="{ 'py-20': placement !== 'sidebar' }" />
         </div>
         <Transition
             enter-active-class="transition duration-150 ease-out"

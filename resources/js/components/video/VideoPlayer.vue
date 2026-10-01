@@ -138,7 +138,6 @@ const {
     showSeekButtons,
     showLyricsMetadata,
     useAmLyrics,
-    selectedSideBar,
 } = storeToRefs(useAppStore());
 const { setContextMenu, closeContextMenu } = useAppStore();
 const { updateViewCount } = useContentStore();
@@ -1341,6 +1340,16 @@ const addJsonLd = () => {
 
 const { isShowingTranscript, placement: transcriptPlacement, registerTranscriptContext, unregisterTranscriptContext } = useTranscript();
 
+registerTranscriptContext({
+    player,
+    viewMode,
+    subtitleTrack: computed(() => playerSubtitles.value?.currentSubtitleTrack ?? playerSubtitles.value?.defaultSubtitleTrack),
+    metadataId: computed(() => stateVideo.value.metadata?.id),
+    seek: handleManualSeek,
+    close: () => (isShowingTranscript.value = false),
+    generated: (track) => stateVideo.value.subtitles.push(track),
+});
+
 //#endregion
 
 //#region Hooks
@@ -1387,15 +1396,6 @@ onMounted(() => {
     globalThis.addEventListener('pointerup', stopScrub);
     globalThis.addEventListener('contextmenu', stopScrub);
     unSub = onSeek(handleManualSeek);
-
-    registerTranscriptContext({
-        player,
-        viewMode,
-        subtitleTrack: computed(() => playerSubtitles.value?.currentSubtitleTrack ?? playerSubtitles.value?.defaultSubtitleTrack),
-        seek: handleManualSeek,
-        close: () => (isShowingTranscript.value = false),
-        generated: (track) => stateVideo.value.subtitles.push(track),
-    });
 });
 
 onBeforeUnmount(() => {

@@ -10,23 +10,26 @@ import { parseTranscript } from '@/components/video/transcript/transcriptParser'
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { toast } from '@aminnausin/cedar-ui';
+import { API } from '@/service/api';
 
 const { selectedSideBar } = storeToRefs(useAppStore());
 const { isDesktop } = useReactiveBreakpoints();
 
-const isShowingTranscript = ref(false);
-const isLoading = ref(false);
-
-const currentTime = ref(0);
-const rawTranscript = ref('');
-const loadedTranscriptUrl = ref<string>();
-
-const hasError = ref(false);
-const transcriptUrl = computed(() => buildTranscriptUrl(subtitleTrack.value));
-
 let controller: AbortController | null = null;
 
+const generationStatus = ref<'idle' | 'requesting' | 'queued' | 'processing' | 'error'>('idle');
+
+const isShowingTranscript = ref(false);
+const isLoading = ref(false);
+const hasError = ref(false);
+
+const transcriptUrl = computed(() => buildTranscriptUrl(subtitleTrack.value));
+const loadedTranscriptUrl = ref<string>();
+const rawTranscript = ref('');
+
 const canUseSidebar = computed(() => isNormalView.value && isDesktop.value);
+
+const currentTime = ref(0);
 
 const placement = computed<'hidden' | 'sidebar' | 'overlay'>(() => {
     if (!isShowingTranscript.value) return 'hidden';
@@ -48,6 +51,7 @@ type TranscriptContext = {
     player: Readonly<Ref<HTMLVideoElement | null>>;
     viewMode: Readonly<Ref<PlayerViewMode>>;
     subtitleTrack: Readonly<Ref<SubtitleResource | undefined>>;
+    metadataId: Readonly<Ref<number | undefined>>;
     seek: (seconds: number) => void;
     close: () => void;
     generated: (track: SubtitleResource) => void;
@@ -81,11 +85,18 @@ function generated(track: SubtitleResource) {
 
 //#endregion
 
-//#region API
-
+//#region Events
 function handleTimeUpdate(this: HTMLVideoElement) {
     currentTime.value = this.currentTime;
 }
+
+watch(player, (newPlayer, oldPlayer) => {
+    oldPlayer?.removeEventListener('timeupdate', handleTimeUpdate);
+    newPlayer?.addEventListener('timeupdate', handleTimeUpdate);
+});
+//#endregion
+
+//#region API
 
 function reset() {
     controller?.abort();
@@ -129,12 +140,30 @@ function retry() {
     void loadTranscript(transcriptUrl.value, true);
 }
 
-//#endregion
+async function requestTranscript() {
+    const id = context.value?.metadataId.value;
+    if (!id || generationStatus.value === 'processing') return;
 
-watch(player, (newPlayer, oldPlayer) => {
-    oldPlayer?.removeEventListener('timeupdate', handleTimeUpdate);
-    newPlayer?.addEventListener('timeupdate', handleTimeUpdate);
-});
+    generationStatus.value = 'processing';
+    try {
+        const { data } = await API.post(`/metadata/${id}/transcript`, undefined, { headers: { 'X-Skip-Toast': true } });
+        if (context.value?.metadataId.value !== id) {
+            console.error('Selected video changed while loading transcript.', { old: id, new: context.value?.metadataId });
+            return;
+        }
+        generated(data.subtitle as SubtitleResource);
+        generationStatus.value = 'idle';
+    } catch {
+        generationStatus.value = 'error';
+    }
+}
+
+watch(
+    () => context.value?.metadataId.value,
+    () => (generationStatus.value = 'idle'),
+);
+
+//#endregion
 
 watch(isShowingTranscript, (show) => {
     if (show && canUseSidebar.value) selectedSideBar.value = 'transcript';
@@ -149,18 +178,17 @@ export function useTranscript() {
     return {
         // transcript
         isShowingTranscript,
-        rawTranscript,
-        currentTime,
         parsedTranscript,
         activeIndex,
         isActiveLive,
         placement,
         // api
-        loadedTranscriptUrl,
         isLoading,
         hasError,
-        loadTranscript,
         retry,
+        // generator
+        generationStatus,
+        requestTranscript,
         // player-owned state
         player,
         isNormalView,
