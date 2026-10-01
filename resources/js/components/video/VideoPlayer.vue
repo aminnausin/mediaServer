@@ -1407,6 +1407,8 @@ onBeforeUnmount(() => {
 
     unregisterTranscriptContext();
 
+    isShowingTranscript.value = false;
+
     if (unSub) unSub();
 
     debouncedCacheVolume.cancel();
