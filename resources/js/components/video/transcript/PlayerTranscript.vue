@@ -24,10 +24,11 @@ const props = defineProps<{ isVisible?: boolean }>();
 const { cycleSideBar } = useAppStore();
 const { isDesktop } = useReactiveBreakpoints();
 
-const { isNormalView, subtitleTrack, filteredTranscript, activeIndex, isActiveLive, isLoading, hasError, retry, seek, close, placement, searchQuery } = useTranscript();
+const { isNormalView, subtitleTrack, parsedTranscript, filteredTranscript, activeIndex, isActiveLive, isLoading, hasError, retry, seek, close, placement, searchQuery } =
+    useTranscript();
 
 const transcriptContainer = useTemplateRef('transcript-container');
-const transcriptDuration = computed(() => filteredTranscript.value.at(-1)?.end ?? 0);
+const transcriptDuration = computed(() => parsedTranscript.value.at(-1)?.end ?? 0);
 const timestamps = computed(() => filteredTranscript.value.map((line) => formatTimestamp(line.start, transcriptDuration.value)));
 
 const isFollowing = ref(true);
@@ -101,73 +102,71 @@ watch(activeIndex, async (index) => {
         :class="[
             'pointer-events-auto w-full max-w-80 flex-1 overflow-y-auto xl:max-w-120',
             { 'rounded-xl border border-neutral-700/10 bg-neutral-800/90 p-1.5 text-[10px] backdrop-blur-md sm:text-xs': placement !== 'sidebar' },
-            { 'relative text-xs': placement === 'sidebar' },
+            { 'relative flex max-h-(--min-page-height-derived) flex-col gap-2 text-xs': placement === 'sidebar' },
         ]"
+        id="transcript-panel"
     >
+        <div :class="['relative', { hidden: placement === 'overlay' }]">
+            <TextInput
+                v-model="searchModel"
+                placeholder="Search"
+                :class="
+                    cn('rounded-lg ring-inset', 'disabled:button-disabled disabled:opacity-disabled disabled:pointer-events-none', {
+                        'dark bg-[#2b2b2b]!': placement === 'overlay',
+                        'dark:bg-surface-2 h-(--table-input-height) w-full pe-8 ring-1': placement === 'sidebar',
+                    })
+                "
+                title="Search with..."
+                :disabled="isLoading || hasError || parsedTranscript?.length === 0"
+            />
+
+            <div v-show="!!searchModel" class="pointer-events-none absolute inset-0 flex items-center justify-end pe-1">
+                <ButtonCorner
+                    class="text-foreground-1 hocus:text-foreground-0 pointer-events-auto p-0.5 *:size-5"
+                    :use-default-style="false"
+                    :title="'Clear'"
+                    @click="searchModel = ''"
+                />
+            </div>
+        </div>
         <div
             ref="transcript-container"
             :class="[
-                'scrollbar-minimal relative flex h-full flex-col gap-1 overflow-y-auto pe-1',
-                { 'max-h-(--min-page-height-derived)': placement === 'sidebar', 'scrollbar-dark': placement === 'overlay' },
+                'scrollbar-minimal relative flex flex-col gap-1 overflow-y-auto pe-1',
+                { 'flex-1': placement === 'sidebar', 'scrollbar-dark h-full': placement === 'overlay' },
             ]"
             @wheel.passive="handleUserScroll"
             @touchmove.passive="handleUserScroll"
         >
-            <div class="sticky top-0 z-10 flex flex-col gap-1">
-                <div :class="cn('flex items-center justify-between gap-2 rounded-lg bg-[#2b2b2b] px-2 py-1.5', { hidden: placement === 'sidebar' })">
-                    <p class="text-xs font-medium text-white/90 sm:text-sm">Transcript</p>
-                    <div class="flex items-center gap-1">
-                        <ButtonCorner
-                            v-if="isDesktop && isNormalView"
-                            @click="
-                                () => {
-                                    cycleSideBar('transcript', 'list-card');
-                                }
-                            "
-                            title="Move to Sidebar"
-                            colour-classes="hover:bg-transparent"
-                            text-classes="text-foreground-1 hover:text-foreground-0 dark"
-                            position-classes="size-5"
-                        >
-                            <template #icon> <ProiconsPanelRight class="size-4" /> </template>
-                        </ButtonCorner>
-                        <ButtonCorner
-                            title="Close Transcript"
-                            @click="close()"
-                            colour-classes="hover:bg-transparent"
-                            text-classes="text-foreground-1 dark hover:text-danger-2"
-                            position-classes="size-5"
-                        >
-                            <template #icon> <ProiconsCancel class="size-4" /> </template>
-                        </ButtonCorner>
-                    </div>
-                </div>
-
-                <div :class="['relative', { hidden: placement === 'overlay' }]">
-                    <TextInput
-                        v-model="searchModel"
-                        placeholder="Search"
-                        :class="
-                            cn('rounded-lg ring-inset', {
-                                'dark bg-[#2b2b2b]!': placement === 'overlay',
-                                'dark:bg-surface-2 h-(--table-input-height) w-full pe-8 ring-1': placement === 'sidebar',
-                                'button-disabled pointer-events-none': isLoading,
-                            })
+            <div :class="cn('sticky top-0 z-10 flex items-center justify-between gap-2 rounded-lg bg-[#2b2b2b] px-2 py-1.5', { hidden: placement === 'sidebar' })">
+                <p class="text-xs font-medium text-white/90 sm:text-sm">Transcript</p>
+                <div class="flex items-center gap-1">
+                    <ButtonCorner
+                        v-if="isDesktop && isNormalView"
+                        @click="
+                            () => {
+                                cycleSideBar('transcript', 'list-card');
+                            }
                         "
-                        title="Search with..."
-                        :disabled="isLoading"
-                    />
-
-                    <div v-show="!!searchModel" class="pointer-events-none absolute inset-0 flex items-center justify-end pe-1">
-                        <ButtonCorner
-                            class="text-foreground-1 hocus:text-foreground-0 pointer-events-auto p-0.5 *:size-5"
-                            :use-default-style="false"
-                            :title="'Clear'"
-                            @click="searchModel = ''"
-                        />
-                    </div>
+                        title="Move to Sidebar"
+                        colour-classes="hover:bg-transparent"
+                        text-classes="text-foreground-1 hover:text-foreground-0 dark"
+                        position-classes="size-5"
+                    >
+                        <template #icon> <ProiconsPanelRight class="size-4" /> </template>
+                    </ButtonCorner>
+                    <ButtonCorner
+                        title="Close Transcript"
+                        @click="close()"
+                        colour-classes="hover:bg-transparent"
+                        text-classes="text-foreground-1 dark hover:text-danger-2"
+                        position-classes="size-5"
+                    >
+                        <template #icon> <ProiconsCancel class="size-4" /> </template>
+                    </ButtonCorner>
                 </div>
             </div>
+
             <div class="w-full space-y-1" v-if="subtitleTrack">
                 <div v-if="isLoading && !hasError">
                     <button type="button" :class="['group flex w-full animate-pulse cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 text-left transition-colors']">

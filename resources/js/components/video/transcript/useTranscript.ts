@@ -188,6 +188,7 @@ export function useTranscript() {
     return {
         // transcript
         isShowingTranscript,
+        parsedTranscript,
         filteredTranscript,
         activeIndex,
         isActiveLive,
