@@ -14,6 +14,7 @@ import TranscriptLine from '@/components/video/transcript/TranscriptLine.vue';
 import ProiconsAlertTriangle from '~icons/proicons/alert-triangle';
 import ProiconsPanelRight from '~icons/proicons/panel-right';
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
+import IconCaptionsOff from '@/components/icons/IconCaptionsOff.vue';
 import ProiconsCancel from '~icons/proicons/cancel';
 
 const props = defineProps<{ isVisible?: boolean }>();
@@ -150,7 +151,11 @@ watch(activeIndex, async (index) => {
                         <ProiconsArrowSync class="size-3.5" />
                     </template>
                 </TranscriptStatus>
-
+                <TranscriptStatus v-else-if="!parsedTranscript.length" :copy="{ heading: 'Transcript is empty' }" badge-class="bg-white/8 text-white/40">
+                    <template #icon>
+                        <IconCaptionsOff class="size-4 sm:size-5" />
+                    </template>
+                </TranscriptStatus>
                 <div class="space-y-0.5" v-else>
                     <TranscriptLine
                         v-for="line in parsedTranscript"

@@ -21,6 +21,7 @@ defineEmits<{ action: [] }>();
         </div>
 
         <ButtonBase
+            v-if="copy.button"
             :disabled="isBusy"
             :use-size="false"
             :aria-busy="isBusy"
