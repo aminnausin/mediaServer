@@ -44,5 +44,8 @@ return [
     'preview_generator' => [
         'override' => env('APP_ENV') === 'local',
     ],
+    'transcribe' => [
+        'url' => env('TRANSCRIBE_SERVICE_URL', 'http://127.0.0.1:8000/transcribe/'),
+    ],
 
 ];

@@ -4,7 +4,7 @@ import type { UserResource } from '@/types/resources';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { toast } from '@aminnausin/cedar-ui';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 import PlayerToolbarButton from '@/components/video/button/PlayerToolbarButton.vue';
 import VideoPartyItem from '@/components/video/plugins/party/VideoPartyItem.vue';
@@ -14,7 +14,7 @@ import LucideLogOut from '~icons/lucide/log-out';
 import ProiconsAdd from '~icons/proicons/add';
 import IconEye from '@/components/icons/IconEye.vue';
 
-defineProps<{ isShowingParty?: boolean }>();
+const props = defineProps<{ isShowingParty?: boolean }>();
 
 const { userData } = storeToRefs(useAuthStore());
 
@@ -40,6 +40,13 @@ const handleKickUser = (id: number) => {
     toast.info('Kicked user [username]');
     partyUsers.value = partyUsers.value.filter((user) => user.id !== id);
 };
+
+watch(
+    () => props.isShowingParty,
+    (value) => {
+        if (!value) isShowingPanel.value = false;
+    },
+);
 </script>
 
 <template>

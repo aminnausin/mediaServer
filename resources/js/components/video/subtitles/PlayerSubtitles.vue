@@ -333,7 +333,7 @@ defineExpose({
 </template>
 <style lang="css">
 .libassjs-canvas-parent {
-    z-index: 5;
+    z-index: var(--subtitles-z-index, 5);
     position: static !important;
 }
 </style>

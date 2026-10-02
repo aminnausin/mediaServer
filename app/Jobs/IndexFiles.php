@@ -716,6 +716,12 @@ class IndexFiles extends ManagedSubTask {
          * -> generate new uuid and upsert new metadata
          */
         return $this->generateResolveUuidResult(null, true, false);
+
+        /**
+         * Scenario 5 (missed):
+         * the new file has an embedded uuid and another new file has the same uuid
+         * -> generate new uuid and upsert new metadata on one of the new files
+         */
     }
 
     private function generateResolveUuidResult(?string $uuid, bool $shouldEmbed, bool $isReplacing): array {

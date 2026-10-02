@@ -1,19 +1,20 @@
 <script setup lang="ts" generic="T extends ImageType">
-import type { ImageType, SeriesResource } from '@/contracts/media';
+import type { FolderResource, ImageType, SeriesResource } from '@/contracts/media';
 import type { ComputedRef } from 'vue';
 
+import { ButtonBase, ButtonText } from '@/components/cedar-ui/button';
 import { computed, inject, ref } from 'vue';
-import { ButtonText } from '@/components/cedar-ui/button';
 import { toPlural } from '@/service/util.ts';
 import { cn } from '@aminnausin/cedar-ui';
 
 import ProIconsPhotoOff from '@/components/icons/ProIconsPhotoOff.vue';
-import ButtonBase from '@/components/cedar-ui/button/ButtonBase.vue';
 import ImageCard from '@/components/cards/data/ImageCard.vue';
 import FolderTab from '@/components/folders/FolderTab.vue';
+import IconShare from '@/components/icons/IconShare.vue';
 
 const primaryIds = inject<ComputedRef<Record<T, number>>>('primaryImageIds');
 const isAudio = inject<ComputedRef<boolean>>('isAudio');
+const folder = inject<ComputedRef<FolderResource>>('data');
 const data = inject<ComputedRef<SeriesResource>>('series');
 
 const activeFilters = computed<ImageType[]>(() => ['poster', 'banner', 'preview']);
@@ -89,6 +90,17 @@ const isShowingReplaced = ref(false);
                     <ImageCard v-for="image in replacedImages" :key="image.id" :data="image" :is-audio="isAudio" :is-read-only="true" :is-folder="true" />
                 </div>
             </template>
+            <div v-if="folder?.id && filteredType === 'preview'" class="flex w-full justify-end">
+                <ButtonBase
+                    variant="transparent"
+                    type="button"
+                    class="text-foreground-2 hover:text-foreground-0 xs:max-h-none xs:px-1 max-h-6 gap-1.5 p-0 text-xs transition-colors"
+                    :to="`/${folder.category_id}/${folder.id}?preview=1`"
+                    :target="'_blank'"
+                >
+                    <IconShare class="size-3.5" /> {{ filteredImages.length === 0 ? 'Generate' : 'Regenerate' }} preview in new tab
+                </ButtonBase>
+            </div>
         </div>
     </FolderTab>
 </template>

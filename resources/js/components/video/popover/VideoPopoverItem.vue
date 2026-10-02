@@ -10,13 +10,13 @@ const props = withDefaults(defineProps<PopoverItem>(), {});
 <template>
     <div v-if="divider" class="bg-hr dark:bg-hr/30 my-1 h-px shrink-0 group-[.pe-0\.5]/popover-items:-me-0.5" />
 
-    <div v-else class="px-1">
+    <div v-else class="px-1 text-[10px] sm:text-xs">
         <button
             v-bind="$attrs"
             :title="title ?? ''"
             :class="
                 cn(
-                    'disabled:button-disabled transition-input flex w-full cursor-pointer items-center rounded-md px-2 py-1.5 text-xs ease-in-out select-none',
+                    'disabled:button-disabled transition-input flex w-full cursor-pointer items-center rounded-md px-2 py-1.5 ease-in-out select-none',
                     'ring-white outline-hidden ring-inset hover:bg-neutral-900 focus:bg-neutral-950 focus:outline-none focus-visible:ring',
                     { selectedStyle: selected },
                     { hidden: disabled },
@@ -30,7 +30,7 @@ const props = withDefaults(defineProps<PopoverItem>(), {});
             <component v-if="icon" :is="icon" :class="cn('mr-2 size-4 shrink-0', iconStyle)" />
 
             <span class="truncate text-nowrap">{{ text }}</span>
-            <span class="ml-auto text-xs tracking-widest opacity-60">{{ shortcut ?? '' }}</span>
+            <span class="ml-auto tracking-widest opacity-60">{{ shortcut ?? '' }}</span>
             <slot name="selectedIcon">
                 <component
                     v-if="selectedIcon"

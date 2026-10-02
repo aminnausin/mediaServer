@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\V1\Media\MediaController;
 use App\Http\Controllers\Api\V1\Metadata\FontController;
 use App\Http\Controllers\Api\V1\Metadata\StoryboardController;
 use App\Http\Controllers\Api\V1\Metadata\SubtitleController;
+use App\Http\Controllers\Api\V1\Metadata\TranscriptController;
 use App\Http\Controllers\Api\V1\MetadataController;
 use App\Http\Controllers\Api\V1\PasswordController;
 use App\Http\Controllers\Api\V1\PlaybackController;
@@ -94,6 +95,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/storyboard', [StoryboardController::class, 'regenerate']); // clear existing files and queue regenerate
         // Images
         Route::patch('/images', [MetadataController::class, 'updateImages']);
+        // Transcript
+        Route::post('/transcript', [TranscriptController::class, 'regenerate']);
     });
 
     Route::prefix('/categories/{category}')->group(function () {

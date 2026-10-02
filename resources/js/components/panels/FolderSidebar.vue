@@ -2,8 +2,8 @@
 import type { FolderResource } from '@/types/resources';
 import type { SortDir } from '@/types/types';
 
-import { useBreakpoints, breakpointsTailwind } from '@vueuse/core';
 import { formatFileSize, toTitleCase } from '@/service/util';
+import { useReactiveBreakpoints } from '@/service/breakpoints/useReactiveBreakpoints';
 import { folderSortingOptions } from '@/constants/sortingOptions';
 import { useContentStore } from '@/stores/ContentStore';
 import { useModalStore } from '@/stores/ModalStore';
@@ -36,11 +36,9 @@ const showFilters = ref(true);
 
 const { stateDirectory, stateFolder, isLoadingContent } = storeToRefs(useContentStore());
 const { isAuthenticated } = useAuth();
+const { isDesktop } = useReactiveBreakpoints();
 
 const modal = useModalStore();
-
-const breakpoints = useBreakpoints({ ...breakpointsTailwind, xs: 320, xms: 400, '3xl': 2000 });
-const isDesktop = breakpoints.greaterOrEqual('lg');
 
 const sortedFolders = computed<FolderResource[]>(() => {
     return [...stateDirectory.value.folders].sort(sortObject<FolderResource>(folderSortKey.value, folderSortDir.value, ['created_at', 'updated_at']));

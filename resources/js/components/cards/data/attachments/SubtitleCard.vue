@@ -17,7 +17,7 @@ const parseSubtitleFormat = (format?: string) => {
         case 'ssa':
             return 'ASS';
         default:
-            return 'none';
+            return format;
     }
 };
 </script>

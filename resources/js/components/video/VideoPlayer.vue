@@ -12,6 +12,7 @@ import { useVideoPlayback } from '@/service/queries';
 import { ToastController } from '@/components/cedar-ui/toast';
 import { useContentStore } from '@/stores/ContentStore';
 import { debounce, round } from 'lodash-es';
+import { useTranscript } from './transcript/useTranscript';
 import { useAuthStore } from '@/stores/AuthStore';
 import { ContextMenu } from '@/components/cedar-ui/context-menu';
 import { GlobalModal } from '@/components/cedar-ui/modal';
@@ -30,6 +31,7 @@ import VideoPopoverSlider from '@/components/video/popover/VideoPopoverSlider.vu
 import AudioSpectrograph from '@/components/video/audio/AudioSpectrograph.vue';
 import PlayerAudioTracks from '@/components/video/audio/PlayerAudioTracks.vue';
 import VideoPopoverItem from '@/components/video/popover/VideoPopoverItem.vue';
+import PlayerTranscript from '@/components/video/transcript/PlayerTranscript.vue';
 import PlayerSubtitles from '@/components/video/subtitles/PlayerSubtitles.vue';
 import VideoPartyPanel from '@/components/video/plugins/party/VideoPartyPanel.vue';
 import PlayerSkipIntro from '@/components/video/plugins/skip-intro/PlayerSkipIntro.vue';
@@ -49,6 +51,7 @@ import ProiconsPictureInPictureExit from '~icons/proicons/picture-in-picture-exi
 import ProiconsFullScreenMaximize from '~icons/proicons/full-screen-maximize';
 import ProiconsFullScreenMinimize from '~icons/proicons/full-screen-minimize';
 import ProiconsTextHighlightColor from '~icons/proicons/text-highlight-color';
+import ProiconsTextAlignLeft from '~icons/proicons/text-align-left';
 import ProiconsArrowTrending from '~icons/proicons/arrow-trending';
 import TablerMicrophone2Off from '~icons/tabler/microphone-2-off';
 import ProiconsFastForward from '~icons/proicons/fast-forward';
@@ -324,6 +327,16 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
             },
         },
         {
+            text: 'Transcript',
+            icon: isShowingTranscript.value ? ProiconsCheckmark : undefined,
+            selected: isShowingTranscript.value,
+            selectedIcon: ProiconsCheckmark,
+            hidden: isAudio.value,
+            action: () => {
+                isShowingTranscript.value = !isShowingTranscript.value;
+            },
+        },
+        {
             text: 'Show Miniplayer',
             icon: isPictureInPicture.value ? ProiconsCheckmark : undefined,
             selected: isPictureInPicture.value,
@@ -403,6 +416,7 @@ const videoPopoverItems = computed<PopoverItem[]>(() => [
             playbackHeatmap.value = !playbackHeatmap.value;
         },
     },
+    { divider: true },
     {
         text: 'Lyrics',
         title: `Toggle Lyrics`,
@@ -425,6 +439,17 @@ const videoPopoverItems = computed<PopoverItem[]>(() => [
         action: handleToggleAutoplay,
     },
     {
+        text: 'Transcript',
+        title: `Toggle video transcript`,
+        icon: ProiconsTextAlignLeft,
+        selected: isShowingTranscript.value,
+        selectedIcon: ProiconsCheckmark,
+        disabled: isAudio.value,
+        action: () => {
+            isShowingTranscript.value = !isShowingTranscript.value;
+        },
+    },
+    {
         text: 'Auto Subtitles',
         title: `Automatically select the default subtitle track`,
         icon: showAutoSubtitles.value ? IconCaptions : IconCaptionsOff,
@@ -433,6 +458,7 @@ const videoPopoverItems = computed<PopoverItem[]>(() => [
         action: () => (showAutoSubtitles.value = !showAutoSubtitles.value),
         disabled: isAudio.value,
     },
+    { divider: true },
     {
         text: 'Audio Graph',
         title: 'Toggle Audio Visualiser',
@@ -1138,6 +1164,7 @@ type SupportedKeyBind = (typeof SUPPORTED_KEYBINDS)[number];
 const handleKeyBinds = (event: KeyboardEvent, override = false) => {
     if (!SUPPORTED_KEYBINDS.includes(event.key as SupportedKeyBind)) return;
     if (isInputLikeElement(event.target, event.key) && !override) return;
+    if (event.ctrlKey) return;
 
     const key = event.key as SupportedKeyBind;
 
@@ -1166,7 +1193,6 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
             handleMute();
             break;
         case 'c':
-            if (event.ctrlKey) return;
             if (isAudio.value || stateFolder.value.is_majority_audio) handleLyrics();
             else playerSubtitles.value?.handleSubtitles();
             break;
@@ -1310,6 +1336,22 @@ const addJsonLd = () => {
 
 //#endregion
 
+//#region Transcript
+
+const { isShowingTranscript, placement: transcriptPlacement, registerTranscriptContext, unregisterTranscriptContext } = useTranscript();
+
+registerTranscriptContext({
+    player,
+    viewMode,
+    subtitleTrack: computed(() => playerSubtitles.value?.currentSubtitleTrack ?? playerSubtitles.value?.defaultSubtitleTrack),
+    metadataId: computed(() => stateVideo.value.metadata?.id),
+    seek: handleManualSeek,
+    close: () => (isShowingTranscript.value = false),
+    generated: (track) => stateVideo.value.subtitles.push(track),
+});
+
+//#endregion
+
 //#region Hooks
 
 provide('player', player);
@@ -1363,6 +1405,10 @@ onBeforeUnmount(() => {
     document.removeEventListener('fullscreenchange', handleFullScreenChange);
     document.removeEventListener('visibilitychange', handleVisibilityChange);
 
+    unregisterTranscriptContext();
+
+    isShowingTranscript.value = false;
+
     if (unSub) unSub();
 
     debouncedCacheVolume.cancel();
@@ -1394,6 +1440,9 @@ defineExpose({
                 isShowingControls ? 'cursor-auto' : 'cursor-none!',
             )
         "
+        :style="{
+            '--subtitles-z-index': isThumbnailDismissed ? 5 : 3,
+        }"
         ref="player-container"
         id="player-container"
         @mousemove="playerMouseActivity"
@@ -1555,9 +1604,9 @@ defineExpose({
 
         <!-- UI Panels Z-8 (Stats, Options)-->
         <div
-            style="z-index: 8; max-height: calc(100% - calc(var(--spacing) * 18))"
+            style="z-index: 7; height: calc(100% - calc(var(--spacing) * 18))"
             :class="
-                cn('ui-layer scrollbar-hide inset-x-0 flex h-fit flex-wrap justify-between gap-2 overflow-auto', 'xms:top-2 top-9 bottom-16 mx-2', {
+                cn('ui-layer scrollbar-hide inset-x-0 flex flex-wrap justify-between gap-2', 'xms:top-2 top-9 bottom-16 mx-2', {
                     'top-11! mx-4': isFullScreen || isTheatreView,
                 })
             "
@@ -1583,14 +1632,21 @@ defineExpose({
             </div>
 
             <!-- UI Panels Right -->
-            <div :class="cn('flex h-full flex-col gap-2', { 'xxs:mt-7': isNormalView })">
+            <div
+                :class="cn('flex h-full flex-1 flex-col items-end gap-2', { 'xxs:mt-7': isNormalView && isShowingParty })"
+                :style="{
+                    '--watch-party-margin': isNormalView ? (isShowingParty ? 7 : 0) : 11,
+                    maxHeight: 'calc(100% - var(--spacing) * var(--watch-party-margin))',
+                }"
+            >
                 <!-- Watch Party (Z-7) -->
                 <VideoPartyPanel :is-showing-party="isShowingParty" />
+                <PlayerTranscript :is-visible="transcriptPlacement === 'overlay'" />
             </div>
         </div>
 
         <!-- Overlay Controls and Notifications Z-7 (Skip Intro, Timeline) -->
-        <div style="z-index: 7" class="ui-layer inset-0 flex">
+        <div style="z-index: 8" class="ui-layer inset-0 flex">
             <!-- Overlay controls  -->
             <div :class="['absolute bottom-18 xl:bottom-23', isNormalView ? 'left-2' : 'left-4', '-ms-1 flex h-fit max-h-28 max-w-42 flex-col-reverse gap-1 overflow-clip p-1']">
                 <!-- Skip Intro (Z-7) -->
