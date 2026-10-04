@@ -40,6 +40,7 @@ class Subtitle extends Model {
         'path',
         'is_default',
         'is_forced',
+        'source_key',
     ];
 
     public function metadata(): BelongsTo {
