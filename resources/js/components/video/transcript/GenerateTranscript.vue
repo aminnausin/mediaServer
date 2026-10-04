@@ -44,7 +44,7 @@ const copy = computed(() => {
                 description: 'This will take a moment',
                 button: 'Generating…',
             };
-        default:
+        default: {
             const heading = 'No transcript available';
             if (!isAuthenticated.value) return { heading };
 
@@ -53,6 +53,7 @@ const copy = computed(() => {
                 description: 'Generate a transcript to follow along with the video',
                 button: 'Generate Transcript',
             };
+        }
     }
 });
 
