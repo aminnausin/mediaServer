@@ -3,6 +3,7 @@ import type { SubtitleResource } from '@/contracts/media';
 
 import { useTranscript } from '@/components/video/transcript/useTranscript';
 import { computed } from 'vue';
+import { useAuth } from '@/composables/auth/useAuth';
 import { cn } from '@aminnausin/cedar-ui';
 
 import TranscriptStatus from '@/components/video/transcript/TranscriptStatus.vue';
@@ -15,6 +16,7 @@ import IconCaptions from '@/components/icons/IconCaptions.vue';
 const emit = defineEmits<{ generated: [track: { url: string; track: SubtitleResource }] }>();
 
 const { generationStatus: status, requestTranscript } = useTranscript();
+const { isAuthenticated } = useAuth();
 
 const isBusy = computed(() => status.value === 'requesting' || status.value === 'queued' || status.value === 'processing');
 
@@ -43,8 +45,11 @@ const copy = computed(() => {
                 button: 'Generating…',
             };
         default:
+            const heading = 'No transcript available';
+            if (!isAuthenticated.value) return { heading };
+
             return {
-                heading: 'No transcript available',
+                heading,
                 description: 'Generate a transcript to follow along with the video',
                 button: 'Generate Transcript',
             };
