@@ -43,7 +43,7 @@ class TranscriptController extends Controller {
                 'language' => $transcript['language'],
                 'language_probability' => $transcript['language_probability'],
                 'segment_count' => $transcript['segment_count'],
-            ]);
+            ], 201);
         } catch (FileNotFoundException $e) {
             return response()->json(['message' => $e->getMessage()], 404);
         } catch (TranscriptionException $e) {

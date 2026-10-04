@@ -3,11 +3,7 @@
 namespace App\Exceptions;
 
 class TranscriptionException extends \RuntimeException {
-    public function __construct(
-        string $message,
-        private readonly int $status,
-        private readonly ?string $error = null,
-    ) {
+    public function __construct(string $message, private readonly int $status, private readonly ?string $error = null) {
         parent::__construct($message);
     }
 
