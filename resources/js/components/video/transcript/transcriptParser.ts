@@ -34,8 +34,8 @@ export function parseTranscript(rawTranscript: string): TranscriptLine[] {
 
         if (!text) continue;
 
-        const previous = lines[lines.length - 1];
-        if (previous && previous.text === text && startTime <= previous.end) {
+        const previous = lines.at(-1);
+        if (previous?.text === text && startTime <= previous.end) {
             previous.end = Math.max(previous.end, endTime);
             continue;
         }

@@ -28,6 +28,6 @@ defineEmits<{ select: [start: number] }>();
         >
             {{ timestamp }}
         </span>
-        <span class="font-dm-sans line-clamp-3 leading-5 select-text" role="text" v-html="line.text"></span>
+        <span class="font-dm-sans line-clamp-3 leading-5 select-text" v-html="line.text"></span>
     </button>
 </template>

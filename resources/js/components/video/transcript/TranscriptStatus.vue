@@ -9,7 +9,7 @@ defineEmits<{ action: [] }>();
 </script>
 
 <template>
-    <div :class="cn('flex h-full flex-col items-center justify-center gap-3 px-8 py-10 text-center', $attrs.class)" role="status" aria-live="polite">
+    <div :class="cn('flex h-full flex-col items-center justify-center gap-3 px-8 py-10 text-center', $attrs.class)" aria-live="polite">
         <div :class="cn('flex size-8 shrink-0 items-center justify-center rounded-full transition-colors sm:size-11', { 'bg-white/8 text-white/70': isBusy }, badgeClass)">
             <ProiconsArrowClockwise v-if="isBusy" :class="cn('size-4 animate-spin sm:size-5', iconClass)" />
             <slot v-else name="icon"></slot>
