@@ -26,26 +26,7 @@ class VttStrategy implements SubtitleFormatStrategy {
     }
 
     private function cleanVtt(string $path): void {
-        $vtt = file_get_contents($path);
-
-        if ($vtt === false) {
-            return;
-        }
-
-        // normalise line endings
-        $vtt = preg_replace("/\r\n?/", "\n", $vtt);
-
-        if ($vtt === null) {
-            return;
-        }
-
-        // separate vtt blocks
-        $blocks = preg_split("/\n{2,}/", trim($vtt));
-
-        if ($blocks === false) {
-            return;
-        }
-
+        $blocks = $this->getVttBlocks($path);
         $cleaned = [];
 
         foreach ($blocks as $block) {
@@ -92,6 +73,20 @@ class VttStrategy implements SubtitleFormatStrategy {
         );
     }
 
+    private function getVttBlocks(string $path): array {
+        $vtt = file_get_contents($path);
+
+        if ($vtt === false) {
+            return [];
+        }
+
+        // normalise line endings
+        $vtt = preg_replace("/\r\n?/", "\n", $vtt);
+
+        // separate vtt blocks
+        return preg_split("/\n{2,}/", trim($vtt ?? '')) ?: [];
+    }
+
     /**
      * Removes ASS override tags (such as {\pos(...)}, {\an8}, {\i1}), and plain text between a {\pN}(N > 0){\p0}
      */
@@ -132,13 +127,5 @@ class VttStrategy implements SubtitleFormatStrategy {
         }
 
         return preg_match('/^(?:[mnlbspc]|-?\d+(?:\.\d+)?|\s)+$/i', $text) === 1 && preg_match('/[mnlbspc]/i', $text) === 1 && preg_match('/\d/', $text) === 1;
-
-        // less robust?
-
-        if (! preg_match('/(?:^|\s)[mnlbspc](?=\s|$)/i', $text)) {
-            return false;
-        }
-
-        return preg_match('/^(?:[mnlbspc]|-?\d+(?:\.\d+)?|\s)+$/i', $text) === 1;
     }
 }
