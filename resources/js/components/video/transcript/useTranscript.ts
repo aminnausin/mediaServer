@@ -17,6 +17,8 @@ const { isDesktop } = useReactiveBreakpoints();
 
 let controller: AbortController | null = null;
 
+const SEARCH_TAGS = /<\/?[a-z][^>]*>/gi;
+
 const generationStatus = ref<'idle' | 'requesting' | 'queued' | 'processing' | 'error'>('idle');
 
 const isShowingTranscript = ref(false);
@@ -33,7 +35,7 @@ const currentTime = ref(0);
 
 const searchQuery = ref('');
 
-const searchIndex = computed(() => parsedTranscript.value.map((l) => l.text.replace(/<[^>]*>/g, '').toLowerCase()));
+const searchIndex = computed(() => parsedTranscript.value.map((l) => l.text.replace(SEARCH_TAGS, '').toLowerCase()));
 
 const placement = computed<'hidden' | 'sidebar' | 'overlay'>(() => {
     if (!isShowingTranscript.value) return 'hidden';
