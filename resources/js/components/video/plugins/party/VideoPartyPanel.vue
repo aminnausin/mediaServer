@@ -3,8 +3,8 @@ import type { UserResource } from '@/types/resources';
 
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
-import { toast } from '@aminnausin/cedar-ui';
 import { ref, watch } from 'vue';
+import { toast } from '@aminnausin/cedar-ui';
 
 import PlayerToolbarButton from '@/components/video/button/PlayerToolbarButton.vue';
 import VideoPartyItem from '@/components/video/plugins/party/VideoPartyItem.vue';

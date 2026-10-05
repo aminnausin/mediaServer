@@ -11,8 +11,8 @@ import { DropdownMenu } from '@/components/cedar-ui/dropdown-menu';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
-import { ref, watch } from 'vue';
 import { cn, drawer } from '@aminnausin/cedar-ui';
+import { ref, watch } from 'vue';
 
 import FolderDetailsSidebarDrawer from '@/components/drawers/FolderDetailsSidebarDrawer.vue';
 import ExploreRightSidebarDrawer from '@/components/drawers/ExploreRightSidebarDrawer.vue';
