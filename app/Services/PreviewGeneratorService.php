@@ -41,6 +41,7 @@ class PreviewGeneratorService {
     public function handle(Request $request, bool $generateRawPreview): Response {
         $outputTemplate = $generateRawPreview ? 'og-media-preview' : 'og-preview';
         $defaultData = $this->defaultData($request);
+        $imageOnly = $request->query('preview') === '3';
 
         try {
             $categorySlug = $request->route('dir');
@@ -57,12 +58,20 @@ class PreviewGeneratorService {
                 $viewData = $this->preparePreviewData($this->buildFolderPreviewData($category, $folder, $request), $folder->series, $generateRawPreview);
             }
 
+            if ($imageOnly) {
+                return redirect()->to($viewData['thumbnail_url']);
+            }
+
             return response()->view($outputTemplate, $viewData);
         } catch (\Throwable $e) {
             Log::warning('Error generating link preview', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
+
+            if ($imageOnly) {
+                return redirect()->to($this->defaultPoster);
+            }
 
             return response()->view('og-preview', $defaultData);
         }
