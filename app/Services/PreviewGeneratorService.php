@@ -59,7 +59,9 @@ class PreviewGeneratorService {
             }
 
             if ($imageOnly) {
-                return redirect()->to($viewData['thumbnail_url']);
+                $url = $viewData['thumbnail_url'];
+
+                return redirect()->to($url . (str_contains($url, '?') ? '&' : '?') . 't=' . time());
             }
 
             return response()->view($outputTemplate, $viewData);

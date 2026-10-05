@@ -42,8 +42,7 @@ const handleVideoDetailsUpdate = (data: VideoResource) => {
             :primary-ids="{ poster: modalProps.resource.poster_image?.id }"
             :generatable-filters="{
                 preview: {
-                    url: `/${modalProps.libraryId}/${modalProps.mediaResource.folder_id}?video=${modalProps.mediaResource.id}&preview=1`,
-                    text: 'Generate preview in new tab',
+                    url: `/${modalProps.libraryId}/${modalProps.mediaResource.folder_id}?video=${modalProps.mediaResource.id}`,
                 },
             }"
             :images="modalProps.images"

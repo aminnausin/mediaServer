@@ -6,6 +6,7 @@ import type { ImageResource, ImageType } from '@/types/resources';
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, useTemplateRef, watch } from 'vue';
 import { ButtonBase, ButtonForm, ButtonText } from '@/components/cedar-ui/button';
 import { InputShell, TextInput } from '@/components/cedar-ui/input';
+import { usePreviewGenerator } from '@/service/editor/usePreviewGenerator';
 import { useImageManager } from '@/composables/editor/useImageManager';
 import { FormErrorList } from '@/components/cedar-ui/form';
 import { cn, toast } from '@aminnausin/cedar-ui';
@@ -15,17 +16,17 @@ import ModalFormFooter from '@/components/forms/ModalFormFooter.vue';
 import ImageCard from '@/components/cards/data/ImageCard.vue';
 import useForm from '@/composables/useForm';
 
+import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProIconsPhotoOff from '@/components/icons/ProIconsPhotoOff.vue';
 import ProIconsPhoto from '@/components/icons/ProIconsPhoto.vue';
 import TablerUpload from '@/components/icons/TablerUpload.vue';
-import IconShare from '@/components/icons/IconShare.vue';
 
 const { pending, addFile, addUrl, removePending, cleanup } = useImageManager();
 
 const props = defineProps<{
     images: ImageResource[];
     filters?: T[];
-    generatableFilters?: { [key: string]: { url: string; text: string; target?: string } };
+    generatableFilters?: { [key: string]: { url: string } };
     primaryIds?: Partial<Record<T, number>>;
     isAudio?: boolean;
     readOnlyTypes?: T[];
@@ -38,10 +39,20 @@ const emit = defineEmits(['handleFinish']);
 const mobileUrlInput = useTemplateRef('mobileUrlInput');
 const urlInput = ref('');
 
+const { generate, isGenerating } = usePreviewGenerator();
+
+const generated = reactive<Partial<Record<ImageType, ImageResource>>>({});
+const generateLabel = computed(() => {
+    if (isGenerating.value) return 'Generating…';
+    return `${filteredImages.value.length > 0 ? 'Regenerate' : 'Generate'} ${filteredType.value}`;
+});
+
+const images = computed(() => props.images.filter((i) => !(generated[i.type] && !i.replaced_at)).concat(Object.values(generated) as ImageResource[]));
+
 const activeFilters = computed<ImageType[]>(() => props.filters ?? ['poster', 'preview']);
-const filteredImages = computed(() => props.images.filter((i) => i.type === filteredType.value && !i.replaced_at && !deletedImageIds.has(i.id)));
-const replacedImages = computed(() => props.images.filter((i) => i.type === filteredType.value && i.replaced_at));
-const deletedImages = computed(() => props.images.filter((i) => deletedImageIds.has(i.id)));
+const filteredImages = computed(() => images.value.filter((i) => i.type === filteredType.value && !i.replaced_at && !deletedImageIds.has(i.id)));
+const replacedImages = computed(() => images.value.filter((i) => i.type === filteredType.value && i.replaced_at));
+const deletedImages = computed(() => images.value.filter((i) => deletedImageIds.has(i.id)));
 const pendingImage = computed(() => pending.value[filteredType.value]);
 
 const filteredImageCount = computed(() => filteredImages.value.length + (pendingImage.value ? 1 : 0));
@@ -97,6 +108,18 @@ const handleSubmit = async () => {
             },
         },
     );
+};
+
+const handleGenerate = async () => {
+    const type = filteredType.value;
+    const url = props.generatableFilters?.[type]?.url;
+    if (!url) return;
+
+    const path = await generate(url);
+    if (!path) return;
+
+    const existing = props.images.find((i) => i.type === type && !i.replaced_at);
+    generated[type] = { id: existing?.id ?? -1, source: 'generated', type, path };
 };
 
 function buildRequest(fields: ImageFormState<T>): ImageUpdateRequest<T> {
@@ -489,10 +512,10 @@ onUnmounted(() => {
                     variant="transparent"
                     type="button"
                     class="text-foreground-2 hover:text-foreground-0 xs:max-h-none xs:px-1 max-h-6 gap-1.5 p-0 text-xs transition-colors"
-                    :to="generatableFilters[filteredType].url"
-                    :target="generatableFilters[filteredType].target ?? '_blank'"
+                    :disabled="isGenerating"
+                    @click="handleGenerate"
                 >
-                    <IconShare class="size-3.5" /> {{ generatableFilters[filteredType].text }}
+                    <ProiconsArrowSync :class="['size-3.5', { 'animate-spin': isGenerating }]" /> {{ generateLabel }}
                 </ButtonBase>
             </template>
         </ModalFormFooter>
