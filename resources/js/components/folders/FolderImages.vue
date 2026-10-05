@@ -1,16 +1,17 @@
 <script setup lang="ts" generic="T extends ImageType">
-import type { FolderResource, ImageType, SeriesResource } from '@/contracts/media';
+import type { FolderResource, ImageResource, ImageType, SeriesResource } from '@/contracts/media';
 import type { ComputedRef } from 'vue';
 
 import { ButtonBase, ButtonText } from '@/components/cedar-ui/button';
 import { computed, inject, ref } from 'vue';
+import { usePreviewGenerator } from '@/service/editor/usePreviewGenerator';
 import { toPlural } from '@/service/util.ts';
 import { cn } from '@aminnausin/cedar-ui';
 
+import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProIconsPhotoOff from '@/components/icons/ProIconsPhotoOff.vue';
 import ImageCard from '@/components/cards/data/ImageCard.vue';
 import FolderTab from '@/components/folders/FolderTab.vue';
-import IconShare from '@/components/icons/IconShare.vue';
 
 const primaryIds = inject<ComputedRef<Record<T, number>>>('primaryImageIds');
 const isAudio = inject<ComputedRef<boolean>>('isAudio');
@@ -25,6 +26,22 @@ const filteredType = ref<ImageType>(activeFilters.value[0]);
 const filteredPrimaryId = computed(() => primaryIds?.value?.[filteredType.value as T]);
 
 const isShowingReplaced = ref(false);
+
+const { generate, isGenerating } = usePreviewGenerator();
+
+const generatePreview = async () => {
+    if (!folder?.value || !data?.value.images) return;
+
+    const path = await generate(`/${folder.value.category_id}/${folder.value.id}`);
+    if (!path) return;
+
+    const images = data.value.images;
+    const index = images.findIndex((i) => i.type === 'preview' && !i.replaced_at);
+    const image: ImageResource = { id: images[index]?.id ?? -1, source: 'generated', type: 'preview', path };
+
+    if (index === -1) images.push(image);
+    else images.splice(index, 1, image);
+};
 </script>
 <template>
     <FolderTab class="flex-1">
@@ -95,10 +112,10 @@ const isShowingReplaced = ref(false);
                     variant="transparent"
                     type="button"
                     class="text-foreground-2 hover:text-foreground-0 xs:max-h-none xs:px-1 max-h-6 gap-1.5 p-0 text-xs transition-colors"
-                    :to="`/${folder.category_id}/${folder.id}?preview=1`"
-                    :target="'_blank'"
+                    @click="generatePreview"
+                    :disabled="isGenerating"
                 >
-                    <IconShare class="size-3.5" /> {{ filteredImages.length === 0 ? 'Generate' : 'Regenerate' }} preview in new tab
+                    <ProiconsArrowSync :class="['size-3.5', { 'animate-spin': isGenerating }]" /> {{ filteredImages.length === 0 ? 'Generate' : 'Regenerate' }} preview
                 </ButtonBase>
             </div>
         </div>
