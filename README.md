@@ -244,11 +244,31 @@ Below are screenshots of the current webpage on Desktop and Android.
 <img src="./doc/img/pages-mobile/player_light.png" width="350" alt="Android Light Mode" />
 </p>
 
+### Player options and Transcript
+
+<p align="center">
+<img width="1597" height="917" alt="image" src="https://github.com/user-attachments/assets/163f0e74-78d8-4e9a-b000-a178280fba16" />
+</p>
+
+
 ### Explore Page
 
 <p align="center">
   <img src="./doc/img/pages/explore_dark.jpeg#gh-dark-mode-only" width="838" alt="Desktop Explore Dark Mode" />
   <img src="./doc/img/pages/explore_light.jpeg#gh-light-mode-only" width="838" alt="Desktop Explore Light Mode" />
+</p>
+
+### Libraries
+
+<p align="center">
+    <img width="1266" height="556" alt="image" src="https://github.com/user-attachments/assets/12e7bab1-cf2b-4ff5-a21e-f5debe239c3d" />
+    <img width="1279" height="598" alt="image" src="https://github.com/user-attachments/assets/c016ea51-7f87-4b86-8272-8b7cfcffcd4e" />
+</p>
+
+### Folder Info
+
+<p align="center">
+  <img src="./doc/img/pages/folder_info.jpeg" width="836" alt="Folder Info" />
 </p>
 
 ### Open Graph Preview Example
@@ -292,12 +312,6 @@ Below are screenshots of the current webpage on Desktop and Android.
 
   <img src="https://github.com/user-attachments/assets/6ca6378a-ad38-47f0-851f-c95d70aed984" width="700" alt="Player Option 1" />
   <img src="https://github.com/user-attachments/assets/05a2e4fd-e1c4-4fce-baed-31c850315a4c" width="700" alt="Player Option 2" />
-</p>
-
-### Folder Info
-
-<p align="center">
-  <img src="./doc/img/pages/folder_info.jpeg" width="836" alt="Folder Info" />
 </p>
 
 ### Setup Page
