@@ -71,11 +71,7 @@ class PreviewGeneratorService {
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            if ($imageOnly) {
-                return redirect()->to($this->defaultPoster);
-            }
-
-            return response()->view('og-preview', $defaultData);
+            return $imageOnly ? redirect()->to($this->defaultPoster) : response()->view('og-preview', $defaultData);
         }
     }
 
