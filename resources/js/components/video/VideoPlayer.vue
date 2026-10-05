@@ -12,7 +12,7 @@ import { useVideoPlayback } from '@/service/queries';
 import { ToastController } from '@/components/cedar-ui/toast';
 import { useContentStore } from '@/stores/ContentStore';
 import { debounce, round } from 'lodash-es';
-import { useTranscript } from './transcript/useTranscript';
+import { useTranscript } from '@/components/video/transcript/useTranscript';
 import { useAuthStore } from '@/stores/AuthStore';
 import { ContextMenu } from '@/components/cedar-ui/context-menu';
 import { GlobalModal } from '@/components/cedar-ui/modal';
@@ -1602,7 +1602,7 @@ defineExpose({
             </div>
         </div>
 
-        <!-- UI Panels Z-8 (Stats, Options)-->
+        <!-- UI Panels Z-7 (Stats, Options)-->
         <div
             style="z-index: 7; height: calc(100% - calc(var(--spacing) * 18))"
             :class="
@@ -1645,7 +1645,7 @@ defineExpose({
             </div>
         </div>
 
-        <!-- Overlay Controls and Notifications Z-7 (Skip Intro, Timeline) -->
+        <!-- Overlay Controls and Notifications Z-8 (Skip Intro, Timeline) -->
         <div style="z-index: 8" class="ui-layer inset-0 flex">
             <!-- Overlay controls  -->
             <div :class="['absolute bottom-18 xl:bottom-23', isNormalView ? 'left-2' : 'left-4', '-ms-1 flex h-fit max-h-28 max-w-42 flex-col-reverse gap-1 overflow-clip p-1']">
@@ -1660,7 +1660,7 @@ defineExpose({
                 />
             </div>
 
-            <!-- Controls (Z-7) -->
+            <!-- Controls (Z-8) -->
             <div
                 v-cloak
                 :class="
