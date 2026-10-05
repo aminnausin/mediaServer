@@ -48,6 +48,7 @@ class SubtitleExtractor {
             $ffmpegStart = microtime(true);
             $process = new Process($command);
             $process->mustRun();
+            $process->setTimeout(300);
             $timings['ffmpeg_execution'] = microtime(true) - $ffmpegStart;
 
             $verifyStart = microtime(true);

@@ -3,16 +3,16 @@ import type { StoryboardResource } from '@/contracts/media';
 import type { HTMLAttributes } from 'vue';
 import type { StoryboardCue } from '@/service/storyboard/types';
 
+import { useReactiveBreakpoints } from '@/service/breakpoints/useReactiveBreakpoints';
 import { buildStoryboardCues } from '@/service/storyboard';
 import { useContentStore } from '@/stores/ContentStore';
-import { useBreakpoints } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { cn } from '@aminnausin/cedar-ui';
 
 const { stateVideo } = storeToRefs(useContentStore());
 
-const breakpoints = useBreakpoints({ xs: 320 });
+const { breakpoints } = useReactiveBreakpoints();
 const isDesktop = breakpoints.greaterOrEqual('xs');
 
 const props = defineProps<{

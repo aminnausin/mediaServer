@@ -2,6 +2,7 @@
 import { defineAsyncComponent } from 'vue';
 import { useAppStore } from '@/stores/AppStore';
 
+import TranscriptSidebar from '@/components/panels/TranscriptSidebar.vue';
 import SidebarSkeleton from '@/components/skeleton/composites/SidebarSkeleton.vue';
 import HistorySidebar from '@/components/panels/HistorySidebar.vue';
 
@@ -18,6 +19,12 @@ const FolderSidebarAsync = defineAsyncComponent(async () => await import('@/comp
     </Suspense>
     <Suspense v-if="AppStore.selectedSideBar === 'history'">
         <HistorySidebar />
+        <template #fallback>
+            <SidebarSkeleton />
+        </template>
+    </Suspense>
+    <Suspense v-if="AppStore.selectedSideBar === 'transcript'">
+        <TranscriptSidebar />
         <template #fallback>
             <SidebarSkeleton />
         </template>

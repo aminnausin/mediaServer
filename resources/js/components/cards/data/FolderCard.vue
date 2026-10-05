@@ -2,7 +2,7 @@
 import type { FolderResource } from '@/types/resources';
 
 import { formatFileSize, handleStorageURL, toFormattedDate } from '@/service/util';
-import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
+import { useReactiveBreakpoints } from '@/service/breakpoints/useReactiveBreakpoints';
 import { handleEditFolderImages } from '@/service/folder/folderActions';
 import { RelativeHoverCard } from '@/components/cedar-ui/hover-card';
 import { computed, markRaw } from 'vue';
@@ -30,12 +30,11 @@ const props = defineProps<{
     urlSuffix?: string;
 }>();
 
-const breakpoints = useBreakpoints(breakpointsTailwind);
-const isDesktop = computed(() => breakpoints.isGreaterOrEqual('lg'));
 const folderUrl = computed(() => `/${[props.urlPrefix, props.categoryName, props.data.name, props.urlSuffix].filter(Boolean).join('/')}`);
 
 const { isAuthenticated } = useAuth();
 const { setContextMenu } = useAppStore();
+const { isDesktop } = useReactiveBreakpoints();
 
 const contextMenuItems = computed(() => {
     return [

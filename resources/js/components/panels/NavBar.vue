@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import type { Component } from 'vue';
 
-import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
+import { useReactiveBreakpoints } from '@/service/breakpoints/useReactiveBreakpoints';
 import { useDropdownMenuItems } from '@/components/panels/DropdownMenuItems';
 import { RouterLink, useRoute } from 'vue-router';
 import { NavButton, NavLink } from '@/components/cedar-ui/button-nav';
 import { getScreenSizeRank } from '@/service/util';
+import { useTranscript } from '@/components/video/transcript/useTranscript';
 import { DropdownMenu } from '@/components/cedar-ui/dropdown-menu';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
+import { cn, drawer } from '@aminnausin/cedar-ui';
 import { ref, watch } from 'vue';
-import { drawer } from '@aminnausin/cedar-ui';
 
 import FolderDetailsSidebarDrawer from '@/components/drawers/FolderDetailsSidebarDrawer.vue';
 import ExploreRightSidebarDrawer from '@/components/drawers/ExploreRightSidebarDrawer.vue';
@@ -26,12 +27,15 @@ import CircumMonitor from '~icons/circum/monitor';
 import ProiconsMenu from '~icons/proicons/menu';
 import IconFolder from '@/components/icons/IconFolder.vue';
 
+import ProiconsTextAlignLeft from '~icons/proicons/text-align-left';
+
 const { dropdownItems, dropdownItemsAuth } = useDropdownMenuItems();
 const { userData, isLoadingUserData } = storeToRefs(useAuthStore());
 const { pageTitle, selectedSideBar } = storeToRefs(useAppStore());
 const { cycleSideBar } = useAppStore();
 
-const breakpoints = useBreakpoints(breakpointsTailwind);
+const { isDesktop } = useReactiveBreakpoints();
+
 const route = useRoute();
 
 const showDropdown = ref(false);
@@ -73,7 +77,7 @@ const toggleLeftSidebar = (sidebar: 'dashboard' | 'settings' | 'config') => {
     }
 };
 
-const isDesktop = breakpoints.greaterOrEqual('lg');
+const { isShowingTranscript } = useTranscript();
 
 watch(isDesktop, (now) => {
     const currentSidebar = selectedSideBar.value;
@@ -162,6 +166,15 @@ watch(isDesktop, (now) => {
 
         <div class="ml-auto flex flex-wrap items-center justify-end gap-1 sm:w-auto sm:max-w-sm sm:shrink-0 sm:flex-nowrap sm:justify-normal">
             <span id="video-navbar" class="flex items-center gap-1 antialiased">
+                <NavButton
+                    title="Toggle Transcript"
+                    :label="'Transcript'"
+                    :active="selectedSideBar === 'transcript'"
+                    :class="cn('transition-reveal overflow-hidden p-0', selectedSideBar === 'transcript' ? 'mx-0 w-8 opacity-100' : '-mx-0.5 w-0 opacity-0')"
+                    @click="isShowingTranscript = false"
+                >
+                    <ProiconsTextAlignLeft class="size-6" stroke-width="0.0" />
+                </NavButton>
                 <NavButton
                     v-if="$route.name === 'home' || $route.name === 'folder-details'"
                     @click="toggleRightSidebar('folders', $route.name === 'home' ? VideoSidebarDrawer : FolderDetailsSidebarDrawer)"
