@@ -261,7 +261,7 @@ Below are screenshots of the current webpage on Desktop and Android.
 ### Libraries
 
 <p align="center">
-    <img width="1266" height="556" alt="image" src="https://github.com/user-attachments/assets/12e7bab1-cf2b-4ff5-a21e-f5debe239c3d" />
+    <img width="1261" height="554" alt="image" src="https://github.com/user-attachments/assets/930d31aa-f484-476a-bfa1-2c3c3e77ee1e" />
     <img width="1279" height="598" alt="image" src="https://github.com/user-attachments/assets/c016ea51-7f87-4b86-8272-8b7cfcffcd4e" />
 </p>
 
@@ -367,7 +367,8 @@ Below are screenshots of the current webpage on Desktop and Android.
 
 ## Getting Started
 
-[![Current Build](https://img.shields.io/github/v/release/aminnausin/mediaserver?logo=github&label=latest)](https://github.com/aminnausin/mediaServer/releases)
+[![Latest Release](https://img.shields.io/github/v/release/aminnausin/mediaserver?logo=github&label=latest)](https://github.com/aminnausin/mediaServer/releases)
+[![Latest Beta](https://img.shields.io/github/v/release/aminnausin/mediaserver?logo=github&include_prereleases&display_name=tag&label=latest%20beta)](https://github.com/aminnausin/mediaServer/releases)
 
 MediaServer can be run via Docker (recommended) or directly with PHP.
 
