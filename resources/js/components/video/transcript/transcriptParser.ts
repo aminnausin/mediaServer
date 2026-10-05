@@ -1,6 +1,6 @@
 import { timestampToSeconds } from '@/components/video/transcript/transcriptUtil';
 
-const STRIP_TAGS = /<(?!\/?[iu]>|br\s*\/?>)[^>]*>/gi;
+const STRIP_TAGS = /<(?!\/?[iu]>|br\s*\/?>)[^<>]*>/gi;
 
 export interface TranscriptLine {
     index: number;
