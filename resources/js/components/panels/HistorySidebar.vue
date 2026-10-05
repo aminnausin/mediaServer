@@ -31,7 +31,7 @@ if (!isFetched.value) {
 <template>
     <SidebarHeader :text="'Recent History'" />
 
-    <section id="list-content-history" class="full-height-sidebar flex flex-col flex-wrap gap-2">
+    <section id="list-content-history" class="full-height-sidebar flex flex-col gap-2">
         <TableLoadingSpinner
             v-if="(isLoadingRecords && !stateRecords?.length) || !stateRecords?.length"
             :is-loading="isLoadingRecords && !stateRecords?.length"

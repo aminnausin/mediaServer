@@ -25,7 +25,7 @@ const { placement } = useTranscript();
         </ButtonCorner>
     </SidebarHeader>
 
-    <section id="list-content-transcript" class="full-height-sidebar flex flex-col flex-wrap gap-2">
+    <section id="list-content-transcript" class="full-height-sidebar">
         <PlayerTranscript :is-visible="placement === 'sidebar'" />
     </section>
 </template>

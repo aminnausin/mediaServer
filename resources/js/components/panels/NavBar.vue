@@ -6,6 +6,7 @@ import { useDropdownMenuItems } from '@/components/panels/DropdownMenuItems';
 import { RouterLink, useRoute } from 'vue-router';
 import { NavButton, NavLink } from '@/components/cedar-ui/button-nav';
 import { getScreenSizeRank } from '@/service/util';
+import { useTranscript } from '@/components/video/transcript/useTranscript';
 import { DropdownMenu } from '@/components/cedar-ui/dropdown-menu';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
@@ -27,8 +28,6 @@ import ProiconsMenu from '~icons/proicons/menu';
 import IconFolder from '@/components/icons/IconFolder.vue';
 
 import ProiconsTextAlignLeft from '~icons/proicons/text-align-left';
-
-import { useTranscript } from '../video/transcript/useTranscript';
 
 const { dropdownItems, dropdownItemsAuth } = useDropdownMenuItems();
 const { userData, isLoadingUserData } = storeToRefs(useAuthStore());

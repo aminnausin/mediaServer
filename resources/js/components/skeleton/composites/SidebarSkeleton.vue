@@ -10,7 +10,7 @@ import SidebarCard from '@/components/cards/sidebar/SidebarCard.vue';
 
         <hr class="text-hr hidden lg:block" />
     </div>
-    <section class="full-height-sidebar flex flex-col flex-wrap gap-2">
+    <section class="full-height-sidebar flex flex-col gap-2">
         <SidebarCard v-for="i in getScreenSizeRank() > 3 ? 12 : 6" :key="i" class="pointer-events-none gap-4">
             <div class="flex w-full flex-wrap items-center gap-4">
                 <div class="bg-foreground-1/20 mr-auto h-4 w-32 rounded"></div>
