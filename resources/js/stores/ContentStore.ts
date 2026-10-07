@@ -230,6 +230,7 @@ export const useContentStore = defineStore('Content', () => {
             }
 
             searchQuery.value = '';
+            setDefaultSortKey();
             if (play) playlistFind(toParamNumber(route.query.video));
 
             return true;
@@ -283,6 +284,8 @@ export const useContentStore = defineStore('Content', () => {
             } else {
                 stateFolder.value = { ...targetFolder };
             }
+
+            setDefaultSortKey();
         } catch (error: any) {
             const message = error?.response?.data?.message || error?.message || 'Failed to load folder';
             toast.add('Error loading folder', { type: 'danger', description: message });
@@ -298,6 +301,12 @@ export const useContentStore = defineStore('Content', () => {
     function getMetadataById(metadataId: number): MetadataResource | undefined {
         if (stateVideo.value.metadata?.id === metadataId) return stateVideo.value.metadata;
         return stateFolder.value.videos?.find((v) => v.metadata?.id === metadataId)?.metadata;
+    }
+
+    function setDefaultSortKey() {
+        if ((videoSort.value.column === 'title' && stateFolder.value.is_majority_audio) || (videoSort.value.column === 'episode' && !stateFolder.value.is_majority_audio)) {
+            videoSort.value.column = stateFolder.value.is_majority_audio ? 'episode' : 'title';
+        }
     }
     //#endregion
 

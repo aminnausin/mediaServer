@@ -22,6 +22,7 @@ const props = withDefaults(
             loadingPlaceholder?: Component;
             selectedID?: number | null;
             currentIndex?: number;
+            defaultSortIndex?: number;
         }
     >(),
     {
@@ -35,6 +36,7 @@ const props = withDefaults(
         noResultsMessage: 'No Results',
         loadingPlaceholder: TableLoadingSpinner,
         currentIndex: -1,
+        defaultSortIndex: 0,
     },
 );
 
@@ -139,7 +141,7 @@ onMounted(() => {
                         :disabled="loading"
                         :placeholder="'Sort by...'"
                         :load-default-on-disabled="true"
-                        :defaultItem="0"
+                        :defaultItem="defaultSortIndex"
                         :class="cn('h-(--table-input-height) w-full')"
                         :menu-margin="{ bottom: 'mb-10', top: 'mt-10' }"
                         @selectItem="handleSortChange"

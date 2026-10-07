@@ -24,6 +24,7 @@ const { playlistSort } = useContentStore();
 const modal = useModalStore();
 
 const sortingOptions = computed(() => mediaSortingOptions(stateFolder.value)) satisfies ComputedRef<GenericSortOption<VideoResource>[]>; // Idk what the point of using satisfies is
+const defaultSortIndex = computed(() => Math.max(sortingOptions.value.findIndex((option) => option.value === (stateFolder.value.is_majority_audio ? 'episode' : 'title'), 0)));
 
 const mediaTypeDescription = computed(() => {
     return stateVideo.value?.metadata?.media_type === MediaType.AUDIO || stateFolder.value?.is_majority_audio ? 'Track' : 'Video';
@@ -79,6 +80,7 @@ const handleVideoAction = (e: Event, id: number, action: 'edit' | 'share' | 'dow
             :selectedID="stateVideo?.id"
             :startAscending="true"
             :currentIndex="currentMediaIndex"
+            :default-sort-index="defaultSortIndex"
             v-model="searchQuery"
         />
     </FolderTab>

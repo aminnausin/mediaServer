@@ -96,6 +96,24 @@ watch(
     },
     { immediate: true },
 );
+
+watch(
+    () => props.defaultItem,
+    (index, previous) => {
+        if (index == null || index < 0 || (props.disabled && !props.loadDefaultOnDisabled)) return;
+
+        const next = props.options[index];
+        if (!next) return;
+
+        const current = select.selectedItem as { value?: unknown } | null | undefined;
+        const prev = previous == null ? undefined : props.options[previous];
+
+        // only reset if nothing is selected or the the previous default is still selected => so if not dirty
+        if (current?.value !== undefined && (prev === undefined || current.value !== prev.value)) return;
+
+        handleItemClick(next, false);
+    },
+);
 </script>
 <template>
     <section :class="[`group relative w-full text-sm`, rootClass]" @focusout="handleFocusOut" ref="selectableItemsRoot">
