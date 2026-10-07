@@ -67,6 +67,8 @@ export interface SeriesResource {
     banner_image?: ImageResource;
     primary_banner_id?: number;
     images: ImageResource[];
+
+    related_series: SeriesRelation[];
 }
 
 //#endregion
@@ -217,4 +219,12 @@ export interface SeriesSizeHistory {
     total_bytes: number;
     file_count: number;
     recorded_at: string;
+}
+
+export type SeriesRelationType = 'sequel' | 'prequel' | 'spinoff' | 'side_story' | 'alternative' | 'summary' | 'soundtrack' | 'related' | 'parent';
+
+export interface SeriesRelation {
+    type: SeriesRelationType;
+    label: string;
+    folder: FolderResource;
 }

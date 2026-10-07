@@ -32,7 +32,7 @@ import ProiconsMenu from '~icons/proicons/menu';
 import IconShare from '@/components/icons/IconShare.vue';
 import IconEdit from '@/components/icons/IconEdit.vue';
 
-const VALID_TABS = new Set(['overview', 'files', 'images', 'metadata', 'stats']);
+const VALID_TABS = new Set(['overview', 'files', 'images', 'metadata', 'stats', 'relations']);
 
 const appStore = useAppStore();
 
@@ -47,6 +47,7 @@ const route = useRoute();
 
 const popover = useTemplateRef('popover');
 
+const FolderRelations = defineAsyncComponent(() => import('@/components/folders/FolderRelations.vue'));
 const FolderOverview = defineAsyncComponent(() => import('@/components/folders/FolderOverview.vue'));
 const FolderMetadata = defineAsyncComponent(() => import('@/components/folders/FolderMetadata.vue'));
 const FolderImages = defineAsyncComponent(() => import('@/components/folders/FolderImages.vue'));
@@ -66,6 +67,8 @@ const activeComponent = computed(() => {
             return FolderMetadata;
         case 'stats':
             return FolderStats;
+        case 'relations':
+            return FolderRelations;
         default:
             return null;
     }
@@ -159,14 +162,7 @@ watch(() => `${route.params.category}/${route.params.folder}`, reload, { immedia
 
 watch(
     () => route.params.tab,
-    (tab) => {
-        let parsedTab = tab as string;
-
-        if (!VALID_TABS.has(parsedTab)) {
-            parsedTab = 'overview';
-        }
-        setTab(parsedTab);
-    },
+    (tab) => setTab(VALID_TABS.has(tab as string) ? (tab as string) : 'overview'),
     { immediate: true },
 );
 
