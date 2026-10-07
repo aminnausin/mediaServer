@@ -222,6 +222,7 @@ export const useContentStore = defineStore('Content', () => {
                 router.replace({
                     name: route.name,
                     params: {
+                        ...route.params,
                         category: correctCategory,
                         folder: correctFolder,
                     },
