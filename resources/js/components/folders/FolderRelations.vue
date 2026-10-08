@@ -23,8 +23,8 @@ const filteredRelations = computed(() => data?.value.related_series ?? []);
 const filteredType = ref<RelationType>(activeFilters.value[0]);
 </script>
 <template>
-    <FolderTab class="flex-1 gap-2" v-if="data?.related_series.length > 0 || !hideIfEmpty">
-        <div class="flex w-full flex-wrap justify-between gap-0.5" v-if="showTitle && data?.related_series.length > 0">
+    <FolderTab class="flex-1 gap-2" v-if="data && (data.related_series.length > 0 || !hideIfEmpty)">
+        <div class="flex w-full flex-wrap justify-between gap-0.5" v-if="showTitle && data.related_series.length > 0">
             <span class="text-nowrap">Relations</span>
             <span class="text-foreground-1">
                 {{ filteredRelations.length }}
