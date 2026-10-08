@@ -100,6 +100,10 @@ class DirectoryController extends Controller {
             'series.primaryPoster',
             'series.primaryBanner',
             'series.images.user',
+            'series.directRelations.folder',
+            'series.directRelations.primaryPoster',
+            'series.inverseRelations.folder',
+            'series.inverseRelations.primaryPoster',
         ])
             ->where('category_id', $categoryId)
             ->orderBy('name')

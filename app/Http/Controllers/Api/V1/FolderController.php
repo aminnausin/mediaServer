@@ -68,6 +68,11 @@ class FolderController extends Controller {
             'videos.metadata.fonts' => function ($q) {
                 $q->select(Font::getVisibleFields());
             },
+
+            'series.directRelations.folder',
+            'series.directRelations.primaryPoster',
+            'series.inverseRelations.folder',
+            'series.inverseRelations.primaryPoster',
         ]);
 
         return response()->json(new FolderResource($folder));

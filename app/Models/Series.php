@@ -4,12 +4,15 @@ namespace App\Models;
 
 use App\Enums\ImageType;
 use App\Enums\MediaType;
+use App\Enums\SeriesRelationType;
 use App\Traits\HasEditableFields;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Collection;
 
 class Series extends Model {
     use HasEditableFields, HasFactory;
@@ -130,6 +133,31 @@ class Series extends Model {
 
     public function primaryBanner(): BelongsTo {
         return $this->belongsTo(Image::class, 'primary_banner_id', 'id');
+    }
+
+    public function directRelations(): BelongsToMany {
+        return $this->belongsToMany(Series::class, 'series_relations', 'series_id', 'related_series_id')->withPivot('type')->withTimestamps();
+    }
+
+    public function inverseRelations(): BelongsToMany {
+        return $this->belongsToMany(Series::class, 'series_relations', 'related_series_id', 'series_id')->withPivot('type');
+    }
+
+    public function allRelations(): Collection {
+        $this->loadMissing(['directRelations', 'inverseRelations']);
+
+        $direct = $this->directRelations->map(fn (Series $s) => [
+            'series' => $s,
+            'type' => SeriesRelationType::tryFrom($s->pivot->type),
+        ]);
+
+        $inverse = $this->inverseRelations->map(fn (Series $s) => [
+            'series' => $s,
+            'type' => SeriesRelationType::tryFrom($s->pivot->type)?->inverse(),
+        ]);
+
+        // should sort this by type or something
+        return $direct->concat($inverse)->filter(fn ($r) => $r['type'] !== null)->values();
     }
 
     // This is only for demo reset so it is not super important, only include fields that may have bad content
