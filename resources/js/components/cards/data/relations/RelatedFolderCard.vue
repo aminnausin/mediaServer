@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FolderResource, SeriesRelation } from '@/contracts/media';
 
-import { handleStorageURL } from '@/service/util';
+import { handleStorageURL, toTimeSpan } from '@/service/util';
 import { FLAGS } from '@/config/featureFlags';
 import { cn } from '@aminnausin/cedar-ui';
 
@@ -22,9 +22,10 @@ const scrollIntoView = (e: FocusEvent) => {
     <div
         :class="
             cn(
-                'group data-card flex w-30 shrink-0 snap-start flex-col gap-2 rounded-md',
+                'group data-card flex shrink-0 snap-start text-xs',
+                'flex-col gap-2',
                 'focus-within:outline-none',
-                'content-auto [contain-intrinsic-size:160px_280px]',
+                'content-auto [contain-intrinsic-size:120px_220px]',
                 { 'rounded-none bg-transparent shadow-none': FLAGS.USE_TRANSPARENT_HOME_CARDS },
                 $attrs.class,
             )
@@ -42,14 +43,19 @@ const scrollIntoView = (e: FocusEvent) => {
                 :blurhash="folder.series?.poster_image?.blur_hash"
             />
             <slot name="overlay">
-                <PlayerOSDBase class="absolute bottom-0 z-1 w-full rounded-none p-0.5 text-xs">{{ relation.label }}</PlayerOSDBase>
+                <PlayerOSDBase class="absolute bottom-1 left-1 z-1 px-1.5 py-0.5">{{ relation.label }}</PlayerOSDBase>
             </slot>
         </RouterLink>
-        <RouterLink :class="cn('flex w-full flex-col text-xs', { 'px-2 pb-2': !FLAGS.USE_TRANSPARENT_HOME_CARDS })" :to="`/${folder.category_id}/${folder.id}`">
-            <slot name="title">
-                <p class="truncate group-hover:underline">{{ folder.title }}</p>
-            </slot>
-            <slot />
+        <RouterLink
+            :class="
+                cn('focus-within:text-primary dark:focus-within:text-primary-muted flex w-full flex-col text-xs focus-visible:outline-none', {
+                    'px-2 pb-2': !FLAGS.USE_TRANSPARENT_HOME_CARDS,
+                })
+            "
+            :to="`/${folder.category_id}/${folder.id}`"
+        >
+            <p class="truncate group-focus-within:underline group-hover:underline">{{ folder.title }}</p>
+            <span v-if="folder.series?.updated_at" class="text-foreground-1 truncate"> updated {{ toTimeSpan(folder.series?.updated_at, '', true) }} ago</span>
         </RouterLink>
     </div>
 </template>
