@@ -118,6 +118,7 @@ class SubtitleExtractor {
     private function getExtensionFromCodec(string $codec): string {
         return match ($codec) {
             'subrip' => 'srt',
+            'mov_text' => 'srt',
             'ass' => 'ass',
             'ssa' => 'ssa',
             'webvtt' => 'vtt',
