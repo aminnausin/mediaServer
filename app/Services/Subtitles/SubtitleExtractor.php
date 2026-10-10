@@ -22,11 +22,17 @@ class SubtitleExtractor {
 
         try {
             $mediaPath = $metadata->video->path;
-            $ext = $this->getExtensionFromCodec($subtitle['codec']);
+            $codec = $subtitle['codec'];
+            $ext = $this->getExtensionFromCodec($codec);
 
             $pathStart = microtime(true);
             $outputPath = $this->getOutputPath($subtitle, $ext);
             $timings['get_output_path'] = microtime(true) - $pathStart;
+
+            $encoder = match ($codec) {
+                'mov_text' => 'srt',
+                default => 'copy',
+            };
 
             $commandStart = microtime(true);
             $command = [
@@ -40,15 +46,15 @@ class SubtitleExtractor {
                 '-vn', // skip reading video
                 '-an', // skip reading audio
                 '-c:s',
-                'copy', // don't re-encode
+                $encoder, // don't re-encode unless mov_text
                 Storage::disk('local')->path($outputPath),
             ];
             $timings['build_command'] = microtime(true) - $commandStart;
 
             $ffmpegStart = microtime(true);
             $process = new Process($command);
-            $process->mustRun();
             $process->setTimeout(300);
+            $process->mustRun();
             $timings['ffmpeg_execution'] = microtime(true) - $ffmpegStart;
 
             $verifyStart = microtime(true);
