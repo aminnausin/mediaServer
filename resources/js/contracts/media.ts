@@ -69,6 +69,9 @@ export interface SeriesResource {
     images: ImageResource[];
 
     related_series: SeriesRelation[];
+
+    library_id?: number;
+    library_name?: string;
 }
 
 //#endregion

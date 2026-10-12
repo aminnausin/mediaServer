@@ -97,3 +97,9 @@ export function updateSeriesImage(id: number, data: FormData) {
         headers: { 'Content-Type': 'multipart/form-data', 'X-Skip-Toast': 'true' },
     });
 }
+
+export function searchSeries(q: string) {
+    const params = new URLSearchParams();
+    params.set('q', q);
+    return API.get(`/series/search?${params.toString()}`);
+}
