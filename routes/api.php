@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\FolderController;
 use App\Http\Controllers\Api\V1\JobController;
 use App\Http\Controllers\Api\V1\Media\MediaController;
 use App\Http\Controllers\Api\V1\Metadata\FontController;
+use App\Http\Controllers\Api\V1\Metadata\SeriesRelationsController;
 use App\Http\Controllers\Api\V1\Metadata\StoryboardController;
 use App\Http\Controllers\Api\V1\Metadata\SubtitleController;
 use App\Http\Controllers\Api\V1\Metadata\TranscriptController;
@@ -106,11 +107,15 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::resource('/categories', CategoryController::class)->only(['index']);
 
+    Route::get('series/search', [SeriesController::class, 'search']);
+
     Route::prefix('/series/{series}')->group(function () {
         // Download Access Control
         Route::put('/downloads', [SeriesController::class, 'updateDownloadSettings']);
         // Images
         Route::patch('/images', [SeriesController::class, 'updateImages']);
+        // Relations with other series(folders)
+        Route::put('/relations', [SeriesRelationsController::class, 'update']);
         // Size History
         Route::get('/size-history', [SeriesController::class, 'sizeHistory']);
     });
