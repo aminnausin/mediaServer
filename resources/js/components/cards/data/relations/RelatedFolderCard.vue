@@ -2,6 +2,7 @@
 import type { FolderResource, SeriesRelation } from '@/contracts/media';
 
 import { handleStorageURL, toTimeSpan } from '@/service/util';
+import { useRouter } from 'vue-router';
 import { FLAGS } from '@/config/featureFlags';
 import { cn } from '@aminnausin/cedar-ui';
 
@@ -10,6 +11,8 @@ import BlurhashImage from '@/components/lazy/BlurhashImage.vue';
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 defineProps<{ folder: FolderResource; relation: SeriesRelation; eagerLoad?: boolean }>();
+
+const router = useRouter();
 
 const scrollIntoView = (e: FocusEvent) => {
     (e.currentTarget as HTMLElement).scrollIntoView({
@@ -32,7 +35,10 @@ const scrollIntoView = (e: FocusEvent) => {
         "
         @focus="scrollIntoView"
     >
-        <RouterLink :to="`/${folder.category_id}/${folder.id}/details/relations`" :class="cn('relative rounded-md shadow-sm [clip-path:inset(0_round_0.375rem)]')">
+        <RouterLink
+            :to="`/${folder.category_id}/${folder.id}/details/${router.currentRoute.value.params['tab']}`"
+            :class="cn('relative rounded-md shadow-sm [clip-path:inset(0_round_0.375rem)]')"
+        >
             <component
                 :is="folder.series?.poster_image?.blur_hash ? BlurhashImage : LazyImage"
                 :src="folder.series?.poster_image?.path ?? handleStorageURL(folder.series?.thumbnail_url) ?? '/storage/thumbnails/default.webp'"
