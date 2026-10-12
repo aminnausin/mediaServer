@@ -36,7 +36,7 @@ trait HasTags {
             }
 
             if (! empty($deletedTags)) {
-                $modelClass::destroy($deletedTags);
+                $modelClass::where($foreignKey, $relationId)->whereIn('id', $deletedTags)->delete();
             }
 
             return $newTags->isNotEmpty() || ! empty($deletedTags);
