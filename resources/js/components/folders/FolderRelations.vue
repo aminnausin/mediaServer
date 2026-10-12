@@ -65,7 +65,7 @@ const filteredType = ref<RelationType>(activeFilters.value[0]);
                     :folder="relation.folder"
                     :relation="relation"
                     class="w-full"
-                    :to="`/${folder.category_id}/${folder.id}/details/${router.currentRoute.value.params['tab']}`"
+                    :to="`/${relation.folder.category_id}/${relation.folder.id}/details/${router.currentRoute.value.params['tab']}`"
                 />
             </div>
 
