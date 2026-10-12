@@ -12,6 +12,8 @@ class SeriesResource extends JsonResource {
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array {
+        $library = $this->relationLoaded('folder') && $this->folder?->relationLoaded('category') ? $this->folder->category : null;
+
         return [
             'id' => $this->id,
             'uuid' => $this->uuid,
@@ -44,6 +46,9 @@ class SeriesResource extends JsonResource {
                 fn () => $this->relatedSeriesPayload(),
                 [],
             ),
+
+            'library_id' => $library?->id,
+            'library_name' => $library?->name,
         ];
     }
 

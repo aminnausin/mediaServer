@@ -6,6 +6,7 @@
 */
 import type { MetadataStoreRequest, MetadataUpdateRequest, SeriesStoreRequest, SeriesUpdateRequest } from '@/types/requests';
 import type { CategoryResource, FolderResource, SeriesResource, VideoResource } from '@/types/resources';
+import type { RelationsUpdateRequest } from '@/types/relationRequests';
 import type { AxiosResponse } from 'axios';
 
 import { API } from '@/service/api';
@@ -102,4 +103,10 @@ export function searchSeries(q: string) {
     const params = new URLSearchParams();
     params.set('q', q);
     return API.get(`/series/search?${params.toString()}`);
+}
+
+export function updateSeriesRelations(id: number, data: RelationsUpdateRequest) {
+    return API.put<SeriesResource[]>(`/series/${id}/relations`, data, {
+        headers: { 'X-Skip-Toast': 'true' },
+    });
 }
