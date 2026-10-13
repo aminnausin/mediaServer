@@ -48,7 +48,10 @@ const folderInfoTags = computed(() => {
     if (activeFolder.value.is_majority_audio) return [getCount('Track')];
     if (!activeFolder.value.series?.seasons) return [getCount('File')];
 
-    const tags = [getCount('Episode', activeFolder.value.series.episodes)];
+    const tags =
+        activeFolder.value.series.episodes === 0 && (activeFolder.value.series.films ?? 0) > 0
+            ? [getCount('Films', activeFolder.value.series.films)]
+            : [getCount('Episode', activeFolder.value.series.episodes)];
 
     if (activeFolder.value.series.seasons > 1) {
         tags.push(getCount('Season', activeFolder.value.series.seasons));
