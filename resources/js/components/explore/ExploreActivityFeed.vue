@@ -59,12 +59,12 @@ const typeIcon = (type: string) => {
         <TableLoadingSpinner v-else-if="!feed.length" :is-loading="false" no-results-message="Nothing new yet" class="h-16 text-sm" />
 
         <div v-else v-for="group in groups" :key="group.label" class="@container flex flex-col gap-3 sm:gap-2">
-            <div class="text-foreground-2 flex items-center justify-between gap-1 text-xs uppercase">
+            <div class="text-foreground-2 flex items-center justify-between gap-1 text-xs">
                 <div>
                     {{ group.label }}
                 </div>
 
-                <div>{{ group.items.length }} Update{{ toPlural(group.items.length) }}</div>
+                <div>{{ group.items.length }} update{{ toPlural(group.items.length) }}</div>
             </div>
             <RouterLink
                 v-for="item in group.items"
@@ -87,8 +87,8 @@ const typeIcon = (type: string) => {
                         <LazyImage
                             :src="item.thumbnail"
                             :alt="`${item.type} Poster`"
-                            wrapper-class="absolute inset-0 flex items-center justify-center z-1"
                             :class="cn('aspect-video w-full object-cover', { 'aspect-square': item.type === 'audio' })"
+                            wrapper-class="absolute inset-0 flex items-center justify-center z-1"
                             loading="lazy"
                         />
                         <div class="absolute inset-0 z-3 hidden size-full items-center justify-center">
@@ -102,10 +102,10 @@ const typeIcon = (type: string) => {
                     </div>
                     <span
                         v-if="item.isNew"
-                        class="bg-primary/40 group-hover:bg-primary/60 3xl:text-[10px] absolute top-1 left-1 z-2 rounded-full px-1.5 py-0.5 text-[10px] leading-none text-white transition-colors sm:text-[8px]"
+                        class="bg-primary/40 group-hover:bg-primary/60 absolute top-1 left-1 z-2 rounded-sm px-1.5 py-0.5 text-xs leading-none text-white transition-colors"
                         :aria-label="`New Update`"
                     >
-                        NEW
+                        new
                     </span>
                 </div>
                 <div class="flex h-full w-full items-center gap-3 overflow-hidden p-2 lg:p-2">
