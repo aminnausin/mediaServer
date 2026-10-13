@@ -50,7 +50,7 @@ const folderInfoTags = computed(() => {
 
     const tags =
         activeFolder.value.series.episodes === 0 && (activeFolder.value.series.films ?? 0) > 0
-            ? [getCount('Films', activeFolder.value.series.films)]
+            ? [getCount('Film', activeFolder.value.series.films)]
             : [getCount('Episode', activeFolder.value.series.episodes)];
 
     if (activeFolder.value.series.seasons > 1) {
