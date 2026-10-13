@@ -69,9 +69,9 @@ class FolderController extends Controller {
                 $q->select(Font::getVisibleFields());
             },
 
-            'series.directRelations.folder',
+            'series.directRelations.folder.category',
             'series.directRelations.primaryPoster',
-            'series.inverseRelations.folder',
+            'series.inverseRelations.folder.category',
             'series.inverseRelations.primaryPoster',
         ]);
 
