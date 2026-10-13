@@ -4,6 +4,7 @@ import type { Component } from 'vue';
 import { useReactiveBreakpoints } from '@/service/breakpoints/useReactiveBreakpoints';
 import { useDropdownMenuItems } from '@/components/panels/DropdownMenuItems';
 import { RouterLink, useRoute } from 'vue-router';
+import { computed, ref, watch } from 'vue';
 import { NavButton, NavLink } from '@/components/cedar-ui/button-nav';
 import { getScreenSizeRank } from '@/service/util';
 import { useTranscript } from '@/components/video/transcript/useTranscript';
@@ -12,7 +13,6 @@ import { useAuthStore } from '@/stores/AuthStore';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { cn, drawer } from '@aminnausin/cedar-ui';
-import { ref, watch } from 'vue';
 
 import FolderDetailsSidebarDrawer from '@/components/drawers/FolderDetailsSidebarDrawer.vue';
 import ExploreRightSidebarDrawer from '@/components/drawers/ExploreRightSidebarDrawer.vue';
@@ -39,6 +39,19 @@ const { isDesktop } = useReactiveBreakpoints();
 const route = useRoute();
 
 const showDropdown = ref(false);
+
+const historySidebar = computed(() => {
+    switch (route.name) {
+        case 'home':
+            return VideoSidebarDrawer;
+        case 'folder-details':
+            return FolderDetailsSidebarDrawer;
+        case 'explore':
+            return ExploreRightSidebarDrawer;
+        default:
+            return undefined;
+    }
+});
 
 const toggleDropdown = () => {
     showDropdown.value = !showDropdown.value;
@@ -196,8 +209,8 @@ watch(isDesktop, (now) => {
                     <ProiconsSparkle2 class="size-6 *:stroke-1 dark:*:stroke-[1.5]" />
                 </NavButton>
                 <NavButton
-                    v-if="($route.name === 'home' || $route.name === 'explore') && userData"
-                    @click="toggleRightSidebar('history', $route.name === 'home' ? VideoSidebarDrawer : ExploreRightSidebarDrawer)"
+                    v-if="($route.name === 'home' || $route.name === 'explore' || $route.name === 'folder-details') && userData"
+                    @click="toggleRightSidebar('history', historySidebar)"
                     :label="'history'"
                     :active="selectedSideBar === 'history'"
                     title="Toggle recent watch history"
