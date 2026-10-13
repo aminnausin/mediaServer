@@ -386,8 +386,8 @@ onUnmounted(() => {
 
         <div class="w-full space-y-2" v-if="filteredImageCount > 0">
             <div class="text-foreground-2 flex w-full items-center justify-between gap-2 text-xs">
-                <p class="uppercase">available</p>
-                <p>{{ filteredImageCount }} image{{ toPlural(filteredImageCount) }}</p>
+                <p>Active images</p>
+                <p>{{ filteredImageCount }} item{{ toPlural(filteredImageCount) }}</p>
             </div>
             <div :class="['grid w-full grid-cols-1 gap-4', { 'xms:grid-cols-2 gap-2': filteredImageCount > 1 }]">
                 <ImageCard
@@ -439,9 +439,9 @@ onUnmounted(() => {
                     <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" :class="'size-3 shrink-0'">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
-                    {{ isShowingDeleted ? 'Hide' : 'Show' }} delete pending
+                    {{ isShowingDeleted ? 'Hide' : 'Show' }} images pending delete
                 </ButtonText>
-                <p>{{ deletedImages.length }} image{{ toPlural(deletedImages.length) }}</p>
+                <p>{{ deletedImages.length }} item{{ toPlural(deletedImages.length) }}</p>
             </div>
 
             <div :class="cn('xms:grid-cols-2 grid max-h-0 w-full gap-2 overflow-hidden', { 'max-h-128': isShowingDeleted })" v-if="isShowingDeleted">
@@ -454,15 +454,15 @@ onUnmounted(() => {
                 <ButtonText
                     :variant="'ghost'"
                     type="button"
-                    class="hover:text-foreground-0 duration-input h-fit gap-1 bg-transparent! p-0 uppercase transition-colors"
+                    class="hover:text-foreground-0 duration-input h-fit gap-1 bg-transparent! p-0 transition-colors"
                     @click="isShowingReplaced = !isShowingReplaced"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" :class="'size-3 shrink-0'">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
-                    {{ isShowingReplaced ? 'Hide' : 'Show' }} deleted
+                    {{ isShowingReplaced ? 'Hide' : 'Show' }} deleted images
                 </ButtonText>
-                <p>{{ replacedImages.length }} image{{ toPlural(replacedImages.length) }}</p>
+                <p>{{ replacedImages.length }} item{{ toPlural(replacedImages.length) }}</p>
             </div>
 
             <div :class="cn('xms:grid-cols-2 grid max-h-0 w-full gap-2 overflow-hidden', { 'max-h-none': isShowingReplaced })" v-if="isShowingReplaced">

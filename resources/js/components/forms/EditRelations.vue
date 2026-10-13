@@ -201,7 +201,7 @@ const handleSubmit = () => {
         </div>
 
         <section v-if="entries.length" class="flex min-h-0 w-full flex-1 flex-col gap-2">
-            <div class="flex shrink-0 items-center justify-between gap-2">
+            <div class="flex shrink-0 items-center justify-between gap-2 text-xs">
                 <h3 class="text-foreground-1 font-medium">Relations</h3>
                 <span class="text-foreground-2 tabular-nums"> {{ activeCount }} item{{ toPlural(activeCount) }} </span>
             </div>
