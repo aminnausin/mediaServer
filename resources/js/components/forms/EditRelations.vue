@@ -19,7 +19,7 @@ import SeriesSearchResultCard from '@/components/cards/data/relations/SeriesSear
 import ModalFormFooter from '@/components/forms/ModalFormFooter.vue';
 import useForm from '@/composables/useForm';
 
-import LucideWaypoints from '~icons/lucide/waypoints';
+import LucideWaypoints from '@/components/icons/LucideWaypoints.vue';
 
 const RELATION_TYPE_OPTIONS = [
     { title: 'Sequel', value: 'sequel' },
@@ -227,7 +227,7 @@ const handleSubmit = () => {
 
         <div v-else class="text-foreground-2 flex flex-1 flex-col items-center justify-center gap-3 py-8 text-center">
             <div class="bg-surface-2 flex size-12 items-center justify-center rounded-full">
-                <LucideWaypoints class="size-6 *:stroke-[1.4]" />
+                <LucideWaypoints class="size-6" />
             </div>
             <div class="space-y-1">
                 <p class="text-foreground-1 text-sm font-medium">No relations yet</p>

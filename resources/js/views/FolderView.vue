@@ -26,6 +26,7 @@ import LayoutBase from '@/layouts/LayoutBase.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
+import LucideWaypoints from '@/components/icons/LucideWaypoints.vue';
 import ProiconsPhoto from '~icons/proicons/photo';
 import ProiconsPlay from '~icons/proicons/play';
 import ProiconsMenu from '~icons/proicons/menu';
@@ -97,6 +98,12 @@ const popoverItems = computed<PopoverItem[]>(() => [
         icon: ProiconsPhoto,
         text: 'Edit Images',
         action: () => handleEditFolderImages(stateFolder.value),
+        hidden: !isAuthenticated.value,
+    },
+    {
+        icon: LucideWaypoints,
+        text: 'Edit Relations',
+        action: () => handleEditRelations(stateFolder.value),
         hidden: !isAuthenticated.value,
     },
 ]);

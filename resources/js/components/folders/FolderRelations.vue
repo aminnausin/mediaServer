@@ -15,7 +15,7 @@ import { cn } from '@aminnausin/cedar-ui';
 import RelatedFolderCard from '@/components/cards/data/relations/RelatedFolderCard.vue';
 import FolderTab from '@/components/folders/FolderTab.vue';
 
-import LucideWaypoints from '~icons/lucide/waypoints';
+import LucideWaypoints from '@/components/icons/LucideWaypoints.vue';
 
 declare type RelationType = 'files' | 'folders';
 
