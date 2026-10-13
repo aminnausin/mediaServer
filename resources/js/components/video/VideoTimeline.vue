@@ -137,8 +137,8 @@ defineExpose({ progressTooltip });
             <div
                 :class="[
                     'pointer-events-none w-full overflow-clip bg-white/30 transition-[height,border-radius] duration-100 ease-in-out',
-                    'rounded-[1px] sm:rounded-full sm:group-hover:rounded-[1px]',
-                    'mobile-hover h-2 sm:h-1 sm:group-hover:h-2',
+                    'rounded-[1px] sm:rounded-full sm:group-focus-within:rounded-[1px] sm:group-hover:rounded-[1px]',
+                    'mobile-hover h-2 sm:h-1 sm:group-focus-within:h-2 sm:group-hover:h-2',
                 ]"
                 style="transform: scaleY(1)"
             >
@@ -163,7 +163,10 @@ defineExpose({ progressTooltip });
             </div>
 
             <div
-                :class="['pointer-events-none absolute transition-[top] duration-100 ease-in-out', 'mobile-hover top-0 sm:top-0.5 sm:group-hover:top-0']"
+                :class="[
+                    'pointer-events-none absolute transition-[top] duration-100 ease-in-out',
+                    'mobile-hover top-0 sm:top-0.5 sm:group-focus-within:top-0 sm:group-hover:top-0',
+                ]"
                 :style="{
                     '--thumb-offset': `${(Math.min(Math.max(timeElapsed, 0), 100) / 100) * (thumbWidth / 2)}px`,
                     transform: `translateX(${thumbX}px)`,
@@ -171,7 +174,10 @@ defineExpose({ progressTooltip });
             >
                 <div
                     ref="progress-thumb"
-                    :class="['thumb rounded-full bg-white transition-[width,height,transform] duration-100 ease-in-out', 'mobile-hover size-2 sm:size-1 sm:group-hover:size-2']"
+                    :class="[
+                        'thumb rounded-full bg-white transition-[width,height,transform] duration-100 ease-in-out',
+                        'mobile-hover size-2 sm:size-1 sm:group-focus-within:size-2 sm:group-hover:size-2',
+                    ]"
                 ></div>
             </div>
 
@@ -199,7 +205,7 @@ defineExpose({ progressTooltip });
                 :aria-valuemax="timeDuration"
                 :aria-valuenow="`${timeElapsed as number}`"
                 :aria-valuetext="timeElapsedVerbose"
-                :class="cn('slider pointer-events-auto absolute top-0 left-0 h-2! w-full items-center', 'outline-white focus:not-focus-within:outline-none')"
+                :class="cn('slider pointer-events-auto absolute top-0 left-0 h-2! w-full items-center', 'focus:outline-none')"
                 :style="{
                     '--thumb-color': 'ffffff00',
                     '--track-color': 'ffffff00',
@@ -216,7 +222,7 @@ defineExpose({ progressTooltip });
     transform: translateX(var(--thumb-offset));
 }
 
-.group:hover .thumb {
+.group:hover .thumb .group:focus-within .thumb {
     --thumb-offset: 0px;
 }
 
@@ -249,7 +255,8 @@ defineExpose({ progressTooltip });
     background: #111827;
 }
 
-.group:hover .progress {
+.group:hover .progress,
+.group:focus-within .progress {
     --thumb-offset: var(--thumb-width);
 }
 
