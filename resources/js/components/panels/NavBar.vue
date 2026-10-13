@@ -183,7 +183,8 @@ watch(isDesktop, (now) => {
                     title="Toggle Transcript"
                     :label="'Transcript'"
                     :active="selectedSideBar === 'transcript'"
-                    :class="cn('transition-reveal overflow-hidden p-0', selectedSideBar === 'transcript' ? 'mx-0 w-8 opacity-100' : '-mx-0.5 w-0 opacity-0')"
+                    :class="cn('transition-reveal overflow-hidden p-0', selectedSideBar === 'transcript' ? 'mx-0 w-8 opacity-100' : 'pointer-events-none -mx-0.5 w-0 opacity-0')"
+                    :tabindex="selectedSideBar === 'transcript' ? 0 : -1"
                     @click="isShowingTranscript = false"
                 >
                     <ProiconsTextAlignLeft class="size-6" stroke-width="0.0" />
