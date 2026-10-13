@@ -15,12 +15,12 @@ defineEmits<{ remove: []; restore: [] }>();
 
 const status = computed(() => {
     if (props.entry.originalType === null) return 'new';
-    return props.entry.type === props.entry.originalType ? null : 'changed';
+    return props.entry.type === props.entry.originalType ? null : 'edited';
 });
 </script>
 
 <template>
-    <div :class="cn('bg-surface-2 dark:bg-surface-2/70 flex items-stretch rounded-lg ring-1 ring-gray-900/5 transition-opacity', { 'opacity-65': entry.isRemoved })">
+    <div :class="cn('bg-surface-2 dark:bg-surface-2/70 group relative flex items-stretch rounded-lg ring-1 ring-gray-900/5 transition-opacity', { 'opacity-65': entry.isRemoved })">
         <BlurhashImage
             alt="Poster"
             loading="lazy"
@@ -31,12 +31,18 @@ const status = computed(() => {
             class="h-full w-full object-cover"
         />
 
+        <span
+            v-if="!entry.isRemoved && status"
+            class="bg-primary/40 group-hover:bg-primary/80 absolute top-1 left-1 z-2 rounded-md px-1.5 py-0.5 leading-none text-white transition-colors sm:text-xs"
+        >
+            {{ status }}
+        </span>
+
         <div class="flex min-w-0 flex-1 flex-col justify-between gap-2 p-2">
             <div class="text-foreground-2 flex items-start gap-2">
                 <div class="min-w-0 flex-1 space-y-1">
                     <p :title="entry.title" :class="cn('text-foreground-0 truncate text-sm font-medium', { 'line-through': entry.isRemoved })">
                         {{ entry.title }}
-                        <span v-if="!entry.isRemoved && status" class="bg-primary rounded-full px-1.5 text-xs text-white lowercase">{{ status }}</span>
                     </p>
                     <p class="truncate text-xs">{{ entry.library || 'Unknown library' }}</p>
                 </div>
