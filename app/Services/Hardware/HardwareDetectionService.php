@@ -115,7 +115,7 @@ class HardwareDetectionService {
     /**
      * Linux QSV detection using vaapi and a specific device path
      */
-    private function validateQsvVaapi(string $devicePath): bool {
+    private function validateQsvVaapi(?string $devicePath): bool {
         if (! $devicePath) {
             return false;
         }
