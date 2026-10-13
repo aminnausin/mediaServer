@@ -157,7 +157,7 @@ class Series extends Model {
         ]);
 
         // should sort this by type or something
-        return $direct->concat($inverse)->filter(fn ($r) => $r['type'] !== null)->values();
+        return $direct->concat($inverse)->filter(fn ($r) => $r['type'] !== null)->sortBy(fn ($r) => $r['series']->id)->values();
     }
 
     // This is only for demo reset so it is not super important, only include fields that may have bad content
