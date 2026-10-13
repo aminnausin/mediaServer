@@ -354,9 +354,9 @@ export const useContentStore = defineStore('Content', () => {
     function updateFolderData(data: SeriesResource) {
         if (!data?.id) return;
 
-        if (data.folder_id === stateFolder.value.id) stateFolder.value = { ...stateFolder.value, series: { ...data } };
+        if (data.folder_id === stateFolder.value.id) stateFolder.value = { ...stateFolder.value, series: { ...stateFolder.value.series, ...data } };
 
-        const updatedFolders = (stateDirectory.value.folders ?? []).map((folder) => (folder.id === data.folder_id ? { ...folder, series: { ...data } } : folder));
+        const updatedFolders = (stateDirectory.value.folders ?? []).map((folder) => (folder.id === data.folder_id ? { ...folder, series: { ...folder.series, ...data } } : folder));
 
         stateDirectory.value = {
             ...stateDirectory.value,
