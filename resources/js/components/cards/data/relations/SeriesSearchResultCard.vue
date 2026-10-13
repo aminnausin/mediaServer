@@ -13,7 +13,7 @@ defineProps<{ series: SeriesResource; posterUrl: string }>();
     <ButtonBase
         :use-size="false"
         type="button"
-        class="group data-card library-card bg-surface-2 dark:bg-surface-1/50 flex-row items-stretch gap-0 rounded-sm text-left shadow-none"
+        class="group data-card library-card bg-surface-2 dark:bg-surface-1/50 flex-row items-stretch gap-0 rounded-md text-left shadow-none"
     >
         <BlurhashImage
             alt="Poster"
@@ -21,14 +21,14 @@ defineProps<{ series: SeriesResource; posterUrl: string }>();
             :src="posterUrl"
             :blurhash="series.poster_image?.blur_hash"
             :animate="false"
-            wrapper-class="relative aspect-2/3 w-11 shrink-0 overflow-hidden bg-black/10 rounded-l-sm"
+            wrapper-class="relative aspect-2/3 w-11 shrink-0 overflow-hidden bg-black/10 rounded-l-md"
             class="size-full object-cover"
         />
 
-        <div class="hover:bg-surface-3/70 flex min-w-0 flex-1 items-center justify-between gap-3 rounded-r-sm p-2 transition-colors">
+        <div class="hover:bg-surface-3/70 flex min-w-0 flex-1 items-center justify-between gap-3 rounded-r-md p-2 transition-colors">
             <div class="flex min-w-0 flex-1 flex-col justify-center gap-1">
                 <p class="truncate">{{ series.title }}</p>
-                <p class="text-foreground-2 truncate text-xs">
+                <p v-if="series.library_name" class="text-foreground-2 truncate text-xs">
                     {{ series.library_name }}
                 </p>
             </div>

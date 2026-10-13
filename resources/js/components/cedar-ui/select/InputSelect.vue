@@ -22,10 +22,21 @@ const props = withDefaults(defineProps<SelectProps & { loadDefaultOnDisabled?: b
 });
 
 const emit = defineEmits(['selectItem']);
+const model = defineModel<string | number | null>();
+
 const selectButton = useTemplateRef('selectButton');
 const selectableItemsList = useTemplateRef('selectableItemsList');
 const selectableItemsRoot = useTemplateRef('selectableItemsRoot');
 const select = useSelect(props.options, { selectableItemsList, selectButton });
+
+const state = select as unknown as { selectedItem: unknown };
+
+const syncModel = () => {
+    const item = props.options.find((option) => option.value === model.value);
+    if (item) state.selectedItem = item;
+};
+
+syncModel();
 
 const closeFocusOutTimeout = ref<number | null>(null);
 
@@ -39,6 +50,7 @@ const handleItemClick = (item: any, setFocus = true) => {
 
     if (setFocus) selectButton.value?.focus();
     emit('selectItem', select.selectedItem);
+    model.value = item.value;
 };
 
 const handleItemHover = (item: any) => {
@@ -78,8 +90,10 @@ watch(
     () => props.options,
     () => {
         select.selectableItems = props.options;
+        syncModel();
     },
 );
+watch(model, syncModel);
 watch(
     selectButton,
     () => {

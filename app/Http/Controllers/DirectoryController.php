@@ -100,10 +100,6 @@ class DirectoryController extends Controller {
             'series.primaryPoster',
             'series.primaryBanner',
             'series.images.user',
-            'series.directRelations.folder',
-            'series.directRelations.primaryPoster',
-            'series.inverseRelations.folder',
-            'series.inverseRelations.primaryPoster',
         ])
             ->where('category_id', $categoryId)
             ->orderBy('name')
@@ -123,6 +119,14 @@ class DirectoryController extends Controller {
             'videos.metadata.fonts' => function ($q) {
                 $q->select(Font::getVisibleFields());
             },
+            'series.folderTags.tag',
+            'series.primaryPoster',
+            'series.primaryBanner',
+            'series.images.user',
+            'series.directRelations.folder.category',
+            'series.directRelations.primaryPoster',
+            'series.inverseRelations.folder.category',
+            'series.inverseRelations.primaryPoster',
         ]);
 
         $request = Request::create('', 'GET', ['videos' => true]);

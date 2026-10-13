@@ -2,9 +2,9 @@
 import type { PopoverItem } from '@/types/types';
 
 import { onMounted, nextTick, computed, watch, provide, defineAsyncComponent, useTemplateRef } from 'vue';
+import { handleEditFolderImages, handleEditRelations } from '@/service/folder/folderActions';
 import { ButtonBase, ButtonIcon, ButtonText } from '@/components/cedar-ui/button';
 import { getScreenSizeRank, toTitleCase } from '@/service/util';
-import { handleEditFolderImages } from '@/service/folder/folderActions';
 import { startScanFilesTask } from '@/service/siteAPI';
 import { cn, toast, drawer } from '@aminnausin/cedar-ui';
 import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
@@ -232,6 +232,9 @@ provide(
                                     <span class="hidden leading-none sm:block">Play</span>
                                 </ButtonText>
                                 <ButtonIcon v-if="activeFolderTab?.name === 'images' && isAuthenticated" title="Edit Folder Images" @click="handleEditFolderImages(stateFolder)">
+                                    <IconEdit class="size-4" />
+                                </ButtonIcon>
+                                <ButtonIcon v-if="activeFolderTab?.name === 'relations' && isAuthenticated" title="Edit Relations" @click="handleEditRelations(stateFolder)">
                                     <IconEdit class="size-4" />
                                 </ButtonIcon>
                                 <ButtonIcon

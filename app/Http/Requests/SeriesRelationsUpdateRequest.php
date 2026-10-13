@@ -24,7 +24,7 @@ class SeriesRelationsUpdateRequest extends FormRequest {
         return [
             'upserts' => ['sometimes', 'array'],
             'upserts.*.series_id' => ['required', 'integer', 'distinct', 'exists:series,id', Rule::notIn([$this->route('series')->id])],
-            'upserts.*.type' => ['required', Rule::enum(SeriesRelationType::class)->except([SeriesRelationType::PARENT, SeriesRelationType::PREQUEL])],
+            'upserts.*.type' => ['required', Rule::enum(SeriesRelationType::class)->except([SeriesRelationType::PARENT])],
             'deletes' => ['sometimes', 'array'],
             'deletes.*' => 'integer|distinct',
         ];
