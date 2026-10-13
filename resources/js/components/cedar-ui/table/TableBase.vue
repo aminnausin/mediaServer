@@ -50,7 +50,7 @@ const sortAscending = ref(props.startAscending);
 const lastSortKey = ref('');
 
 // Search Query
-const model = defineModel<string>({
+const model = defineModel<string | undefined>({
     required: false,
     default: undefined,
 });
