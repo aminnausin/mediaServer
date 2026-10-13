@@ -27,10 +27,10 @@ const RELATION_TYPE_OPTIONS = [
     { title: 'Spin Off', value: 'spinoff' },
     { title: 'Side Story', value: 'side_story' },
     { title: 'Summary', value: 'summary' },
+    { title: 'Soundtrack', value: 'soundtrack' },
     { title: 'Alternative', value: 'alternative' },
     { title: 'Related', value: 'related' },
     { title: 'Parent', value: 'parent' },
-    { title: 'Soundtrack', value: 'soundtrack' },
 ];
 
 const ASSIGNABLE_OPTIONS = RELATION_TYPE_OPTIONS.filter((option) => option.value !== 'parent');
