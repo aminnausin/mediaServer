@@ -12,6 +12,7 @@ enum SeriesRelationType: string {
     case RELATED = 'related';
     case PARENT = 'parent';
     case SOUNDTRACK = 'soundtrack';
+    case MAIN_SERIES = 'main_series';
 
     public function inverse(): ?self {
         return match ($this) {
@@ -20,7 +21,8 @@ enum SeriesRelationType: string {
             self::SPINOFF => self::PARENT,
             self::SIDE_STORY => self::PARENT,
             self::SUMMARY => self::PARENT,
-            self::SOUNDTRACK => self::PARENT,
+            self::SOUNDTRACK => self::MAIN_SERIES,
+            self::MAIN_SERIES => self::SOUNDTRACK,
             self::PARENT => null,
             self::ALTERNATIVE, self::RELATED => $this,
         };
@@ -28,7 +30,7 @@ enum SeriesRelationType: string {
 
     public function isStorable(): bool {
         return match ($this) {
-            self::PREQUEL, self::PARENT => false,
+            self::PREQUEL, self::PARENT, self::MAIN_SERIES => false,
             default => true,
         };
     }
@@ -37,6 +39,7 @@ enum SeriesRelationType: string {
         return match ($this) {
             self::SPINOFF => 'Spin Off',
             self::SIDE_STORY => 'Side Story',
+            self::MAIN_SERIES => 'Main Series',
             default => ucfirst($this->value),
         };
     }

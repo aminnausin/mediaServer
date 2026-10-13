@@ -28,6 +28,7 @@ const RELATION_TYPE_OPTIONS = [
     { title: 'Side Story', value: 'side_story' },
     { title: 'Summary', value: 'summary' },
     { title: 'Soundtrack', value: 'soundtrack' },
+    { title: 'Soundtrack for', value: 'main_series' },
     { title: 'Alternative', value: 'alternative' },
     { title: 'Related', value: 'related' },
     { title: 'Parent', value: 'parent' },
@@ -96,6 +97,8 @@ async function runSearch(q: string) {
     }
 }
 
+const seriesTitle = props.resource.title;
+
 watch(query, (value) => {
     clearTimeout(searchTimeout);
 
@@ -118,13 +121,6 @@ function handleAdd(series: SeriesResource) {
     entries.value.push(toEntry(series, series.title ?? '', 'related', null));
     query.value = '';
     form.clearErrors();
-}
-
-function handleChange(seriesId: number, value: string) {
-    entries.value = entries.value.map((entry) => {
-        if (entry.seriesId === seriesId) return { ...entry, type: value };
-        else return entry;
-    });
 }
 
 function handleRemove(entry: FolderRelationEntry) {
@@ -214,7 +210,7 @@ const handleSubmit = () => {
                 <li v-for="entry in entries" :key="entry.seriesId">
                     <FolderRelationEntryCard :entry="entry" :disabled="form.processing" @remove="handleRemove(entry)" @restore="entry.isRemoved = false">
                         <InputSelect
-                            :model-value="entry.type"
+                            v-model="entry.type"
                             :name="`relation-type-${entry.seriesId}`"
                             :options="optionsFor(entry)"
                             :disabled="form.processing"
@@ -223,11 +219,6 @@ const handleSubmit = () => {
                             placeholder="Select relation type"
                             root-class="capitalize w-full min-w-0 whitespace-nowrap! text-xs"
                             class="h-7 ps-2! pe-1 dark:bg-neutral-700/30"
-                            @selectItem="
-                                (item: { value: string }) => {
-                                    handleChange(entry.seriesId, item.value);
-                                }
-                            "
                         />
                     </FolderRelationEntryCard>
                 </li>
