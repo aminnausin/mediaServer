@@ -186,6 +186,10 @@ class SeriesController extends Controller {
             'primaryPoster',
             'primaryBanner',
             'images.user',
+            'directRelations.folder.category',
+            'directRelations.primaryPoster',
+            'inverseRelations.folder.category',
+            'inverseRelations.primaryPoster',
         ]);
 
         return $series;
