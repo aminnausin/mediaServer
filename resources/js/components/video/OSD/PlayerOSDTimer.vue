@@ -57,12 +57,12 @@ defineExpose({ handleHide });
 
 <template>
     <Transition
-        :enter-from-class="enterFrom"
-        :enter-to-class="enterTo"
-        :enter-active-class="enterActive"
-        :leave-from-class="leaveFrom"
-        :leave-to-class="leaveTo"
-        :leave-active-class="leaveActive"
+        :enter-from-class="`${enterFrom}`"
+        :enter-to-class="`${enterTo}`"
+        :enter-active-class="`${enterActive}`"
+        :leave-from-class="`${leaveFrom}`"
+        :leave-to-class="`${leaveTo}`"
+        :leave-active-class="`${leaveActive}`"
         @after-leave="emit('onHide')"
     >
         <component :is="component" v-if="isVisible" :class="cn('transition-[scale,opacity]', $attrs.class)">
