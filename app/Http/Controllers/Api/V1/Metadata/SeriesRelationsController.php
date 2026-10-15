@@ -72,6 +72,6 @@ class SeriesRelationsController extends Controller {
             'inverseRelations.primaryPoster',
         ]);
 
-        return new SeriesResource($series)->relatedSeriesPayload();
+        return (new SeriesResource($series))->relatedSeriesPayload();
     }
 }
