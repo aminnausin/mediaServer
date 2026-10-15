@@ -4,6 +4,7 @@ import type { ComputedRef } from 'vue';
 
 import { handleEditRelations } from '@/service/folder/folderActions';
 
+import { useGetSeriesRelations } from '@/service/folder/queries';
 import { computed, inject, ref } from 'vue';
 import { MdiLightPlus } from '@/components/cedar-ui/icons';
 import { ButtonBase } from '@/components/cedar-ui/button';
@@ -21,15 +22,17 @@ declare type RelationType = 'files' | 'folders';
 
 defineProps<{ hideIfEmpty?: boolean; showTitle?: boolean }>();
 
-const { isAdmin } = useAuth();
-
 const router = useRouter();
 
-const folder = inject<ComputedRef<FolderResource>>('data');
 const data = inject<ComputedRef<SeriesResource>>('series');
+const folder = inject<ComputedRef<FolderResource>>('data');
+const seriesId = computed(() => data?.value?.id);
+
+const { data: relations } = useGetSeriesRelations(seriesId);
+const { isAdmin } = useAuth();
 
 const activeFilters = computed<RelationType[]>(() => ['folders']);
-const filteredRelations = computed(() => data?.value.related_series ?? []);
+const filteredRelations = computed(() => relations.value ?? []);
 const filteredType = ref<RelationType>(activeFilters.value[0]);
 </script>
 <template>

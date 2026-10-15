@@ -2,32 +2,34 @@
 import type { FolderRelationEditorProps } from '@/types/modals';
 import type { SeriesResource } from '@/types/resources';
 
-import { useContentStore } from '@/stores/ContentStore';
+import { useGetSeriesRelations } from '@/service/folder/queries';
 import { useQueryClient } from '@tanstack/vue-query';
 import { useModalStore } from '@/stores/ModalStore';
 import { BaseModal } from '@/components/cedar-ui/modal';
 import { toPlural } from '@/service/util';
+import { computed } from 'vue';
 
 import EditItemHeader from '@/components/headers/EditItemHeader.vue';
 import EditRelations from '@/components/forms/EditRelations.vue';
-
-const { updateFolderData } = useContentStore();
 
 const queryClient = useQueryClient();
 
 const modal = useModalStore();
 const modalProps = modal.getProps<FolderRelationEditorProps>();
 
-const handleSeriesUpdate = (data?: SeriesResource) => {
-    if (data) updateFolderData(data);
+const seriesId = computed(() => modalProps.seriesId);
+
+const { data: relations } = useGetSeriesRelations(seriesId);
+
+const handleSeriesUpdate = (_?: SeriesResource) => {
     modal.close();
     invalidateQueries();
 };
 
 const invalidateQueries = async () => {
     try {
-        if (!modalProps.queryKeys) return;
-        const QueriesToInvalidate: string[][] = modalProps.queryKeys;
+        const extraQueries = modalProps.queryKeys ?? [];
+        const QueriesToInvalidate: string[][] = [...extraQueries, ['series-relations']];
         QueriesToInvalidate.forEach(async (query) => {
             await queryClient.invalidateQueries({
                 queryKey: query,
@@ -50,6 +52,6 @@ const invalidateQueries = async () => {
                 :editor_id="modalProps.resource.editor_id"
             />
         </template>
-        <EditRelations v-bind="modalProps" @handleFinish="handleSeriesUpdate" />
+        <EditRelations v-bind="modalProps" @handleFinish="handleSeriesUpdate" :relations="relations ?? []" />
     </BaseModal>
 </template>

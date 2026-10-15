@@ -29,9 +29,9 @@ export interface FolderMetadataEditorProps {
 }
 
 export interface FolderRelationEditorProps {
-    resource: SeriesResource;
-    seriesId: number;
-    relations: SeriesRelation[];
     title?: string;
+    resource: SeriesResource;
+    relations: SeriesRelation[];
+    seriesId: number;
     queryKeys?: string[][];
 }

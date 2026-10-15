@@ -31,10 +31,10 @@ export function handleEditRelations(folder?: FolderResource) {
     const series = folder.series;
     const tooltipInfo = { titleTooltip: `UUID: ${series.uuid}` };
     modal.open<FolderRelationEditorProps>(EditFolderRelationsModal, {
-        resource: series,
         title: `Edit Folder Relations`,
+        resource: series,
+        relations: [],
         seriesId: series.id,
-        relations: series.related_series ?? [],
         ...tooltipInfo,
     });
 }

@@ -52,7 +52,7 @@ class SeriesResource extends JsonResource {
         ];
     }
 
-    private function relatedSeriesPayload(): array {
+    public function relatedSeriesPayload(): array {
         // should not lazy load
         return $this->allRelations()
             ->filter(fn ($r) => $r['series']->folder)

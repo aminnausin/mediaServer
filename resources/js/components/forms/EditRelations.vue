@@ -97,8 +97,6 @@ async function runSearch(q: string) {
     }
 }
 
-const seriesTitle = props.resource.title;
-
 watch(query, (value) => {
     clearTimeout(searchTimeout);
 

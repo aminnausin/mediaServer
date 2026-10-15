@@ -115,6 +115,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         // Images
         Route::patch('/images', [SeriesController::class, 'updateImages']);
         // Relations with other series(folders)
+        Route::get('/relations', [SeriesRelationsController::class, 'index']);
         Route::put('/relations', [SeriesRelationsController::class, 'update']);
         // Size History
         Route::get('/size-history', [SeriesController::class, 'sizeHistory']);

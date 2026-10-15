@@ -14,14 +14,16 @@ use Illuminate\Support\Facades\DB;
 class SeriesRelationsController extends Controller {
     use LogsModelChanges;
 
+    public function index(Series $series) {
+        return response()->json($this->relationsResponse($series));
+    }
+
     public function update(SeriesRelationsUpdateRequest $request, Series $series) {
         if ($this->syncRelations($series, $request->input('upserts', []), $request->input('deletes', []))) {
             $this->logModelChanges($series, ['relations_changed' => true], Auth::user());
         }
 
-        $series->load(['directRelations.folder', 'directRelations.primaryPoster', 'inverseRelations.folder', 'inverseRelations.primaryPoster']);
-
-        return response()->json(new SeriesResource($series));
+        return response()->json($this->relationsResponse($series));
     }
 
     private function syncRelations(Series $series, array $upserts, array $deletes): bool {
@@ -60,5 +62,16 @@ class SeriesRelationsController extends Controller {
 
             return $changed;
         });
+    }
+
+    private function relationsResponse(Series $series): array {
+        $series->load([
+            'directRelations.folder.category',
+            'directRelations.primaryPoster',
+            'inverseRelations.folder.category',
+            'inverseRelations.primaryPoster',
+        ]);
+
+        return new SeriesResource($series)->relatedSeriesPayload();
     }
 }

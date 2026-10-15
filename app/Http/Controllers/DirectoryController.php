@@ -123,10 +123,6 @@ class DirectoryController extends Controller {
             'series.primaryPoster',
             'series.primaryBanner',
             'series.images.user',
-            'series.directRelations.folder.category',
-            'series.directRelations.primaryPoster',
-            'series.inverseRelations.folder.category',
-            'series.inverseRelations.primaryPoster',
         ]);
 
         $request = Request::create('', 'GET', ['videos' => true]);
