@@ -46,6 +46,7 @@ const isLoadingSpotlight = computed(() => isLoadingRecentlyUpdated.value || isLo
 
 onMounted(() => {
     if (getScreenSizeRank() >= 3) useAppStore().cycleSideBar('feed', 'list-card');
+    useAppStore().pageTitle = 'Explore';
 });
 </script>
 
