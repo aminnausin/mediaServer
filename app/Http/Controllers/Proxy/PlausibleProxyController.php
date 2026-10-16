@@ -19,7 +19,12 @@ class PlausibleProxyController extends Controller {
         }
 
         $script = Cache::remember('plausible-script', now()->addHours(24), function () use ($scriptUrl) {
-            $response = Http::get($scriptUrl);
+            $request = Http::when(
+                app()->environment('local'),
+                fn ($request) => $request->withOptions(['verify' => false]),
+            );
+
+            $response = $request->get($scriptUrl);
             if (! $response->successful()) {
                 throw new \RuntimeException('Failed to fetch Plausible script');
             }
