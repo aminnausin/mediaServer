@@ -45,7 +45,7 @@ const invalidateQueries = async () => {
     <BaseModal>
         <template #title>{{ modalProps.title ?? 'Edit Relations' }}</template>
         <template #description>
-            <p>{{ modalProps.resource.title }} · {{ modalProps.resource.related_series.length }} relation{{ toPlural(modalProps.resource.related_series.length ?? 0) }}</p>
+            <p>{{ modalProps.resource.title }} · {{ relations?.length ?? 0 }} relation{{ toPlural(relations?.length ?? 0) }}</p>
             <EditItemHeader
                 v-if="modalProps.resource.edited_at && modalProps.resource.editor_id"
                 :edited_at="modalProps.resource.edited_at"
