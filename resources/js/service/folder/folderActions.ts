@@ -24,7 +24,7 @@ export function handleEditFolderImages(folder: FolderResource) {
 }
 
 export function handleEditRelations(folder?: FolderResource) {
-    if (!folder || !folder.series?.id || !folder.series?.uuid) return toast.error('ID Missing');
+    if (!folder?.series?.id || !folder.series?.uuid) return toast.error('ID Missing');
 
     const modal = useModalStore();
 
