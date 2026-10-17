@@ -1693,7 +1693,7 @@ defineExpose({
                         @seek-preview="handleSeekPreview"
                         @key-bind="handleKeyBinds"
                     >
-                        <VideoHeatmap :playback-data="playbackData" />
+                        <VideoHeatmap :playback-data="playbackData" :is-showing-controls="isShowingControls" />
                     </VideoTimeline>
 
                     <!-- Controls -->
