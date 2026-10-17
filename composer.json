@@ -17,6 +17,7 @@
         "hosmelq/laravel-pulse-schedule": "^1.0",
         "laravel/framework": "^11.31",
         "laravel/horizon": "^5.33",
+        "laravel/octane": "^2.21",
         "laravel/pulse": "^1.5",
         "laravel/reverb": "^1.0",
         "laravel/sanctum": "^4.0",
