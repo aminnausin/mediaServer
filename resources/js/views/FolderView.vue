@@ -2,9 +2,9 @@
 import type { PopoverItem } from '@/types/types';
 
 import { onMounted, nextTick, computed, watch, provide, defineAsyncComponent, useTemplateRef } from 'vue';
+import { handleEditFolderImages, handleEditRelations } from '@/service/folder/folderActions';
 import { ButtonBase, ButtonIcon, ButtonText } from '@/components/cedar-ui/button';
 import { getScreenSizeRank, toTitleCase } from '@/service/util';
-import { handleEditFolderImages } from '@/service/folder/folderActions';
 import { startScanFilesTask } from '@/service/siteAPI';
 import { cn, toast, drawer } from '@aminnausin/cedar-ui';
 import { ContextMenuItem } from '@/components/cedar-ui/context-menu';
@@ -26,13 +26,14 @@ import LayoutBase from '@/layouts/LayoutBase.vue';
 
 import ProiconsMoreVertical from '~icons/proicons/more-vertical';
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
+import LucideWaypoints from '@/components/icons/LucideWaypoints.vue';
 import ProiconsPhoto from '~icons/proicons/photo';
 import ProiconsPlay from '~icons/proicons/play';
 import ProiconsMenu from '~icons/proicons/menu';
 import IconShare from '@/components/icons/IconShare.vue';
 import IconEdit from '@/components/icons/IconEdit.vue';
 
-const VALID_TABS = new Set(['overview', 'files', 'images', 'metadata', 'stats']);
+const VALID_TABS = new Set(['overview', 'files', 'images', 'metadata', 'stats', 'relations']);
 
 const appStore = useAppStore();
 
@@ -47,6 +48,7 @@ const route = useRoute();
 
 const popover = useTemplateRef('popover');
 
+const FolderRelations = defineAsyncComponent(() => import('@/components/folders/FolderRelations.vue'));
 const FolderOverview = defineAsyncComponent(() => import('@/components/folders/FolderOverview.vue'));
 const FolderMetadata = defineAsyncComponent(() => import('@/components/folders/FolderMetadata.vue'));
 const FolderImages = defineAsyncComponent(() => import('@/components/folders/FolderImages.vue'));
@@ -66,6 +68,8 @@ const activeComponent = computed(() => {
             return FolderMetadata;
         case 'stats':
             return FolderStats;
+        case 'relations':
+            return FolderRelations;
         default:
             return null;
     }
@@ -94,6 +98,12 @@ const popoverItems = computed<PopoverItem[]>(() => [
         icon: ProiconsPhoto,
         text: 'Edit Images',
         action: () => handleEditFolderImages(stateFolder.value),
+        hidden: !isAuthenticated.value,
+    },
+    {
+        icon: LucideWaypoints,
+        text: 'Edit Relations',
+        action: () => handleEditRelations(stateFolder.value),
         hidden: !isAuthenticated.value,
     },
 ]);
@@ -159,14 +169,7 @@ watch(() => `${route.params.category}/${route.params.folder}`, reload, { immedia
 
 watch(
     () => route.params.tab,
-    (tab) => {
-        let parsedTab = tab as string;
-
-        if (!VALID_TABS.has(parsedTab)) {
-            parsedTab = 'overview';
-        }
-        setTab(parsedTab);
-    },
+    (tab) => setTab(VALID_TABS.has(tab as string) ? (tab as string) : 'overview'),
     { immediate: true },
 );
 
@@ -236,6 +239,9 @@ provide(
                                     <span class="hidden leading-none sm:block">Play</span>
                                 </ButtonText>
                                 <ButtonIcon v-if="activeFolderTab?.name === 'images' && isAuthenticated" title="Edit Folder Images" @click="handleEditFolderImages(stateFolder)">
+                                    <IconEdit class="size-4" />
+                                </ButtonIcon>
+                                <ButtonIcon v-if="activeFolderTab?.name === 'relations' && isAuthenticated" title="Edit Relations" @click="handleEditRelations(stateFolder)">
                                     <IconEdit class="size-4" />
                                 </ButtonIcon>
                                 <ButtonIcon

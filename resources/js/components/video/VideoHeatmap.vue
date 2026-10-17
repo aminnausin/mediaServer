@@ -4,7 +4,7 @@ import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { cn } from '@aminnausin/cedar-ui';
 
-const props = withDefaults(defineProps<{ playbackData: any[] }>(), { playbackData: () => [] });
+const props = withDefaults(defineProps<{ playbackData: any[]; isShowingControls?: boolean }>(), { playbackData: () => [] });
 const { playbackHeatmap } = storeToRefs(useAppStore());
 
 // Playback Heatmap Graph SVG
@@ -98,10 +98,12 @@ const heatMap = computed(() => {
     <svg
         :class="
             cn(
-                'pointer-events-none h-10 w-full origin-bottom transition-[opacity,scale,translate] duration-100 ease-in-out',
+                'pointer-events-none h-10 w-full origin-bottom',
                 'scale-y-100 opacity-65',
                 'sm:translate-y-0.5 sm:scale-y-0 sm:opacity-0',
                 'sm:peer-hover:translate-y-0 sm:peer-hover:scale-y-100 sm:peer-hover:opacity-65',
+                'transition-[opacity,scale,translate] duration-300 sm:duration-100',
+                isShowingControls ? 'opacity-65 ease-out' : 'opacity-0 ease-in',
             )
         "
         preserveAspectRatio="none"

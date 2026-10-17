@@ -22,10 +22,21 @@ const props = withDefaults(defineProps<SelectProps & { loadDefaultOnDisabled?: b
 });
 
 const emit = defineEmits(['selectItem']);
+const model = defineModel<string | number | null>();
+
 const selectButton = useTemplateRef('selectButton');
 const selectableItemsList = useTemplateRef('selectableItemsList');
 const selectableItemsRoot = useTemplateRef('selectableItemsRoot');
 const select = useSelect(props.options, { selectableItemsList, selectButton });
+
+const state = select as unknown as { selectedItem: unknown };
+
+const syncModel = () => {
+    const item = props.options.find((option) => option.value === model.value);
+    if (item) state.selectedItem = item;
+};
+
+syncModel();
 
 const closeFocusOutTimeout = ref<number | null>(null);
 
@@ -39,6 +50,7 @@ const handleItemClick = (item: any, setFocus = true) => {
 
     if (setFocus) selectButton.value?.focus();
     emit('selectItem', select.selectedItem);
+    model.value = item.value;
 };
 
 const handleItemHover = (item: any) => {
@@ -78,8 +90,10 @@ watch(
     () => props.options,
     () => {
         select.selectableItems = props.options;
+        syncModel();
     },
 );
+watch(model, syncModel);
 watch(
     selectButton,
     () => {
@@ -95,6 +109,24 @@ watch(
         select.selectableItemsList = selectableItemsList; // this composable is really bad
     },
     { immediate: true },
+);
+
+watch(
+    () => props.defaultItem,
+    (index, previous) => {
+        if (index == null || index < 0 || (props.disabled && !props.loadDefaultOnDisabled)) return;
+
+        const next = props.options[index];
+        if (!next) return;
+
+        const current = select.selectedItem as { value?: unknown } | null | undefined;
+        const prev = previous == null ? undefined : props.options[previous];
+
+        // only reset if nothing is selected or the the previous default is still selected => so if not dirty
+        if (current?.value !== undefined && (prev === undefined || current.value !== prev.value)) return;
+
+        handleItemClick(next, false);
+    },
 );
 </script>
 <template>

@@ -49,7 +49,8 @@ const filteredFolders = computed<FolderResource[]>(() => {
     return sortedFolders.value.filter((folder) => {
         const tags = folder.series?.folder_tags?.map((tag) => tag.name) ?? [];
         const strRepresentation = [
-            folder.title ?? folder.name,
+            folder.title ?? '',
+            folder.name,
             folder.id,
             folder.created_at,
             folder.updated_at,

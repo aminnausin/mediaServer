@@ -47,6 +47,10 @@
         color: black;
     }
     * {
+        outline-color: black;
+    }
+
+    html.dark * {
         outline-color: white;
     }
 }

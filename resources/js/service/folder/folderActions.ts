@@ -1,9 +1,10 @@
-import type { FolderImageEditorProps } from '@/types/modals';
+import type { FolderImageEditorProps, FolderRelationEditorProps } from '@/types/modals';
 import type { FolderResource } from '@/contracts/media';
 
 import { useModalStore } from '@/stores/ModalStore';
 import { toast } from '@aminnausin/cedar-ui';
 
+import EditFolderRelationsModal from '@/components/modals/EditFolderRelationsModal.vue';
 import EditFolderImagesModal from '@/components/modals/EditFolderImagesModal.vue';
 
 export function handleEditFolderImages(folder: FolderResource) {
@@ -18,6 +19,22 @@ export function handleEditFolderImages(folder: FolderResource) {
         folderResource: folder,
         images: folder.series.images ?? [],
         isMajorityAudio: folder.is_majority_audio,
+        ...tooltipInfo,
+    });
+}
+
+export function handleEditRelations(folder?: FolderResource) {
+    if (!folder?.series?.id || !folder.series?.uuid) return toast.error('ID Missing');
+
+    const modal = useModalStore();
+
+    const series = folder.series;
+    const tooltipInfo = { titleTooltip: `UUID: ${series.uuid}` };
+    modal.open<FolderRelationEditorProps>(EditFolderRelationsModal, {
+        title: `Edit Folder Relations`,
+        resource: series,
+        relations: [],
+        seriesId: series.id,
         ...tooltipInfo,
     });
 }

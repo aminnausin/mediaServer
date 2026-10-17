@@ -119,6 +119,10 @@ class DirectoryController extends Controller {
             'videos.metadata.fonts' => function ($q) {
                 $q->select(Font::getVisibleFields());
             },
+            'series.folderTags.tag',
+            'series.primaryPoster',
+            'series.primaryBanner',
+            'series.images.user',
         ]);
 
         $request = Request::create('', 'GET', ['videos' => true]);

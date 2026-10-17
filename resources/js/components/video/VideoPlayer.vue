@@ -1693,7 +1693,7 @@ defineExpose({
                         @seek-preview="handleSeekPreview"
                         @key-bind="handleKeyBinds"
                     >
-                        <VideoHeatmap :playback-data="playbackData" />
+                        <VideoHeatmap :playback-data="playbackData" :is-showing-controls="isShowingControls" />
                     </VideoTimeline>
 
                     <!-- Controls -->
@@ -2140,11 +2140,11 @@ defineExpose({
 }
 
 video::cue {
-    font-weight: normal !important;
-    background-color: transparent !important;
-    color: #ffffff !important;
+    font-weight: normal;
+    background-color: transparent;
+    color: #ffffff;
     font-family: var(--font-figtree);
-    text-shadow: 0px 0px 7px #000 !important;
+    text-shadow: 0px 0px 7px #000;
 }
 
 @supports selector(video::-webkit-media-text-track-container) {

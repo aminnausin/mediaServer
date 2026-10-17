@@ -44,7 +44,7 @@ const generatePreview = async () => {
 };
 </script>
 <template>
-    <FolderTab class="flex-1">
+    <FolderTab :class="{ 'flex-1': filteredImages.length === 0 }">
         <div class="bg-surface-3/50 dark:bg-surface-3 flex w-fit gap-0.5 rounded-lg p-0.5 text-xs">
             <ButtonBase
                 v-for="filter in activeFilters"

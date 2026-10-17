@@ -33,9 +33,11 @@ class FolderResource extends JsonResource {
             'is_majority_audio' => $this->series?->primary_media_type?->value === MediaType::AUDIO->value,
             'category_id' => $this->category_id,
             'series' => new SeriesResource($this->series),
-            'videos' => $this->when($request->videos, function () {
-                return VideoResource::collection($this->videos);
-            }),
+            'videos' => $this->when(
+                $request->videos && $this->relationLoaded('videos'),
+                fn () => VideoResource::collection($this->videos),
+                []
+            ),
             'scanned_at' => $this->created_at,
             'created_at' => $this->series?->created_at,
             'updated_at' => $this->series?->updated_at,

@@ -67,6 +67,8 @@ async function reload() {
 
 const sortingOptions = computed(() => mediaSortingOptions(stateFolder.value)) satisfies ComputedRef<GenericSortOption<VideoResource>[]>; // Idk what the point of using satisfies is
 
+const defaultSortIndex = computed(() => Math.max(sortingOptions.value.findIndex((option) => option.value === (stateFolder.value.is_majority_audio ? 'episode' : 'title'), 0)));
+
 const handleSort = (column: keyof VideoResource = 'file_modified_at', dir: SortDir = 1) => {
     playlistSort({ column, dir });
 };
@@ -166,6 +168,7 @@ watch(() => stateVideo.value, setVideoAsDocumentTitle, { immediate: false });
                     :selectedID="stateVideo?.id"
                     :startAscending="true"
                     :currentIndex="currentMediaIndex"
+                    :default-sort-index="defaultSortIndex"
                     v-model="searchQuery"
                 />
             </section>

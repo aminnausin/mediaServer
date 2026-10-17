@@ -57,6 +57,7 @@ const metadataItems = computed<{ label: string; items: { label: string; value: a
                 { label: 'Path', value: data.value.path, to: `/${data.value.category_id}/${data.value.title}` },
                 { label: 'UUID', value: data.value.series.uuid },
                 { label: 'ID', value: data.value.id },
+                { label: 'Series ID', value: data.value.series.id },
                 { label: 'Library ID', value: data.value.category_id, to: `/dashboard/libraries/${data.value.category_id}` },
             ].filter(Boolean) as { label: string; value: any; to?: string }[],
         },

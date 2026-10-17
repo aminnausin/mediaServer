@@ -80,6 +80,28 @@ class SeriesController extends Controller {
     }
 
     /**
+     * Simple search used for relations
+     */
+    public function search(Request $request) {
+        $q = trim((string) $request->query('q'));
+        abort_if(mb_strlen($q) < 2, 422);
+
+        $isAdmin = Gate::allows('admin');
+
+        $query = Series::query()->whereNotNull('folder_id')
+            ->where(
+                fn ($w) => $w
+                    ->where('title', 'ilike', "%{$q}%")
+                    ->orWhereHas('folder', fn ($f) => $f->where('name', 'ilike', "%{$q}%"))
+                    ->orWhereHas('folder.category', fn ($l) => $l->where('name', 'ilike', "%{$q}%"))
+            )
+            ->when(! $isAdmin, fn ($w) => $w->whereHas('folder.category', fn ($l) => $l->where('is_private', false)))
+            ->with(['folder.category', 'primaryPoster']);
+
+        return SeriesResource::collection($query->limit(10)->get());
+    }
+
+    /**
      * Update the specified resource in storage.
      */
     public function update(SeriesUpdateRequest $request, Series $series) {

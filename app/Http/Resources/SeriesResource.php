@@ -12,12 +12,14 @@ class SeriesResource extends JsonResource {
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array {
+        $library = $this->relationLoaded('folder') && $this->folder?->relationLoaded('category') ? $this->folder->category : null;
+
         return [
             'id' => $this->id,
             'uuid' => $this->uuid,
             'folder_id' => $this->folder_id,
             'editor_id' => $this->editor_id,
-            'title' => $this->title ?? $this->folder->name,
+            'title' => $this->title ?? $this->folder?->name,
             'description' => $this->description,
             'studio' => $this->studio,
             'rating' => $this->rating,
@@ -38,6 +40,33 @@ class SeriesResource extends JsonResource {
             'banner_image' => $this->whenLoaded('primaryBanner', fn () => $this->primaryBanner ? new ImageResource($this->primaryBanner) : null),
             'primary_banner_id' => $this->primary_banner_id,
             'images' => $this->whenLoaded('images', fn () => ImageResource::collection($this->images), []),
+
+            'related_series' => $this->when(
+                $this->relationLoaded('directRelations') && $this->relationLoaded('inverseRelations'),
+                fn () => $this->relatedSeriesPayload(),
+                [],
+            ),
+
+            'library_id' => $library?->id,
+            'library_name' => $library?->name,
         ];
+    }
+
+    public function relatedSeriesPayload(): array {
+        // should not lazy load
+        return $this->allRelations()
+            ->filter(fn ($r) => $r['series']->folder)
+            ->map(function ($r) {
+                $series = $r['series'];
+                $series->folder->setRelation('series', $series);
+
+                return [
+                    'type' => $r['type']->value,
+                    'label' => $r['type']->label(),
+                    'folder' => new FolderResource($series->folder),
+                ];
+            })
+            ->values()
+            ->all();
     }
 }

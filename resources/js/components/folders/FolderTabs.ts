@@ -9,6 +9,7 @@ import LucideLayoutDashboard from '~icons/lucide/layout-dashboard';
 import ProiconsInfoSquare from '~icons/proicons/info-square';
 import ProiconsVideoClip from '~icons/proicons/video-clip';
 import ProiconsMusicNote from '~icons/proicons/music-note';
+import LucideWaypoints from '@/components/icons/LucideWaypoints.vue';
 import ProiconsGraph from '~icons/proicons/graph';
 import ProiconsPhoto from '~icons/proicons/photo';
 
@@ -27,6 +28,7 @@ export function useFolderTabs(stateFolder: Ref<FolderResource>, isAudio: Compute
             description: stateFolder.value.edited_at ? `Edited ${toTimeSpan(stateFolder.value.edited_at, '')}` : 'Never Edited',
         },
         { name: 'stats', icon: ProiconsGraph, description: `Total Size ${formatFileSize(stateFolder.value.total_size ?? 0)}` },
+        { name: 'relations', icon: LucideWaypoints, description: `0 Related Items` },
     ])();
 
     const { activeTab: activeFolderTab, tabs } = storeToRefs(tabsStore);
