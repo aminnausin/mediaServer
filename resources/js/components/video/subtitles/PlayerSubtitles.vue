@@ -322,6 +322,7 @@ defineExpose({
                     :min="0.5"
                     :max="2"
                     :step="0.1"
+                    :default-value="1"
                     :action="handleSizeChange"
                     :wheel-action="handleSizeWheel"
                     :title="'Change Subtitle Font Size'"
