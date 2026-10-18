@@ -38,9 +38,9 @@ export default defineConfig({
         }),
         viteStaticCopy({
             targets: [
-                { src: 'node_modules/@jellyfin/libass-wasm/dist/js/subtitles-octopus.js', dest: 'lib/subtitles-octopus' },
-                { src: 'node_modules/@jellyfin/libass-wasm/dist/js/subtitles-octopus-worker.js', dest: 'lib/subtitles-octopus' },
-                { src: 'node_modules/@jellyfin/libass-wasm/dist/js/subtitles-octopus-worker.wasm', dest: 'lib/subtitles-octopus' },
+                { src: 'node_modules/@jellyfin/libass-wasm/dist/js/subtitles-octopus.js', dest: 'lib/subtitles-octopus', rename: { stripBase: true } },
+                { src: 'node_modules/@jellyfin/libass-wasm/dist/js/subtitles-octopus-worker.js', dest: 'lib/subtitles-octopus', rename: { stripBase: true } },
+                { src: 'node_modules/@jellyfin/libass-wasm/dist/js/subtitles-octopus-worker.wasm', dest: 'lib/subtitles-octopus', rename: { stripBase: true } },
             ],
         }),
         Icons({
