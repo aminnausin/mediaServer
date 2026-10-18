@@ -36,9 +36,9 @@ const emit = defineEmits<{ play: [] }>();
         <div class="media-info space-y-1 p-4 text-left">
             <div class="flex items-start gap-2">
                 <h3 class="line-clamp-2 text-base text-shadow-xs 2xl:text-xl" :title="`Title: ${media.title}`">{{ media.title }}</h3>
-                <div class="flex h-7 flex-1 items-center gap-1 *:pointer-events-none *:text-xs *:shadow-xs">
-                    <MediaTag class="text-foreground-1 dark:text-foreground-4 h-[1c] text-[10px]! 2xl:h-5">{{ media.metadata.codec }}</MediaTag>
-                    <MediaTag v-if="media.metadata.bitrate && media.metadata.codec === 'mp3'" class="3xl:block text-foreground-1 dark:text-foreground-4 hidden h-5">
+                <div class="flex h-6 flex-1 items-center gap-1 *:pointer-events-none *:shadow-xs 2xl:h-7">
+                    <MediaTag class="text-foreground-1 dark:text-foreground-4 text-[10px] leading-none 2xl:h-5 2xl:text-xs">{{ media.metadata.codec }}</MediaTag>
+                    <MediaTag v-if="media.metadata.bitrate && media.metadata.codec === 'mp3'" class="3xl:block text-foreground-1 dark:text-foreground-4 hidden h-5 text-xs">
                         {{ media.metadata.bitrate / 1000 }}kbps
                     </MediaTag>
                 </div>
