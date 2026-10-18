@@ -9,10 +9,13 @@ defineProps<{ media: VideoResource; isPaused: boolean }>();
 const emit = defineEmits<{ play: [] }>();
 </script>
 <template>
-    <div v-if="media.metadata?.poster_image?.path" class="pointer-events-auto h-full min-w-0 flex-col justify-center gap-6 p-8">
+    <div v-if="media.metadata?.poster_image?.path" class="h-full min-w-0 flex-col justify-center gap-6 p-8">
         <div
-            class="relative max-w-72 cursor-pointer 2xl:max-w-96 @min-[2048px]:max-w-lg"
-            :style="{ animation: 'spin 10s linear infinite', animationPlayState: isPaused ? 'paused' : 'running' }"
+            class="pointer-events-auto relative max-w-72 cursor-pointer overflow-clip rounded-full 2xl:max-w-96 @min-[2048px]:max-w-lg"
+            :style="{
+                animation: 'spin 10s linear infinite',
+                animationPlayState: isPaused ? 'paused' : 'running',
+            }"
             @click="emit('play')"
         >
             <BlurhashImage
@@ -30,14 +33,14 @@ const emit = defineEmits<{ play: [] }>();
                 <div class="size-[16%] rounded-full ring-2"></div>
             </div>
         </div>
-        <div class="space-y-1 p-4 text-left">
+        <div class="media-info space-y-1 p-4 text-left">
             <div class="flex items-start gap-2">
                 <h3 class="line-clamp-2 text-xl text-shadow-xs">{{ media.title }}</h3>
                 <div class="flex h-7 flex-1 items-center gap-1 *:pointer-events-none *:text-xs *:shadow-xs">
                     <MediaTag class="text-foreground-1 dark:text-foreground-4 h-5">{{ media.metadata.codec }}</MediaTag>
-                    <MediaTag v-if="media.metadata.bitrate && media.metadata.codec === 'mp3'" class="3xl:block text-foreground-1 dark:text-foreground-4 hidden h-5"
-                        >{{ media.metadata.bitrate / 1000 }}kbps</MediaTag
-                    >
+                    <MediaTag v-if="media.metadata.bitrate && media.metadata.codec === 'mp3'" class="3xl:block text-foreground-1 dark:text-foreground-4 hidden h-5">
+                        {{ media.metadata.bitrate / 1000 }}kbps
+                    </MediaTag>
                 </div>
             </div>
             <p class="truncate text-sm text-shadow-xs">
@@ -49,3 +52,9 @@ const emit = defineEmits<{ play: [] }>();
         </div>
     </div>
 </template>
+<style lang="css" scoped>
+h3,
+.media-info > p {
+    pointer-events: auto;
+}
+</style>

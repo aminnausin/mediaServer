@@ -281,6 +281,7 @@ defineExpose({ scrollToCurrent });
                 :album="stateVideo.album"
                 :lyrics="stateVideo.metadata?.lyrics"
                 :duration="timeDuration"
+                @play="emit('play')"
             />
             <template #fallback><p class="animate-pulse px-4 pt-10 text-xl">...</p> </template>
         </Suspense>
