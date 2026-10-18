@@ -2002,7 +2002,7 @@ defineExpose({
                 leave-to-class="opacity-0"
             >
                 <div
-                    :class="`absolute inset-0 size-full bg-neutral-950/10 backdrop-blur-lg transition-opacity duration-300`"
+                    :class="`absolute inset-0 size-full bg-neutral-950/20 backdrop-blur-lg transition-opacity duration-300`"
                     v-show="(isAudio || stateFolder.is_majority_audio) && isShowingLyrics"
                 />
             </Transition>
