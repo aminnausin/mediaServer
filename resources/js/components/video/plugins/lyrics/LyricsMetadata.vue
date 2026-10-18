@@ -11,7 +11,7 @@ const emit = defineEmits<{ play: [] }>();
 <template>
     <div v-if="media.metadata?.poster_image?.path" class="flex w-full min-w-0 flex-row gap-6 p-8 pt-12 2xl:h-full 2xl:flex-col 2xl:justify-center 2xl:pt-8">
         <div
-            class="pointer-events-auto relative max-w-32 cursor-pointer overflow-clip rounded-full lg:max-w-40 2xl:max-w-96 @min-[2048px]:max-w-lg"
+            class="pointer-events-auto relative aspect-square max-w-32 cursor-pointer overflow-clip rounded-full lg:max-w-40 2xl:max-w-96 @min-[2048px]:max-w-lg"
             :style="{
                 animation: 'spin 10s linear infinite',
                 animationPlayState: isPaused ? 'paused' : 'running',
@@ -33,7 +33,7 @@ const emit = defineEmits<{ play: [] }>();
                 <div class="size-[16%] rounded-full ring-2"></div>
             </div>
         </div>
-        <div class="media-info space-y-1 truncate p-4 text-left">
+        <div class="media-info space-y-1 p-4 text-left">
             <div class="flex items-start gap-2">
                 <h3 class="line-clamp-2 text-xl text-shadow-xs" :title="`Title: ${media.title}`">{{ media.title }}</h3>
                 <div class="flex h-7 flex-1 items-center gap-1 *:pointer-events-none *:text-xs *:shadow-xs">
@@ -46,7 +46,7 @@ const emit = defineEmits<{ play: [] }>();
             <p class="truncate text-sm text-shadow-xs" :title="`Artist: ${media.artist}`">
                 {{ media.artist }}
             </p>
-            <p class="line-clamp-2 text-sm text-wrap opacity-80 text-shadow-xs 2xl:truncate" :title="`Album: ${media.album}`">
+            <p class="line-clamp-2 text-sm text-wrap opacity-80 text-shadow-xs 2xl:line-clamp-1" :title="`Album: ${media.album}`">
                 {{ media.album }}
             </p>
         </div>
