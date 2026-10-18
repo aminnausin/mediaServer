@@ -9,10 +9,13 @@ defineProps<{ media: VideoResource; isPaused: boolean }>();
 const emit = defineEmits<{ play: [] }>();
 </script>
 <template>
-    <div v-if="media.metadata?.poster_image?.path" class="pointer-events-auto h-full min-w-0 flex-col justify-center gap-6 p-8">
+    <div v-if="media.metadata?.poster_image?.path" class="flex w-full min-w-0 flex-row gap-6 p-8 pt-12 2xl:h-full 2xl:flex-col 2xl:justify-center 2xl:pt-8">
         <div
-            class="relative max-w-72 cursor-pointer 2xl:max-w-96 @min-[2048px]:max-w-lg"
-            :style="{ animation: 'spin 10s linear infinite', animationPlayState: isPaused ? 'paused' : 'running' }"
+            class="pointer-events-auto relative aspect-square max-w-32 cursor-pointer overflow-clip rounded-full 2xl:max-w-96 @min-[2048px]:max-w-lg"
+            :style="{
+                animation: 'spin 10s linear infinite',
+                animationPlayState: isPaused ? 'paused' : 'running',
+            }"
             @click="emit('play')"
         >
             <BlurhashImage
@@ -30,22 +33,28 @@ const emit = defineEmits<{ play: [] }>();
                 <div class="size-[16%] rounded-full ring-2"></div>
             </div>
         </div>
-        <div class="space-y-1 p-4 text-left">
+        <div class="media-info space-y-1 p-4 text-left">
             <div class="flex items-start gap-2">
-                <h3 class="line-clamp-2 text-xl text-shadow-xs">{{ media.title }}</h3>
-                <div class="flex h-7 flex-1 items-center gap-1 *:pointer-events-none *:text-xs *:shadow-xs">
-                    <MediaTag class="text-foreground-1 dark:text-foreground-4 h-5">{{ media.metadata.codec }}</MediaTag>
-                    <MediaTag v-if="media.metadata.bitrate && media.metadata.codec === 'mp3'" class="3xl:block text-foreground-1 dark:text-foreground-4 hidden h-5"
-                        >{{ media.metadata.bitrate / 1000 }}kbps</MediaTag
-                    >
+                <h3 class="line-clamp-2 text-base text-shadow-xs 2xl:text-xl" :title="`Title: ${media.title}`">{{ media.title }}</h3>
+                <div class="flex h-6 flex-1 items-center gap-1 *:pointer-events-none *:shadow-xs 2xl:h-7">
+                    <MediaTag class="text-foreground-1 dark:text-foreground-4 text-[10px] leading-none 2xl:h-5 2xl:text-xs">{{ media.metadata.codec }}</MediaTag>
+                    <MediaTag v-if="media.metadata.bitrate && media.metadata.codec === 'mp3'" class="3xl:block text-foreground-1 dark:text-foreground-4 hidden h-5 text-xs">
+                        {{ media.metadata.bitrate / 1000 }}kbps
+                    </MediaTag>
                 </div>
             </div>
-            <p class="truncate text-sm text-shadow-xs">
+            <p class="truncate text-shadow-xs 2xl:text-sm" :title="`Artist: ${media.artist}`">
                 {{ media.artist }}
             </p>
-            <p class="truncate text-sm opacity-80 text-shadow-xs">
+            <p class="line-clamp-2 text-wrap opacity-80 text-shadow-xs 2xl:line-clamp-1 2xl:text-sm" :title="`Album: ${media.album}`">
                 {{ media.album }}
             </p>
         </div>
     </div>
 </template>
+<style lang="css" scoped>
+h3,
+.media-info > p {
+    pointer-events: auto;
+}
+</style>

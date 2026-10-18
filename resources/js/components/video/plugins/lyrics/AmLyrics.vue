@@ -6,6 +6,8 @@ if (FLAGS.USE_AM_LYRICS) {
     await import('@aminnausin/am-lyrics/am-lyrics.js');
 }
 
+const emit = defineEmits<{ play: [] }>();
+
 const props = defineProps<{
     player: HTMLVideoElement | null;
     title?: string;
@@ -18,10 +20,11 @@ const props = defineProps<{
 
 const amLyrics = useTemplateRef<HTMLElement & { currentTime: number }>('am-lyrics');
 const hasMounted = ref(false);
-const hasStyled = ref(false);
 
+let amLyricsContainer: HTMLElement | null = null;
 let amLyricsTimeUpdate: (() => void) | null = null;
 let amLyricsLineClick: ((e: Event) => void) | null = null;
+let amLyricsContainerClick: ((e: MouseEvent) => void) | null = null;
 
 const initAmLyrics = async () => {
     const el = amLyrics.value;
@@ -56,18 +59,45 @@ const destroyAmLyrics = () => {
 
     amLyricsTimeUpdate = null;
     amLyricsLineClick = null;
+
+    if (amLyricsContainer && amLyricsContainerClick) {
+        amLyricsContainer.removeEventListener('click', amLyricsContainerClick);
+    }
+
+    amLyricsContainer = null;
+    amLyricsContainerClick = null;
 };
 
 const applyStyle = () => {
-    if (!amLyrics.value?.shadowRoot) return;
-    const style = document.createElement('style');
-    style.textContent = [
-        '.download-controls {margin-right: 20px !important; margin-top: -4px !important; align-items: start !important; height: 100% !important;}',
-        '.format-select {min-height: 20px !important;}',
-        '.download-button {height: 20px !important;}',
-    ].join('');
-    amLyrics.value.shadowRoot.appendChild(style);
-    hasStyled.value = true;
+    const shadowRoot = amLyrics.value?.shadowRoot;
+    if (!shadowRoot) return;
+
+    if (!shadowRoot.querySelector('#am-lyrics-styles')) {
+        const style = document.createElement('style');
+        style.id = 'am-lyrics-styles';
+        style.textContent = [
+            '.download-controls { margin-right: 20px !important; margin-top: -4px !important; align-items: start !important; height: 100% !important; }',
+            '.format-select { min-height: 20px !important; }',
+            '.download-button { height: 20px !important; }',
+            '.lyrics-line, .footer-content { pointer-events: auto !important; }',
+            '.lyrics-footer { pointer-events: none !important; }',
+            '.lyrics-container { pointer-events: auto !important; }',
+        ].join('');
+        shadowRoot.appendChild(style);
+    }
+
+    amLyricsContainer = shadowRoot.querySelector('.lyrics-container');
+    if (!amLyricsContainer) return;
+
+    amLyricsContainerClick = (e: MouseEvent) => {
+        const target = e.target;
+
+        if (!(target instanceof Element) || target.closest('.lyrics-line, .header-controls, .download-controls, .footer-content')) return;
+
+        emit('play');
+    };
+
+    amLyricsContainer.addEventListener('click', amLyricsContainerClick);
 };
 
 watch(
@@ -91,7 +121,7 @@ onUnmounted(() => {
         v-if="FLAGS.USE_AM_LYRICS && hasMounted"
         v-show="enabled"
         ref="am-lyrics"
-        class="pointer-events-auto! h-fit min-w-0 text-base"
+        class="h-fit min-w-0 text-base"
         :song-title="title"
         :song-artist="artist"
         :song-album="album"
