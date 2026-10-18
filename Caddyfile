@@ -1,0 +1,125 @@
+{
+	{$CADDY_GLOBAL_OPTIONS}
+
+	admin {$CADDY_SERVER_ADMIN_HOST}:{$CADDY_SERVER_ADMIN_PORT}
+
+	frankenphp {
+		worker {
+			file "{$APP_PUBLIC_PATH}/frankenphp-worker.php"
+			{$CADDY_SERVER_WORKER_DIRECTIVE}
+			{$CADDY_SERVER_WATCH_DIRECTIVES}
+		}
+	}
+}
+
+{$CADDY_EXTRA_CONFIG}
+
+{$APP_URL} {
+	log {
+		level {$CADDY_SERVER_LOG_LEVEL}
+
+		format filter {
+			wrap {$CADDY_SERVER_LOGGER}
+			fields {
+				request>uri query {
+					replace authorization REDACTED
+				}
+			}
+		}
+	}
+
+	route {
+		root * "{$APP_PUBLIC_PATH}"
+		encode zstd br gzip
+
+		header {
+			X-Frame-Options "SAMEORIGIN"
+			X-Content-Type-Options "nosniff"
+			Referrer-Policy "strict-origin-when-cross-origin"
+			Permissions-Policy "camera=(), microphone=(), geolocation=()"
+			-Server
+		}
+
+		@app path /app /app/*
+		handle @app {
+			reverse_proxy 127.0.0.1:6001
+		}
+
+		@iptv path /iptv
+		handle @iptv {
+			rewrite * /storage/media/anime/test/test.html
+			file_server
+		}
+
+		@hidden path /.ht* /.git/*
+		respond @hidden 404
+
+		@private_media path /storage/media/*
+		@valid_referrer header_regexp Referer ^https?://{$APP_HOST}(:[0-9]+)?(/|$)
+		handle @private_media {
+			handle @valid_referrer {
+				header Cache-Control "private, max-age=3600"
+				file_server
+			}
+			respond 403
+		}
+
+		@hashed_storage path_regexp hashed ^/storage/.*_[0-9a-f]{8,}\.(jpg|jpeg|png|gif|webp)$
+		handle @hashed_storage {
+			header Cache-Control "public, max-age=31536000, immutable"
+			file_server
+		}
+
+		@previews path_regexp previews ^/storage/.*/preview\.(webp|png|jpg|jpeg)$
+		handle @previews {
+			header Cache-Control "public, max-age=300"
+			file_server
+		}
+
+		@storyboards path_regexp storyboards ^/storage/.*/storyboard/[0-9]+\.(jpg|jpeg|webp)$
+		handle @storyboards {
+			header Cache-Control "private, max-age=30, must-revalidate"
+			file_server
+		}
+
+		@storage_fonts path_regexp storage_fonts ^/storage/.*\.(woff|woff2|ttf)$
+		handle @storage_fonts {
+			header Cache-Control "public, max-age=3600"
+			file_server
+		}
+
+		@storage_images path_regexp storage_images ^/storage/.*\.(jpg|jpeg|png|gif|webp)$
+		handle @storage_images {
+			header Cache-Control "public, max-age=3600"
+			file_server
+		}
+
+		@manifest path /manifest.json
+		handle @manifest {
+			header {
+				Cache-Control "public, max-age=3600"
+				Content-Type "application/json"
+				X-Served-By "frankenphp"
+			}
+			file_server
+		}
+
+		@assets path_regexp assets \.(js|css|map|woff|woff2|ttf)$
+		handle @assets {
+			header Cache-Control "public, max-age=31536000, immutable"
+			file_server
+		}
+
+		@images path_regexp images \.(jpg|jpeg|png|gif|webp|svg|ico)$
+		handle @images {
+			header Cache-Control "public, max-age=259200"
+			file_server
+		}
+
+		php_server {
+			index frankenphp-worker.php
+			try_files {path} frankenphp-worker.php
+			resolve_root_symlink
+		}
+	}
+}

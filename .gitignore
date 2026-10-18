@@ -48,3 +48,7 @@ stats.html
 /resources/js/routes/*
 /config/horizon-dynamic.php
 /storage/app/public/metadata/*
+
+**/caddy
+frankenphp
+frankenphp-worker.php
