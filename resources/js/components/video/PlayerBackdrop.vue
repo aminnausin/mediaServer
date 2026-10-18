@@ -3,13 +3,16 @@ import type { HTMLAttributes } from 'vue';
 
 import { handleStorageURL } from '@/service/util';
 import { inject } from 'vue';
+import { cn } from '@aminnausin/cedar-ui';
 
 import LazyImage from '@/components/lazy/LazyImage.vue';
 
 const isAudio = inject<boolean>('isAudio');
 
 const props = defineProps<{
+    isNormalView: boolean;
     isTheatreView: boolean;
+    isShowingLyrics?: boolean;
     isVisible?: boolean;
     isPlayerSizeConstrained?: boolean; // (isAudio OR isPortrait) AND isNormalView
     aspectRatio: {
@@ -33,7 +36,7 @@ const generatePosterStyle = (url?: string): HTMLAttributes['style'] => {
 
 <template>
     <Transition leave-from-class="opacity-100" leave-to-class="opacity-0" leave-active-class="absolute! inset-0 duration-700 transition-opacity ease-in-out">
-        <div v-if="isVisible" :class="['pointer-events-none z-3 size-full', { 'aspect-video': !isPlayerSizeConstrained }, { relative: isVisible }]">
+        <div v-if="isVisible" :class="cn('pointer-events-none z-3 size-full', { 'aspect-video': !isPlayerSizeConstrained, relative: isVisible })">
             <template v-if="isAudio">
                 <div
                     id="audio-poster"
@@ -44,7 +47,10 @@ const generatePosterStyle = (url?: string): HTMLAttributes['style'] => {
                     :src="posterUrl"
                     alt="album art"
                     wrapper-class="flex items-center justify-center"
-                    :class="['mx-auto min-h-64 object-contain select-none md:h-screen', { 'max-h-[71vh]': isPlayerSizeConstrained }, { 'max-h-screen': isTheatreView }]"
+                    :class="[
+                        'mx-auto min-h-64 object-contain select-none md:h-screen',
+                        { 'max-h-[71vh]': isPlayerSizeConstrained, 'max-h-screen': isTheatreView, 'aspect-square md:aspect-auto': isAudio && isNormalView && isShowingLyrics },
+                    ]"
                     loading="eager"
                     fetchpriority="high"
                 />

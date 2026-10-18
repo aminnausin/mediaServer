@@ -1500,8 +1500,8 @@ defineExpose({
                 @leavepictureinpicture="leavePictureInPicture"
             >
                 <track
-                    kind="captions"
                     v-if="playerSubtitles?.currentSubtitleTrack?.codec !== 'ass'"
+                    kind="captions"
                     :label="playerSubtitles?.currentSubtitleTrack?.language ?? 'und'"
                     :srclang="playerSubtitles?.currentSubtitleTrack?.language ?? 'und'"
                     :src="playerSubtitles?.currentSubtitleTrackUrl"
@@ -1513,6 +1513,8 @@ defineExpose({
                 :aspect-ratio="aspectRatio"
                 :poster-url="posterUrl"
                 :is-visible="isAudio || isThumbnailVisible"
+                :is-showing-lyrics="isShowingLyrics"
+                :is-normal-view="isNormalView"
                 :is-theatre-view="isTheatreView"
                 :is-player-size-constrained="isPlayerSizeConstrained"
             />
