@@ -267,11 +267,11 @@ defineExpose({ scrollToCurrent });
     <div
         :class="
             cn('@container pointer-events-none h-full w-full gap-4', {
-                'lg:grid-cols[3fr_5fr] lg:grid 2xl:grid-cols-[2fr_5fr]': showLyricsMetadata && stateVideo.metadata?.poster_image?.path,
+                'lg:grid-cols[3fr_5fr] flex flex-col lg:grid 2xl:grid-cols-[2fr_5fr]': showLyricsMetadata && stateVideo.metadata?.poster_image?.path,
             })
         "
     >
-        <LyricsMetadata v-show="showLyricsMetadata" :media="stateVideo" :is-paused="isPaused" @play="emit('play')" class="hidden 2xl:flex" />
+        <LyricsMetadata v-show="showLyricsMetadata" :media="stateVideo" :is-paused="isPaused" @play="emit('play')" />
         <Suspense v-if="FLAGS.USE_AM_LYRICS">
             <AmLyrics
                 :enabled="useAmLyrics && isShowingLyrics"
@@ -297,7 +297,7 @@ defineExpose({ scrollToCurrent });
             @wheel="handleUserScroll"
             @touchmove="handleUserScroll"
         >
-            <div class="shrink-0" style="height: 45%"></div>
+            <div :class="['shrink-0', showLyricsMetadata ? 'h-[8%] 2xl:h-[45%]' : 'h-[45%]']"></div>
             <VideoLyricItem
                 v-for="(lyric, index) in lyrics"
                 v-show="lyric.time || lyric.text.trim().length != 0"
