@@ -17,6 +17,7 @@ import PulseSlowRequests from '@/components/cards/pulse/PulseSlowRequests.vue';
 import PulseSlowQueries from '@/components/cards/pulse/PulseSlowQueries.vue';
 import ServerActivityCard from '@/components/cards/server/ServerActivityCard.vue';
 import PulseExceptions from '@/components/cards/pulse/PulseExceptions.vue';
+import DiskUsageCard from '@/components/cards/server/DiskUsageCard.vue';
 import PulseRequests from '@/components/cards/pulse/PulseRequests.vue';
 import PulseSlowJobs from '@/components/cards/pulse/PulseSlowJobs.vue';
 import PulseServers from '@/components/cards/pulse/PulseServers.vue';
@@ -112,17 +113,11 @@ onMounted(() => {
     <span class="mx-auto grid w-full grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
         <PulseServers :pulseData="pulseData" :isLoading="pulseLoading" cols="6" :rows="1" />
         <ServerActivityCard :period="period" />
-        <PulseUsage :pulseData="pulseData" :isLoading="pulseLoading" :period="period" :rows="4" class="lg:col-span-6 xl:col-span-2! xl:row-span-2" />
+        <PulseUsage :pulseData="pulseData" :isLoading="pulseLoading" :period="period" :rows="1" class="lg:col-span-6 2xl:col-span-2 2xl:col-start-5! 2xl:row-start-3" />
+        <DiskUsageCard :rows="1" cols="6" class="lg:col-span-6 2xl:col-span-4" />
 
-        <PulseQueues :pulseData="pulseData" :isLoading="pulseLoading" :period="period" :rows="2" class="xl:col-span-4 xl:col-start-1 xl:row-span-1 xl:row-start-3" />
-        <PulseRequests
-            v-if="pulseData"
-            :pulseData="pulseData"
-            :isLoading="pulseLoading"
-            :period="period"
-            :rows="2"
-            class="xl:col-span-4 xl:col-start-1 xl:row-span-1 xl:row-start-4"
-        />
+        <PulseQueues :pulseData="pulseData" :isLoading="pulseLoading" :period="period" :rows="2" />
+        <PulseRequests v-if="pulseData" :pulseData="pulseData" :isLoading="pulseLoading" :period="period" :rows="2" />
 
         <PulseSlowRequests v-if="pulseData" :pulse-data="pulseData" :is-loading="pulseLoading" :period="period" :rows="2" cols="3" />
         <PulseSlowJobs v-if="pulseData" :pulse-data="pulseData" :is-loading="pulseLoading" :period="period" :rows="2" :cols="3" />

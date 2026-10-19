@@ -74,8 +74,7 @@ const sampleRate = () => {
     <DashboardCard
         :cols="cols"
         :rows="rows"
-        :class="`col-span-2 lg:col-span-4`"
-        :name="`${'Application Usage'}`"
+        :name="'Usage'"
         :title="`Time: ${format_number(pulseData?.queues?.time ?? 0)}ms; Run at: ${pulseData?.servers?.runAt ? new Date(pulseData?.servers?.runAt).toLocaleDateString() : ''};`"
         :details="`past ${validPeriods.includes(period) ? periodForHumans(period) : periodForHumans(validPeriods[0])}`"
     >
@@ -100,7 +99,7 @@ const sampleRate = () => {
             </div>
         </template>
 
-        <PulseScroll :expand="false" :loading="isLoading ?? false">
+        <PulseScroll :expand="true" :loading="isLoading ?? false">
             <PulseNoResults :isLoading="isLoading" v-if="userRequestCounts?.length === 0" />
             <div v-else class="6xl:grid-cols-2 grid grid-cols-1 gap-2 overflow-visible @lg:grid-cols-2 @3xl:grid-cols-3">
                 <PulseUserCard v-for="userRequestCount in userRequestCounts" :key="userRequestCount.key" :user="userRequestCount.user">
