@@ -74,8 +74,8 @@ class DiskUsageController extends Controller {
     private function locations($hasFullAccess = false): array {
         $private = Storage::disk('local');
         $public = Storage::disk('public');
-        $metadataPath = $this->resolve($public, $this->config->get('metadata_path'));
-        $cachePath = $this->resolve($private, $this->config->get('cache_path'));
+        $metadataPath = $this->resolve($public, $this->config->get('metadata_path', 'storage/metadata'));
+        $cachePath = $this->resolve($private, $this->config->get('cache_path', 'cache/'));
 
         $locations = [
             ['metadata.videos', 'File Thumbnails', 'images', "$metadataPath/metadata"],
