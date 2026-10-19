@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\V1\PlaybackProgressController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\RecordController;
 use App\Http\Controllers\Api\V1\SeriesController;
+use App\Http\Controllers\Api\V1\Server\DiskUsageController;
 use App\Http\Controllers\Api\V1\Server\ServerConfigController;
 use App\Http\Controllers\Api\V1\Server\SetupController;
 use App\Http\Controllers\Api\V1\SessionController;
@@ -150,6 +151,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/clean', [JobController::class, 'cleanPaths']); // OLD
         Route::post('/cancel/{task}', [TaskController::class, 'cancel']);
     });
+});
+
+Route::prefix('server')->group(function () {
+    Route::get('/disk-usage', [DiskUsageController::class, 'index']);
 });
 
 //
