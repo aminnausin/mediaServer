@@ -18,7 +18,8 @@ use RecursiveIteratorIterator;
 class DiskUsageController extends Controller {
     private const SIZE_CACHE_TTL = 3600;
 
-    public function __construct(private ServerConfigService $config) {}
+    public function __construct(private ServerConfigService $config) {
+    }
 
     public function index(Request $request): JsonResponse {
         $refresh = $request->boolean('refresh');
@@ -75,7 +76,7 @@ class DiskUsageController extends Controller {
         $private = Storage::disk('local');
         $public = Storage::disk('public');
         $metadataPath = $this->resolve($public, $this->config->get('metadata_path', 'storage/metadata'));
-        $cachePath = $this->resolve($private, $this->config->get('cache_path', 'cache/'));
+        $cachePath = $this->resolve($private, $this->config->get('cache_path', 'storage/cache'));
 
         $locations = [
             ['metadata.videos', 'File Thumbnails', 'images', "$metadataPath/metadata"],
@@ -93,7 +94,7 @@ class DiskUsageController extends Controller {
         $mediaRoot = $this->normalise($public->path('media'));
 
         $libraries = Category::query()
-            ->when(! $hasFullAccess, fn ($query) => $query->where('is_private', false))
+            ->when(! $hasFullAccess, fn($query) => $query->where('is_private', false))
             ->with('folders.series')
             ->orderBy('name')
             ->get();
@@ -105,7 +106,7 @@ class DiskUsageController extends Controller {
                 'library',
                 "$mediaRoot/$library->name",
                 $library->folders->sum(
-                    fn ($folder) => $folder->series?->total_size ?? 0,
+                    fn($folder) => $folder->series?->total_size ?? 0,
                 ),
             ];
         }
