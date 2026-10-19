@@ -279,6 +279,10 @@
         @apply hover:ring-primary-muted hover:dark:ring-primary focus-within:ring-primary-muted dark:focus-within:ring-primary;
     }
 
+    .data-card.pulse-card {
+        @apply bg-surface-2 hover:bg-surface-2 rounded-md p-4 shadow-xs ring-1 ring-gray-900/5 ring-inset;
+    }
+
     .content-auto {
         content-visibility: auto;
         contain-intrinsic-size: auto 64px;
