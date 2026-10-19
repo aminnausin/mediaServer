@@ -10,11 +10,11 @@ import TranscriptStatus from '@/components/video/transcript/TranscriptStatus.vue
 import DashboardCard from '@/components/cards/layout/DashboardCard.vue';
 
 import ProiconsAlertTriangle from '~icons/proicons/alert-triangle';
+import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsDatabase from '~icons/proicons/database';
-import LucideHardDrive from '~icons/lucide/hard-drive';
-import LucideRefreshCw from '~icons/lucide/refresh-cw';
 import ProiconsLibrary from '~icons/proicons/library';
 import CircumServer from '~icons/circum/server';
+import IconServer from '@/components/icons/IconServer.vue';
 
 const panel = 'data-card pulse-card flex gap-3 flex-col';
 const skeleton = 'animate-pulse motion-reduce:animate-none bg-neutral-200 dark:bg-neutral-700';
@@ -77,7 +77,7 @@ const disks = computed(() =>
 <template>
     <DashboardCard cols="2" :rows="2" name="Storage" title="Disk usage">
         <template #icon>
-            <LucideHardDrive class="h-6 w-6" />
+            <IconServer class="h-6 w-6" />
         </template>
         <template #actions>
             <ButtonBase
@@ -89,7 +89,7 @@ const disks = computed(() =>
                 :use-size="false"
                 @click="refresh()"
             >
-                <LucideRefreshCw :class="['h-4 w-4', { 'animate-spin': refreshing }]" />
+                <ProiconsArrowSync :class="['h-4 w-4', { 'animate-spin': refreshing }]" />
             </ButtonBase>
         </template>
 
@@ -104,7 +104,7 @@ const disks = computed(() =>
                 <ProiconsAlertTriangle class="size-4 sm:size-5" />
             </template>
             <template #buttonIcon>
-                <LucideRefreshCw class="size-3.5" />
+                <ProiconsArrowSync class="size-3.5" />
             </template>
         </TranscriptStatus>
 
@@ -187,7 +187,7 @@ const disks = computed(() =>
                     <span class="ml-auto">{{ formatFileSize(appData.total) }}</span>
                 </div>
 
-                <div class="flex h-2 w-full gap-px overflow-hidden rounded-full">
+                <div class="flex h-4 w-full gap-px overflow-hidden rounded-sm">
                     <div v-for="segment in appData.segments" :key="segment.key" :class="segment.color" class="min-w-0.5" :style="{ width: `${segment.percent}%` }"></div>
                 </div>
 
