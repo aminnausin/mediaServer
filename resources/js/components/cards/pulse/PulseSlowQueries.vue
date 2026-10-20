@@ -106,7 +106,7 @@ const config = computed(() => {
                                 <PulseTd class="max-w-px truncate p-0!">
                                     <div class="relative">
                                         <div
-                                            class="dark:bg-surface-1 text-foreground-i dark:text-foreground-0 block overflow-x-auto rounded-l-md bg-neutral-800 py-4 text-xs whitespace-nowrap [scrollbar-color:var(--color-neutral-500)_transparent] [scrollbar-width:thin]"
+                                            class="dark:bg-surface-1 text-foreground-i dark:text-foreground-0 block scrollbar-thin [scrollbar-color:var(--color-neutral-500)_transparent] overflow-x-auto rounded-l-md bg-neutral-800 py-4 text-xs whitespace-nowrap"
                                         >
                                             <code class="px-3 whitespace-nowrap" v-html="query.sql"></code>
                                             <p v-if="query.location" class="mt-3 px-3 leading-none text-neutral-400">

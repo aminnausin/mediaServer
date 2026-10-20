@@ -75,11 +75,11 @@ function scale(data: { [key: string]: any }) {
 
         <PulseScroll :expand="true" :loading="isLoading ?? true">
             <PulseNoResults :isLoading="isLoading" v-if="!requests || (Object.keys(requests)?.length ?? 0) == 0" />
-            <div v-else-if="requests" class="mx-px mb-px grid gap-3">
+            <div v-else-if="requests" class="mx-px mb-px grid gap-3 pb-2">
                 <div v-for="request in Object.keys(requests)" :key="request">
                     <div class="relative mt-3">
                         <div
-                            class="bg-primary-muted after:border-l-primary-muted absolute -top-2 -left-px flex h-4 max-w-fit items-center rounded-sm px-1 text-xs leading-none font-bold text-white after:absolute after:top-[calc(50%-var(--triangle-size))] after:right-[calc(-1*var(--triangle-size))] after:border-t-(length:--triangle-size) after:border-b-(length:--triangle-size) after:border-l-(length:--triangle-size) after:border-transparent after:[--triangle-size:4px]"
+                            class="bg-primary-muted after:border-l-primary-muted absolute -top-2 -left-px flex h-4 max-w-fit items-center rounded-sm px-1 text-xs leading-none font-bold text-white after:absolute after:top-[calc(50%-var(--triangle-size))] after:-right-(--triangle-size) after:border-t-(length:--triangle-size) after:border-b-(length:--triangle-size) after:border-l-(length:--triangle-size) after:border-transparent after:[--triangle-size:4px]"
                         >
                             <span
                                 v-if="config.sample_rate && pulseData.requests.config.sample_rate < 1"

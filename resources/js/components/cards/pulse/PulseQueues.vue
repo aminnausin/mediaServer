@@ -70,7 +70,7 @@ function scale(data: { [key: string]: any }) {
 
         <PulseScroll :expand="true" :loading="isLoading ?? true">
             <PulseNoResults :isLoading="isLoading" v-if="!queues || (Object.keys(queues)?.length ?? 0) == 0" />
-            <div v-else-if="queues" class="mx-px mb-px grid gap-3">
+            <div v-else-if="queues" class="mx-px mb-px grid gap-3 pb-2">
                 <div v-for="queue in Object.keys(queues)" :key="queue">
                     <h3 class="text-foreground-6 font-bold">
                         <template v-if="pulseData?.queues?.showConnection">
@@ -82,7 +82,7 @@ function scale(data: { [key: string]: any }) {
                     </h3>
                     <div class="relative mt-3">
                         <div
-                            class="bg-primary-muted after:border-l-primary-muted absolute -top-2 -left-px flex h-4 max-w-fit items-center rounded-sm px-1 text-xs leading-none font-bold text-white after:absolute after:top-[calc(50%-var(--triangle-size))] after:right-[calc(-1*var(--triangle-size))] after:border-t-(length:--triangle-size) after:border-b-(length:--triangle-size) after:border-l-(length:--triangle-size) after:border-transparent after:[--triangle-size:4px]"
+                            class="bg-primary-muted after:border-l-primary-muted absolute -top-2 -left-px flex h-4 max-w-fit items-center rounded-sm px-1 text-xs leading-none font-bold text-white after:absolute after:top-[calc(50%-var(--triangle-size))] after:-right-(--triangle-size) after:border-t-(length:--triangle-size) after:border-b-(length:--triangle-size) after:border-l-(length:--triangle-size) after:border-transparent after:[--triangle-size:4px]"
                         >
                             <span
                                 v-if="pulseData?.queues?.config.sample_rate && pulseData.queues.config.sample_rate < 1"
