@@ -57,7 +57,7 @@ const breadCrumbs = computed(() => {
             icon: ProiconsHome2,
         },
         {
-            name: 'Dashboard',
+            name: 'Analytics',
             url: '/dashboard/analytics',
             icon: ProiconsGraph,
         },
