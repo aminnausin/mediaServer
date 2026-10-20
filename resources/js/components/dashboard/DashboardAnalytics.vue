@@ -17,7 +17,7 @@ import PulseSlowRequests from '@/components/cards/pulse/PulseSlowRequests.vue';
 import PulseSlowQueries from '@/components/cards/pulse/PulseSlowQueries.vue';
 import ServerActivityCard from '@/components/cards/server/ServerActivityCard.vue';
 import PulseExceptions from '@/components/cards/pulse/PulseExceptions.vue';
-import DiskUsageCard from '@/components/cards/server/DiskUsageCard.vue';
+import StorageStatsCard from '@/components/cards/server/StorageStatsCard.vue';
 import PulseRequests from '@/components/cards/pulse/PulseRequests.vue';
 import PulseSlowJobs from '@/components/cards/pulse/PulseSlowJobs.vue';
 import PulseServers from '@/components/cards/pulse/PulseServers.vue';
@@ -114,7 +114,7 @@ onMounted(() => {
         <PulseServers :pulseData="pulseData" :isLoading="pulseLoading" cols="6" :rows="1" />
         <ServerActivityCard :period="period" />
         <PulseUsage :pulseData="pulseData" :isLoading="pulseLoading" :period="period" :rows="1" class="lg:col-span-6 2xl:col-span-2 2xl:col-start-5! 2xl:row-start-3" />
-        <DiskUsageCard :rows="1" cols="6" class="lg:col-span-6 2xl:col-span-4" />
+        <StorageStatsCard :rows="1" cols="6" class="lg:col-span-6 2xl:col-span-4" />
 
         <PulseQueues :pulseData="pulseData" :isLoading="pulseLoading" :period="period" :rows="2" />
         <PulseRequests v-if="pulseData" :pulseData="pulseData" :isLoading="pulseLoading" :period="period" :rows="2" />
