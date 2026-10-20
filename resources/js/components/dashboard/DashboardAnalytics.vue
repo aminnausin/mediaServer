@@ -47,6 +47,7 @@ const { data: rawPulseData, isLoading: pulseLoading } = useGetPulse({ period });
 const { isAdmin } = useAuth();
 
 const pulseData = computed<PulseResponse>(() => rawPulseData.value?.data as PulseResponse);
+const serverCount = computed(() => Object.keys(pulseData.value?.servers.servers ?? {}).length);
 
 const breadCrumbs = computed(() => {
     const items: BreadCrumbItem[] = [
@@ -113,7 +114,13 @@ onMounted(() => {
     <span class="mx-auto grid w-full grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
         <PulseServers :pulseData="pulseData" :isLoading="pulseLoading" cols="6" :rows="1" />
         <ServerActivityCard :period="period" />
-        <PulseUsage :pulseData="pulseData" :isLoading="pulseLoading" :period="period" :rows="1" class="lg:col-span-6 2xl:col-span-2 2xl:col-start-5! 2xl:row-start-3" />
+        <PulseUsage
+            :pulseData="pulseData"
+            :isLoading="pulseLoading"
+            :period="period"
+            :rows="1"
+            :class="['lg:col-span-6 2xl:col-span-2 2xl:col-start-5! 2xl:row-start-3', { '2xl:row-start-2!': serverCount === 0 }]"
+        />
         <StorageStatsCard :rows="1" cols="6" class="lg:col-span-6 2xl:col-span-4" />
 
         <PulseQueues :pulseData="pulseData" :isLoading="pulseLoading" :period="period" :rows="2" />
