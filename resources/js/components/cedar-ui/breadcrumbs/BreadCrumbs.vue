@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { BreadCrumbItem } from '@aminnausin/cedar-ui';
 
+import { ButtonBase } from '@/components/cedar-ui/button';
 import { cn } from '@aminnausin/cedar-ui';
-import { ButtonBase } from '../button';
 
 withDefaults(defineProps<{ breadCrumbs: BreadCrumbItem[] }>(), { breadCrumbs: () => [] });
 </script>
@@ -28,7 +28,6 @@ withDefaults(defineProps<{ breadCrumbs: BreadCrumbItem[] }>(), { breadCrumbs: ()
                     >
                         <component v-if="breadCrumb.icon" :is="breadCrumb.icon" class="size-3.5 shrink-0" />
                         <span class="truncate capitalize">
-                            {{ breadCrumb.name }}
                             {{ breadCrumb.name }}
                         </span>
                     </ButtonBase>
