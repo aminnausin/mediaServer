@@ -117,8 +117,7 @@ withDefaults(
                 <div
                     v-for="segment in disk.segments"
                     :key="segment.key"
-                    :class="segment.colour"
-                    class="min-w-0.5"
+                    :class="[segment.colour, 'min-w-1']"
                     :style="{ width: `${segment.percent}%` }"
                     :title="`${segment.label} ${formatFileSize(segment.bytes)}`"
                 ></div>

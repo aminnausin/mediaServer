@@ -8,6 +8,7 @@ const props = withDefaults(
         name?: string;
         title?: string;
         details?: string | null;
+        headerClass?: string;
     }>(),
     {
         cols: 'full',
@@ -27,7 +28,7 @@ const props = withDefaults(
             )
         "
     >
-        <header class="mb-3 flex flex-wrap items-center justify-between gap-4">
+        <header :class="cn('mb-3 flex flex-wrap items-center justify-between gap-4', headerClass)">
             <div class="max-w-full flex-1 grow-10000 basis-0">
                 <div class="flex items-start gap-2 overflow-hidden">
                     <div class="[&>svg]:stroke-foreground-2 text-foreground-3 dark:text-neutral-400/80 [&>svg]:h-6 [&>svg]:w-6 [&>svg]:shrink-0 dark:[&>svg]:stroke-neutral-400/80">

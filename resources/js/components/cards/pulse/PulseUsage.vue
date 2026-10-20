@@ -77,6 +77,7 @@ const sampleRate = () => {
         :name="'Usage'"
         :title="`Time: ${format_number(pulseData?.queues?.time ?? 0)}ms; Run at: ${pulseData?.servers?.runAt ? new Date(pulseData?.servers?.runAt).toLocaleDateString() : ''};`"
         :details="`past ${validPeriods.includes(period) ? periodForHumans(period) : periodForHumans(validPeriods[0])}`"
+        header-class="2xl:mb-0"
     >
         <template #icon>
             <IconArrowTrendingUp v-if="type.value === 'requests'" />

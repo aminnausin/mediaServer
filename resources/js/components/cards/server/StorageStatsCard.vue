@@ -3,8 +3,8 @@ import type { DiskCategory, DiskLocation } from '@/contracts/server';
 
 import { useGetDiskUsage, useRefreshDiskUsage } from '@/service/server/queries';
 import { formatFileSize } from '@/service/util';
-import { computed, ref } from 'vue';
 import { ButtonBase } from '@/components/cedar-ui/button';
+import { computed } from 'vue';
 import { cn } from '@aminnausin/cedar-ui';
 
 import TranscriptStatus from '@/components/video/transcript/TranscriptStatus.vue';
@@ -22,18 +22,18 @@ const panel = 'data-card pulse-card flex gap-3 flex-col';
 const skeleton = 'animate-pulse motion-reduce:animate-none bg-neutral-200 dark:bg-neutral-700';
 
 const categories: Record<DiskCategory, { label: string; colour: string }> = {
-    library: { label: 'Libraries', colour: 'bg-primary' },
-    images: { label: 'Images', colour: 'bg-primary' },
-    subtitles: { label: 'Subtitles', colour: 'bg-rose-500' },
-    cache: { label: 'Cache', colour: 'bg-blue-500' },
-    logs: { label: 'Logs', colour: 'bg-slate-400' },
-    legacy: { label: 'Legacy', colour: 'bg-yellow-500' },
+    library: { label: 'Libraries', colour: 'bg-primary-muted dark:bg-primary-active' },
+    images: { label: 'Images', colour: 'bg-primary-muted/80 dark:bg-primary-muted' },
+    subtitles: { label: 'Subtitles', colour: 'bg-rose-400 dark:bg-pink-500/80' },
+    logs: { label: 'Logs', colour: 'bg-neutral-300 dark:bg-stone-300/80' },
+    legacy: { label: 'Legacy', colour: 'bg-amber-300 dark:bg-amber-500/90' },
+    cache: { label: 'Cache', colour: 'bg-pink-300 dark:bg-fuchsia-300/60' },
 };
 
 const diskKinds = {
-    library: { label: 'Libraries', colour: 'bg-primary' },
+    library: { label: 'Libraries', colour: 'bg-primary-muted dark:bg-primary-active' },
     app: { label: 'App data', colour: 'bg-cyan-500' },
-    other: { label: 'Other', colour: 'bg-neutral-400/60' },
+    other: { label: 'Other', colour: 'bg-neutral-300 dark:bg-neutral-500/60' },
 };
 
 const categoryOrder = Object.keys(categories) as DiskCategory[];
@@ -47,7 +47,6 @@ const sized = computed(() => (data.value?.locations ?? []).filter((l) => l.bytes
 
 const sumGroupSize = (items: DiskLocation[]) => items.reduce((total, l) => total + (l.bytes ?? 0), 0);
 
-// Scales app data categories by total size of app data rather than by disk
 const appData = computed(() => {
     const groups = appCategories
         .map((key) => {
@@ -104,15 +103,10 @@ const disks = computed(() =>
         };
     }),
 );
-
-const LIBRARY_PREVIEW = 5;
-const showAllLibraries = ref(false);
-
-const visibleLibraries = computed(() => (showAllLibraries.value ? libraries.value.items : libraries.value.items.slice(0, LIBRARY_PREVIEW)));
 </script>
 
 <template>
-    <DashboardCard cols="2" :rows="2" name="Storage" title="Disk usage">
+    <DashboardCard cols="2" :rows="2" name="Storage" title="Disk usage" header-class="2xl:min-h-10 2xl:mb-0">
         <template #icon>
             <IconServer class="h-6 w-6" />
         </template>
