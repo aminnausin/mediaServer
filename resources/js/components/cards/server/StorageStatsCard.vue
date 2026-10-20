@@ -8,7 +8,7 @@ import { ButtonBase } from '@/components/cedar-ui/button';
 import { cn } from '@aminnausin/cedar-ui';
 
 import TranscriptStatus from '@/components/video/transcript/TranscriptStatus.vue';
-import DiskUsageCard from '@/components/cards/server/storage/DiskCard.vue';
+import DiskUsageCard from '@/components/cards/server/storage/DiskUsageCard.vue';
 import DashboardCard from '@/components/cards/layout/DashboardCard.vue';
 
 import ProiconsAlertTriangle from '~icons/proicons/alert-triangle';
