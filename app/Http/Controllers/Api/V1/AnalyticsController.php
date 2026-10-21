@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enums\MediaType;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Folder;
@@ -34,19 +35,25 @@ class AnalyticsController extends Controller {
     }
 
     private function generateStats(Carbon $startDate) {
+        $mediaCount = fn (MediaType $type, bool $previous = false) => Video::whereHas('metadata', fn ($query) => $query->where('media_type', $type))
+            ->when($previous, fn ($query) => $query->where('created_at', '<', $startDate))
+            ->count();
+
         $currentCounts = [
-            'categories' => Category::count(),
+            'libraries' => Category::count(),
             'folders' => Folder::count(),
-            'videos' => Video::count(),
+            'videos' => $mediaCount(MediaType::VIDEO),
+            'songs' => $mediaCount(MediaType::AUDIO),
             'users' => User::count(),
             'tags' => Tag::count(),
             'views' => Record::count(),
         ];
 
         $previousCounts = [
-            'categories' => Category::where('created_at', '<', $startDate)->count(),
+            'libraries' => Category::where('created_at', '<', $startDate)->count(),
             'folders' => Folder::where('created_at', '<', $startDate)->count(),
-            'videos' => Video::where('created_at', '<', $startDate)->count(),
+            'videos' => $mediaCount(MediaType::VIDEO, true),
+            'songs' => $mediaCount(MediaType::AUDIO, true),
             'users' => User::where('created_at', '<', $startDate)->count(),
             'tags' => Tag::where('created_at', '<', $startDate)->count(),
             'views' => Record::where('created_at', '<', $startDate)->count(),

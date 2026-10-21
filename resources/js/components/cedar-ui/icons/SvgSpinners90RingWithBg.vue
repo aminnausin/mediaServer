@@ -14,7 +14,7 @@ import { cn } from '@aminnausin/cedar-ui';
         </svg>
     </div>
 </template>
-<style scoped>
+<style lang="css" scoped>
 .spinner-origin {
     transform-origin: 12px 12px;
 }

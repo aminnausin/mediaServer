@@ -1,3 +1,5 @@
+//#region Config
+
 export type ServerConfigGroup = 'scanner' | 'metadata' | 'media' | 'performance' | 'storage';
 export type ServerConfigType = 'string' | 'bool' | 'integer' | 'array' | 'float';
 
@@ -37,3 +39,33 @@ export interface PerformanceConfigRequest {
 export interface MediaConfigRequest {
     supported_extensions: string[];
 }
+
+//#endregion
+
+//#region Disk Usage
+
+export type DiskCategory = 'library' | 'images' | 'subtitles' | 'cache' | 'logs' | 'legacy';
+
+export interface DiskFilesystem {
+    id: string;
+    totalSpace: number;
+    usedSpace: number;
+    freeSpace: number;
+}
+
+export interface DiskLocation {
+    key: string;
+    label: string;
+    category: DiskCategory;
+    path: string;
+    exists: boolean;
+    filesystem: string | null;
+    bytes: number | null;
+}
+
+export interface DiskUsageResponse {
+    filesystems: DiskFilesystem[];
+    locations: DiskLocation[];
+}
+
+//#endregion

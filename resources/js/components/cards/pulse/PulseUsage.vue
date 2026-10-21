@@ -12,6 +12,7 @@ import PulseNoResults from '@/components/pulse/PulseNoResults.vue';
 import PulseUserCard from '@/components/pulse/PulseUserCard.vue';
 import DashboardCard from '@/components/cards/layout/DashboardCard.vue';
 import PulseScroll from '@/components/pulse/PulseScroll.vue';
+
 import IconClock from '@/components/icons/IconClock.vue';
 import IconScale from '@/components/icons/IconScale.vue';
 
@@ -73,10 +74,10 @@ const sampleRate = () => {
     <DashboardCard
         :cols="cols"
         :rows="rows"
-        :class="`col-span-2 lg:col-span-4`"
-        :name="`${'Application Usage'}`"
+        :name="'Usage'"
         :title="`Time: ${format_number(pulseData?.queues?.time ?? 0)}ms; Run at: ${pulseData?.servers?.runAt ? new Date(pulseData?.servers?.runAt).toLocaleDateString() : ''};`"
         :details="`past ${validPeriods.includes(period) ? periodForHumans(period) : periodForHumans(validPeriods[0])}`"
+        header-class="2xl:mb-0"
     >
         <template #icon>
             <IconArrowTrendingUp v-if="type.value === 'requests'" />
@@ -85,21 +86,21 @@ const sampleRate = () => {
             <IconCursorArrowRays v-else />
         </template>
         <template #actions>
-            <span class="flex items-center text-sm">
-                <PulseSelectLabel control-id="Select-Usage"> Top 10 users </PulseSelectLabel>
+            <div class="flex w-full items-center text-sm">
+                <PulseSelectLabel class="truncate" control-id="Select-Usage"> <span class="truncate">Top 10 users</span> </PulseSelectLabel>
                 <InputSelect
                     :placeholder="'None'"
                     :options="requestOptions"
-                    class="w-full! flex-1 rounded-l-none whitespace-nowrap! capitalize ring-inset"
+                    class="flex-1 rounded-l-none capitalize ring-inset"
                     title="Select usage type"
                     @selectItem="handleSetType"
                     :defaultItem="0"
                     id="Select-Usage"
                 />
-            </span>
+            </div>
         </template>
 
-        <PulseScroll :expand="false" :loading="isLoading ?? false">
+        <PulseScroll :expand="true" :loading="isLoading ?? false">
             <PulseNoResults :isLoading="isLoading" v-if="userRequestCounts?.length === 0" />
             <div v-else class="6xl:grid-cols-2 grid grid-cols-1 gap-2 overflow-visible @lg:grid-cols-2 @3xl:grid-cols-3">
                 <PulseUserCard v-for="userRequestCount in userRequestCounts" :key="userRequestCount.key" :user="userRequestCount.user">

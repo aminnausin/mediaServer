@@ -2166,49 +2166,51 @@
         },
         {
             "name": "laravel/pulse",
-            "version": "v1.5.0",
+            "version": "v1.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/pulse.git",
-                "reference": "ee70e069f0386060bc668d3b63a30bae403d0485"
+                "reference": "0f828f61f92656de7f0d0bc83bacbf6908ed8460"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/pulse/zipball/ee70e069f0386060bc668d3b63a30bae403d0485",
-                "reference": "ee70e069f0386060bc668d3b63a30bae403d0485",
+                "url": "https://api.github.com/repos/laravel/pulse/zipball/0f828f61f92656de7f0d0bc83bacbf6908ed8460",
+                "reference": "0f828f61f92656de7f0d0bc83bacbf6908ed8460",
                 "shasum": ""
             },
             "require": {
                 "doctrine/sql-formatter": "^1.4.1",
-                "guzzlehttp/promises": "^1.0|^2.0",
-                "illuminate/auth": "^10.48.4|^11.0.8|^12.0",
-                "illuminate/cache": "^10.48.4|^11.0.8|^12.0",
-                "illuminate/config": "^10.48.4|^11.0.8|^12.0",
-                "illuminate/console": "^10.48.4|^11.0.8|^12.0",
-                "illuminate/contracts": "^10.48.4|^11.0.8|^12.0",
-                "illuminate/database": "^10.48.4|^11.0.8|^12.0",
-                "illuminate/events": "^10.48.4|^11.0.8|^12.0",
-                "illuminate/http": "^10.48.4|^11.0.8|^12.0",
-                "illuminate/queue": "^10.48.4|^11.0.8|^12.0",
-                "illuminate/redis": "^10.48.4|^11.0.8|^12.0",
-                "illuminate/routing": "^10.48.4|^11.0.8|^12.0",
-                "illuminate/support": "^10.48.4|^11.0.8|^12.0",
-                "illuminate/view": "^10.48.4|^11.0.8|^12.0",
+                "guzzlehttp/promises": "^1.0|^2.0|^3.0",
+                "illuminate/auth": "^10.48.4|^11.0.8|^12.0|^13.0",
+                "illuminate/cache": "^10.48.4|^11.0.8|^12.0|^13.0",
+                "illuminate/config": "^10.48.4|^11.0.8|^12.0|^13.0",
+                "illuminate/console": "^10.48.4|^11.0.8|^12.0|^13.0",
+                "illuminate/contracts": "^10.48.4|^11.0.8|^12.0|^13.0",
+                "illuminate/database": "^10.48.4|^11.0.8|^12.0|^13.0",
+                "illuminate/events": "^10.48.4|^11.0.8|^12.0|^13.0",
+                "illuminate/http": "^10.48.4|^11.0.8|^12.0|^13.0",
+                "illuminate/queue": "^10.48.4|^11.0.8|^12.0|^13.0",
+                "illuminate/redis": "^10.48.4|^11.0.8|^12.0|^13.0",
+                "illuminate/routing": "^10.48.4|^11.0.8|^12.0|^13.0",
+                "illuminate/support": "^10.48.4|^11.0.8|^12.0|^13.0",
+                "illuminate/view": "^10.48.4|^11.0.8|^12.0|^13.0",
+                "laravel/sentinel": "^1.0",
+                "league/uri": "^7.5.1",
                 "livewire/livewire": "^3.6.4|^4.0",
                 "nesbot/carbon": "^2.67|^3.0",
                 "php": "^8.1",
-                "symfony/console": "^6.0|^7.0"
+                "symfony/console": "^6.0|^7.0|^8.0"
             },
             "conflict": {
                 "nunomaduro/collision": "<7.7.0"
             },
             "require-dev": {
-                "guzzlehttp/guzzle": "^7.7",
+                "guzzlehttp/guzzle": "^7.7|^8.0",
                 "mockery/mockery": "^1.0",
-                "orchestra/testbench": "^8.36|^9.15|^10.8",
+                "orchestra/testbench": "^8.36|^9.15|^10.8|^11.0",
                 "pestphp/pest": "^2.0|^3.0|^4.0",
                 "pestphp/pest-plugin-laravel": "^2.2|^3.0|^4.0",
-                "phpstan/phpstan": "^1.12.21",
+                "phpstan/phpstan": "^2.1.33",
                 "predis/predis": "^1.0|^2.0"
             },
             "type": "library",
@@ -2249,7 +2251,7 @@
                 "issues": "https://github.com/laravel/pulse/issues",
                 "source": "https://github.com/laravel/pulse"
             },
-            "time": "2026-01-14T22:52:32+00:00"
+            "time": "2026-08-20T10:00:14+00:00"
         },
         {
             "name": "laravel/reverb",
@@ -2395,6 +2397,62 @@
                 "source": "https://github.com/laravel/sanctum"
             },
             "time": "2026-01-06T23:11:51+00:00"
+        },
+        {
+            "name": "laravel/sentinel",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/sentinel.git",
+                "reference": "972d9885d9d14312a118e9565c4e6ecc5e751ea1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laravel/sentinel/zipball/972d9885d9d14312a118e9565c4e6ecc5e751ea1",
+                "reference": "972d9885d9d14312a118e9565c4e6ecc5e751ea1",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "illuminate/container": "^8.37|^9.0|^10.0|^11.0|^12.0|^13.0",
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.27",
+                "orchestra/testbench": "^6.47.1|^7.56|^8.37|^9.16|^10.9|^11.0",
+                "phpstan/phpstan": "^2.1.33"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Laravel\\Sentinel\\SentinelServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Laravel\\Sentinel\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylor@laravel.com"
+                },
+                {
+                    "name": "Mior Muhammad Zaki",
+                    "email": "mior@laravel.com"
+                }
+            ],
+            "support": {
+                "source": "https://github.com/laravel/sentinel/tree/v1.1.0"
+            },
+            "time": "2026-03-24T14:03:38+00:00"
         },
         {
             "name": "laravel/serializable-closure",
@@ -2588,16 +2646,16 @@
         },
         {
             "name": "league/commonmark",
-            "version": "2.10.1",
+            "version": "2.10.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/commonmark.git",
-                "reference": "9d489ab67a02960fd8ffe624d93f751daf95439e"
+                "reference": "40821b7606d8d946bac57dbd2290076c722e3a65"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/9d489ab67a02960fd8ffe624d93f751daf95439e",
-                "reference": "9d489ab67a02960fd8ffe624d93f751daf95439e",
+                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/40821b7606d8d946bac57dbd2290076c722e3a65",
+                "reference": "40821b7606d8d946bac57dbd2290076c722e3a65",
                 "shasum": ""
             },
             "require": {
@@ -2691,7 +2749,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-09-07T13:44:26+00:00"
+            "time": "2026-10-17T19:59:50+00:00"
         },
         {
             "name": "league/config",
@@ -2777,16 +2835,16 @@
         },
         {
             "name": "league/flysystem",
-            "version": "3.30.2",
+            "version": "3.36.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "5966a8ba23e62bdb518dd9e0e665c2dbd4b5b277"
+                "reference": "f7fb152932f30072d573510cbd4dd657d6475b25"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/5966a8ba23e62bdb518dd9e0e665c2dbd4b5b277",
-                "reference": "5966a8ba23e62bdb518dd9e0e665c2dbd4b5b277",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/f7fb152932f30072d573510cbd4dd657d6475b25",
+                "reference": "f7fb152932f30072d573510cbd4dd657d6475b25",
                 "shasum": ""
             },
             "require": {
@@ -2854,9 +2912,9 @@
             ],
             "support": {
                 "issues": "https://github.com/thephpleague/flysystem/issues",
-                "source": "https://github.com/thephpleague/flysystem/tree/3.30.2"
+                "source": "https://github.com/thephpleague/flysystem/tree/3.36.0"
             },
-            "time": "2025-11-10T17:13:11+00:00"
+            "time": "2026-09-02T08:00:27+00:00"
         },
         {
             "name": "league/flysystem-local",
@@ -6435,16 +6493,16 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "v7.4.13",
+            "version": "v7.4.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "bc354f47c62301e990b7874fa662326368508e2c"
+                "reference": "58c89144c7a36dd89c3d01917e9fa3a72d8aaf31"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/bc354f47c62301e990b7874fa662326368508e2c",
-                "reference": "bc354f47c62301e990b7874fa662326368508e2c",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/58c89144c7a36dd89c3d01917e9fa3a72d8aaf31",
+                "reference": "58c89144c7a36dd89c3d01917e9fa3a72d8aaf31",
                 "shasum": ""
             },
             "require": {
@@ -6493,7 +6551,7 @@
             "description": "Defines an object-oriented layer for the HTTP specification",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/http-foundation/tree/v7.4.13"
+                "source": "https://github.com/symfony/http-foundation/tree/v7.4.21"
             },
             "funding": [
                 {
@@ -6513,7 +6571,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-24T11:20:33+00:00"
+            "time": "2026-10-08T16:56:12+00:00"
         },
         {
             "name": "symfony/http-kernel",
@@ -10807,16 +10865,16 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v7.4.13",
+            "version": "v7.4.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "a7ec3b1156faf8815db7683ec7c1e7338e6f977c"
+                "reference": "044907929c7999814378be22da34722c7a86bad4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/a7ec3b1156faf8815db7683ec7c1e7338e6f977c",
-                "reference": "a7ec3b1156faf8815db7683ec7c1e7338e6f977c",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/044907929c7999814378be22da34722c7a86bad4",
+                "reference": "044907929c7999814378be22da34722c7a86bad4",
                 "shasum": ""
             },
             "require": {
@@ -10859,7 +10917,7 @@
             "description": "Loads and dumps YAML files",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/yaml/tree/v7.4.13"
+                "source": "https://github.com/symfony/yaml/tree/v7.4.21"
             },
             "funding": [
                 {
@@ -10879,7 +10937,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-25T06:06:12+00:00"
+            "time": "2026-10-12T12:34:30+00:00"
         },
         {
             "name": "theseer/tokenizer",

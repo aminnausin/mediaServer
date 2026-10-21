@@ -3,22 +3,21 @@ import type { BreadCrumbItem } from '@/types/types';
 import type { PulseResponse } from '@/types/pulseTypes';
 
 import { computed, onMounted, ref, useTemplateRef } from 'vue';
-import { useGetPulse, useGetSiteAnalytics } from '@/service/queries';
 import { ButtonText, ButtonBase } from '@/components/cedar-ui/button';
 import { handleStartTask } from '@/service/taskService';
-import { periodForHumans } from '@/service/pulseUtil';
 import { BreadCrumbs } from '@/components/cedar-ui/breadcrumbs';
 import { BasePopover } from '@/components/cedar-ui/popover';
 import { queryClient } from '@/service/vue-query';
+import { useGetPulse } from '@/service/queries';
 import { useAuth } from '@/composables/auth/useAuth';
 
 import PulseSlowOutgoingRequests from '@/components/cards/pulse/PulseSlowOutgoingRequests.vue';
-import LucideChartNoAxesCombined from '~icons/lucide/chart-no-axes-combined';
+import ServerActivityCard from '@/components/cards/server/ServerActivityCard.vue';
 import DashboardTaskMenu from '@/components/menus/DashboardTaskMenu.vue';
 import PulseSlowRequests from '@/components/cards/pulse/PulseSlowRequests.vue';
+import StorageStatsCard from '@/components/cards/server/StorageStatsCard.vue';
 import PulseSlowQueries from '@/components/cards/pulse/PulseSlowQueries.vue';
 import PulseExceptions from '@/components/cards/pulse/PulseExceptions.vue';
-import DashboardCard from '@/components/cards/layout/DashboardCard.vue';
 import PulseRequests from '@/components/cards/pulse/PulseRequests.vue';
 import PulseSlowJobs from '@/components/cards/pulse/PulseSlowJobs.vue';
 import PulseServers from '@/components/cards/pulse/PulseServers.vue';
@@ -43,12 +42,12 @@ const validPeriods: { key: string; value: string }[] = [
 const taskPopover = useTemplateRef('taskPopover');
 const period = ref<string>('1_hour');
 
-const { data: stats } = useGetSiteAnalytics(period);
 const { data: rawPulseData, isLoading: pulseLoading } = useGetPulse({ period });
 
 const { isAdmin } = useAuth();
 
 const pulseData = computed<PulseResponse>(() => rawPulseData.value?.data as PulseResponse);
+const serverCount = computed(() => Object.keys(pulseData.value?.servers.servers ?? {}).length);
 
 const breadCrumbs = computed(() => {
     const items: BreadCrumbItem[] = [
@@ -58,7 +57,7 @@ const breadCrumbs = computed(() => {
             icon: ProiconsHome2,
         },
         {
-            name: 'Dashboard',
+            name: 'Analytics',
             url: '/dashboard/analytics',
             icon: ProiconsGraph,
         },
@@ -112,25 +111,21 @@ onMounted(() => {
             </ButtonText>
         </div>
     </div>
-    <span class="mx-auto grid w-full grid-cols-2 gap-6 sm:grid-cols-4 lg:grid-cols-6">
+    <span class="mx-auto grid w-full grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
         <PulseServers :pulseData="pulseData" :isLoading="pulseLoading" cols="6" :rows="1" />
-        <DashboardCard cols="2" :rows="4" :title="'Data changes over time'" :name="'Data Changes'" :details="`past ${periodForHumans(period)}`">
-            <template #icon>
-                <LucideChartNoAxesCombined class="h-6 w-6" />
-            </template>
-            <span v-for="(stat, index) in stats?.changes" :key="index" class="flex flex-wrap items-center gap-2 capitalize">
-                <h3 class="text-foreground-2 w-full text-sm text-nowrap">{{ stat.title }}</h3>
-                <span>
-                    <h3 class="text-lg">{{ stat.count ?? 0 }}</h3>
-                </span>
-                <h4 :class="`text-sm ${stat.change >= 0 ? 'text-green-700 dark:text-green-600' : 'text-rose-500'} ml-auto`">
-                    {{ `${stat.change === 0 ? '~' : `${stat.change >= 0 ? '+' : '-'}${stat.change}`}` }}
-                </h4>
-            </span>
-        </DashboardCard>
-        <PulseUsage :pulseData="pulseData" :isLoading="pulseLoading" :period="period" :rows="4" />
+        <ServerActivityCard :period="period" />
+        <PulseUsage
+            :pulseData="pulseData"
+            :isLoading="pulseLoading"
+            :period="period"
+            :rows="1"
+            :class="['lg:col-span-6 2xl:col-span-2 2xl:col-start-5! 2xl:row-start-3', { '2xl:row-start-2!': serverCount === 0 }]"
+        />
+        <StorageStatsCard :rows="1" cols="6" class="lg:col-span-6 2xl:col-span-4" />
+
         <PulseQueues :pulseData="pulseData" :isLoading="pulseLoading" :period="period" :rows="2" />
         <PulseRequests v-if="pulseData" :pulseData="pulseData" :isLoading="pulseLoading" :period="period" :rows="2" />
+
         <PulseSlowRequests v-if="pulseData" :pulse-data="pulseData" :is-loading="pulseLoading" :period="period" :rows="2" cols="3" />
         <PulseSlowJobs v-if="pulseData" :pulse-data="pulseData" :is-loading="pulseLoading" :period="period" :rows="2" :cols="3" />
         <PulseSlowQueries v-if="pulseData" :pulse-data="pulseData" :is-loading="pulseLoading" :period="period" :rows="2" :cols="3" />

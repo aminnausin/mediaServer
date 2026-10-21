@@ -425,7 +425,7 @@ MediaServer can be run via Docker (recommended) or directly with PHP.
 To set up MediaServer without Docker, you’ll need:
 
 - A web server: [Caddy](https://caddyserver.com/) or [NGINX](https://nginx.org/en)
-- Backend: [PHP 8.3+](https://www.php.net/), [PostgreSQL](https://www.postgresql.org/)
+- Backend: [PHP 8.4+](https://www.php.net/), [PostgreSQL](https://www.postgresql.org/)
 - Frontend (for compiling only): [Node.js](https://nodejs.org/en) with [Vue 3](https://vuejs.org/) + [Tailwind CSS](https://tailwindcss.com/)
 - Media tools: [FFmpeg](https://www.ffmpeg.org/) *(required)*, [ExifTool](https://exiftool.org/) *(optional)*
 - HTTPS: A valid SSL certificate is required to enable certain metadata features

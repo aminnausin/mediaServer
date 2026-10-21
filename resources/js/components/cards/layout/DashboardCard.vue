@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { cn } from '@aminnausin/cedar-ui';
+
 const props = withDefaults(
     defineProps<{
         cols?: number | string;
@@ -6,6 +8,7 @@ const props = withDefaults(
         name?: string;
         title?: string;
         details?: string | null;
+        headerClass?: string;
     }>(),
     {
         cols: 'full',
@@ -18,12 +21,14 @@ const props = withDefaults(
 </script>
 <template>
     <div
-        :class="[
-            `col-span-full flex row-span-${rows} dark:bg-primary-dark-800/70 w-full flex-col gap-2 rounded-xl bg-white p-3 shadow-lg ring-1 ring-gray-900/5`,
-            `${Number.parseInt(`${cols}`) < 3 ? `sm:col-span-2 lg:col-span-${cols}` : `lg:col-span-${cols}`}`,
-        ]"
+        :class="
+            cn(
+                `col-span-full flex row-span-${rows} dark:bg-primary-dark-800/70 w-full flex-col gap-2 rounded-xl bg-white p-3 shadow-sm ring-1 ring-gray-900/5`,
+                `${Number.parseInt(`${cols}`) < 3 ? `sm:col-span-2 lg:col-span-${cols}` : `lg:col-span-${cols}`}`,
+            )
+        "
     >
-        <header class="mb-3 flex flex-wrap items-center justify-between gap-4">
+        <header :class="cn('mb-3 flex flex-wrap items-center justify-between gap-4', headerClass)">
             <div class="max-w-full flex-1 grow-10000 basis-0">
                 <div class="flex items-start gap-2 overflow-hidden">
                     <div class="[&>svg]:stroke-foreground-2 text-foreground-3 dark:text-neutral-400/80 [&>svg]:h-6 [&>svg]:w-6 [&>svg]:shrink-0 dark:[&>svg]:stroke-neutral-400/80">
@@ -39,7 +44,7 @@ const props = withDefaults(
                     </hgroup>
                 </div>
             </div>
-            <div class="flex grow items-center">
+            <div class="flex max-w-full grow items-center">
                 <slot name="actions"></slot>
             </div>
         </header>

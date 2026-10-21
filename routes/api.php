@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\V1\PlaybackProgressController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\RecordController;
 use App\Http\Controllers\Api\V1\SeriesController;
+use App\Http\Controllers\Api\V1\Server\DiskUsageController;
 use App\Http\Controllers\Api\V1\Server\ServerConfigController;
 use App\Http\Controllers\Api\V1\Server\SetupController;
 use App\Http\Controllers\Api\V1\SessionController;
@@ -135,6 +136,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::prefix('sub-tasks')->middleware('can:admin')->group(function () {
         Route::get('/{task}', [SubTaskController::class, 'show']);
         Route::delete('/{subTask}', [SubTaskController::class, 'destroy']);
+    });
+
+    Route::prefix('server')->group(function () {
+        Route::get('/disk-usage', [DiskUsageController::class, 'index']);
     });
 
     Route::resource('/tasks', TaskController::class)->only(['index', 'destroy']);

@@ -212,10 +212,14 @@ onUnmounted(async () => {
     <div class="flex flex-wrap items-center justify-between gap-2">
         <BreadCrumbs :bread-crumbs="breadCrumbs" />
 
-        <span class="flex gap-2 overflow-clip font-medium capitalize">
-            <p class="">Running Tasks: {{ stateTaskStats?.count_running }}</p>
-            <p class="">Total Tasks: {{ stateTasks.length ?? stateTaskStats?.count_tasks }}</p>
-        </span>
+        <div class="flex gap-2 overflow-clip font-medium capitalize">
+            <p>
+                Tasks: <span class="tabular-nums">{{ stateTasks.length ?? stateTaskStats?.count_tasks }}</span>
+            </p>
+            <p>
+                Running: <span class="tabular-nums">{{ stateTaskStats?.count_running }}</span>
+            </p>
+        </div>
         <div class="xs:*:h-8 flex w-full flex-wrap items-center gap-2 *:h-fit">
             <BasePopover
                 ref="taskPopover"

@@ -164,11 +164,17 @@ watch(
     <div class="flex flex-wrap items-center justify-between gap-2">
         <BreadCrumbs :bread-crumbs="breadCrumbs" />
 
-        <p class="font-medium capitalize" v-if="stateLibraryId < 0">Count: {{ stateLibraries?.length }}</p>
-        <span v-else class="flex gap-2 overflow-clip">
-            <p class="font-medium capitalize">Count: {{ stateLibraryFolders?.length }}</p>
-            <p class="font-medium capitalize">Videos: {{ stateLibraryFolders?.reduce((total: number, folder: FolderResource) => total + Number(folder.file_count), 0) }}</p>
-        </span>
+        <p class="font-medium capitalize" v-if="stateLibraryId < 0">
+            Libraries: <span class="tabular-nums">{{ stateLibraries?.length }}</span>
+        </p>
+        <div v-else class="flex gap-2 overflow-clip">
+            <p class="font-medium capitalize">
+                Folders: <span class="tabular-nums">{{ stateLibraryFolders?.length }}</span>
+            </p>
+            <p class="font-medium capitalize">
+                Videos: <span class="tabular-nums">{{ stateLibraryFolders?.reduce((total: number, folder: FolderResource) => total + Number(folder.file_count), 0) }}</span>
+            </p>
+        </div>
         <div class="xs:*:h-8 flex w-full flex-wrap items-center gap-2 *:h-fit">
             <ButtonText title="Add New Library" disabled text="New Library" class="xs:flex-initial hidden flex-1">
                 <template #icon><ProiconsAdd /></template>

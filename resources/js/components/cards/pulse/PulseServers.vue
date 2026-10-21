@@ -25,13 +25,15 @@ const props = withDefaults(
 );
 
 const servers = computed<{ [key: string]: PulseServerResponse } | undefined>(() => props.pulseData?.servers.servers);
+const serverKeys = computed(() => Object.keys(servers.value ?? {}));
 </script>
 
 <template>
     <section
         :class="[
-            `scrollbar-minimal scrollbar-track:rounded supports-scrollbars max-w-full overflow-x-auto overflow-y-hidden pb-2`,
+            'scrollbar-minimal scrollbar-track:rounded supports-scrollbars max-w-full overflow-x-auto overflow-y-hidden',
             `default:col-span-full default:lg:col-span-${props.cols} default:row-span-${props.rows}`,
+            { 'pb-2': serverKeys.length > 0 || isLoading, hidden: serverKeys.length === 0 && !isLoading },
         ]"
     >
         <div
@@ -45,46 +47,40 @@ const servers = computed<{ [key: string]: PulseServerResponse } | undefined>(() 
             <div class="text-foreground-2 text-left text-xs font-bold uppercase">Memory</div>
             <div></div>
             <div class="text-foreground-2 text-left text-xs font-bold uppercase">Storage</div>
-            <template v-for="server in Object.keys(servers)" :key="`${server}-indicator`" class="flex">
-                <div :class="`flex items-center ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''}`" :title="`${toTimeSpan(servers[server].updated_at)}`">
-                    <div v-if="servers[server]?.recently_reported" class="mr-1 flex w-5 justify-center">
+            <template v-for="[server, data] in Object.entries(servers)" :key="`${server}-indicator`" class="flex">
+                <div :class="['flex items-center', { 'py-2': serverKeys.length > 1 }]" :title="`${toTimeSpan(data.updated_at)}`">
+                    <div v-if="data?.recently_reported" class="mr-1 flex w-5 justify-center">
                         <div class="h-1 w-1 animate-pulse rounded-full bg-green-500"></div>
                     </div>
                     <IconSignalSlash v-else class="mr-1 h-5 w-5 stroke-rose-500" />
                 </div>
-                <div
-                    :id="`${server}-name`"
-                    :class="`flex items-center pr-8 xl:pr-12 ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'animate-pulse opacity-25' : ''}`"
-                >
+                <div :id="`${server}-name`" :class="['flex items-center pr-8 xl:pr-12', { 'py-2': serverKeys.length > 1, 'animate-pulse opacity-25': !data.recently_reported }]">
                     <IconServer class="stroke-foreground-2 mr-2 h-6 w-6" />
                     <span
                         class="text-foreground-1 dark:text-foreground-4 text-base font-bold"
                         :title="`Time: ${format_number(pulseData?.servers?.time ?? 0)}ms; Run at: ${pulseData?.servers?.runAt ? new Date(pulseData?.servers?.runAt).toLocaleDateString() : ''};`"
                     >
-                        {{ servers[server]?.name }}
+                        {{ data?.name }}
                     </span>
                 </div>
-                <div
-                    :id="`${server}-cpu`"
-                    :class="`flex items-center ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'animate-pulse opacity-25' : ''}`"
-                >
-                    <div class="w-14 text-lg font-bold whitespace-nowrap text-neutral-700 tabular-nums dark:text-neutral-200">{{ servers[server].cpu_current }}%</div>
+                <div :id="`${server}-cpu`" :class="['flex items-center', { 'py-2': serverKeys.length > 1, 'animate-pulse opacity-25': !data.recently_reported }]">
+                    <div class="w-14 text-lg font-bold whitespace-nowrap text-neutral-700 tabular-nums dark:text-neutral-200">{{ data.cpu_current }}%</div>
                 </div>
                 <div
                     :id="`${server}-cpu-graph`"
-                    :class="`flex items-center pr-8 xl:pr-12 ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'animate-pulse opacity-25' : ''}`"
+                    :class="['flex items-center pr-8 xl:pr-12', { 'py-2': serverKeys.length > 1, 'animate-pulse opacity-25': !data.recently_reported }]"
                 >
                     <div class="h-9 w-full min-w-20">
                         <PulseLineChart
                             :chart-data="{
-                                labels: Object.keys(servers[server].cpu),
+                                labels: Object.keys(data.cpu),
                                 datasets: [
                                     {
                                         label: 'CPU Percent',
                                         borderColor: '#9333ea',
                                         borderWidth: 2,
                                         borderCapStyle: 'round',
-                                        data: Object.values(servers[server].cpu).map((value) => parseFloat(value)),
+                                        data: Object.values(data.cpu).map((value) => parseFloat(value)),
                                         pointHitRadius: 10,
                                         pointStyle: false,
                                         tension: 0.2,
@@ -132,32 +128,29 @@ const servers = computed<{ [key: string]: PulseServerResponse } | undefined>(() 
                         />
                     </div>
                 </div>
-                <div
-                    :id="`${server}-memory`"
-                    :class="`flex items-center ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'animate-pulse opacity-25' : ''}`"
-                >
+                <div :id="`${server}-memory`" :class="['flex items-center', { 'py-2': serverKeys.length > 1, 'animate-pulse opacity-25': !data.recently_reported }]">
                     <div class="w-36 shrink-0 whitespace-nowrap tabular-nums">
                         <span class="text-lg font-bold text-neutral-700 dark:text-neutral-200">
-                            {{ friendlyFileSize(servers[server].memory_current, 1) }}
+                            {{ friendlyFileSize(data.memory_current, 1) }}
                         </span>
-                        <span class="text-sm font-medium text-neutral-500 dark:text-neutral-400"> / {{ friendlyFileSize(servers[server].memory_total, 1) }} </span>
+                        <span class="text-sm font-medium text-neutral-500 dark:text-neutral-400"> / {{ friendlyFileSize(data.memory_total, 1) }} </span>
                     </div>
                 </div>
                 <div
                     :id="`${server}-memory-graph`"
-                    :class="`flex items-center pr-8 xl:pr-12 ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'animate-pulse opacity-25' : ''}`"
+                    :class="['flex items-center pr-8 xl:pr-12', { 'py-2': serverKeys.length > 1, 'animate-pulse opacity-25': !data.recently_reported }]"
                 >
                     <div class="h-9 w-full min-w-20">
                         <PulseLineChart
                             :chart-data="{
-                                labels: Object.keys(servers[server].memory),
+                                labels: Object.keys(data.memory),
                                 datasets: [
                                     {
                                         label: 'Memory Used',
                                         borderColor: '#9333ea',
                                         borderWidth: 2,
                                         borderCapStyle: 'round',
-                                        data: Object.values(servers[server].memory).map((value) => parseFloat(value)),
+                                        data: Object.values(data.memory).map((value) => parseFloat(value)),
                                         pointHitRadius: 10,
                                         pointStyle: false,
                                         tension: 0.2,
@@ -180,7 +173,7 @@ const servers = computed<{ [key: string]: PulseServerResponse } | undefined>(() 
                                     y: {
                                         display: false,
                                         min: 0,
-                                        max: servers[server].memory.total,
+                                        max: data.memory.total,
                                         grid: {
                                             display: false,
                                         },
@@ -205,16 +198,8 @@ const servers = computed<{ [key: string]: PulseServerResponse } | undefined>(() 
                         />
                     </div>
                 </div>
-                <div
-                    :id="`${server}-storage`"
-                    :class="`flex items-center gap-4 ${(Object.keys(servers).length ?? 0) > 1 ? 'py-2' : ''} ${!servers[server].recently_reported ? 'animate-pulse opacity-25' : ''}`"
-                >
-                    <div
-                        v-for="storage in servers[server].storage"
-                        :key="`${server}-storage-${storage.directory}`"
-                        class="flex items-center gap-4"
-                        :title="`Directory: ${storage.directory}`"
-                    >
+                <div :id="`${server}-storage`" :class="['flex items-center gap-4', { 'py-2': serverKeys.length > 1, 'animate-pulse opacity-25': !data.recently_reported }]">
+                    <div v-for="storage in data.storage" :key="`${server}-storage-${storage.directory}`" class="flex items-center gap-4" :title="`Directory: ${storage.directory}`">
                         <div class="whitespace-nowrap tabular-nums">
                             <span class="text-lg font-bold text-neutral-700 dark:text-neutral-200">{{ friendlyFileSize(storage.used, 1) }}</span>
                             <span class="text-sm font-medium text-neutral-500 dark:text-neutral-400">/ {{ friendlyFileSize(storage.total, 1) }}</span>
@@ -253,7 +238,6 @@ const servers = computed<{ [key: string]: PulseServerResponse } | undefined>(() 
         </div>
         <template v-else>
             <PulseServersPlaceholder cols="6" :rows="1" />
-            {{ pulseData ?? 'none' }}
         </template>
     </section>
 </template>

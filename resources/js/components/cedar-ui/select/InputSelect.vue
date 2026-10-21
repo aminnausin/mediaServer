@@ -130,7 +130,7 @@ watch(
 );
 </script>
 <template>
-    <section :class="[`group relative w-full text-sm`, rootClass]" @focusout="handleFocusOut" ref="selectableItemsRoot">
+    <section :class="cn('group relative w-full text-sm', rootClass)" @focusout="handleFocusOut" ref="selectableItemsRoot">
         <button
             @click="select.toggleSelect(!select.selectOpen)"
             :id="props.name"
