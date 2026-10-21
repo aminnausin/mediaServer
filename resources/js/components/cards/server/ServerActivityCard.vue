@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { periodForHumans } from '@/service/pulseUtil';
 import { useGetSiteAnalytics } from '@/service/queries';
+import { periodForHumans } from '@/service/pulseUtil';
 import { computed } from 'vue';
 import { cn } from '@aminnausin/cedar-ui';
 
@@ -8,7 +8,6 @@ import DashboardCard from '@/components/cards/layout/DashboardCard.vue';
 
 import LucideChartNoAxesCombined from '~icons/lucide/chart-no-axes-combined';
 import LucideTrendingDown from '~icons/lucide/trending-down';
-import LucideClapperboard from '~icons/lucide/clapperboard';
 import LucideTrendingUp from '~icons/lucide/trending-up';
 import ProiconsLibrary from '~icons/proicons/library';
 import LucideMinus from '~icons/lucide/minus';
@@ -16,12 +15,13 @@ import LucideUsers from '~icons/lucide/users';
 import IconFolder from '@/components/icons/IconFolder.vue';
 import LucideTags from '~icons/lucide/tags';
 import IconMusic from '@/components/icons/IconMusic.vue';
+import IconPlay from '@/components/icons/IconPlay.vue';
 import IconEye from '@/components/icons/IconEye.vue';
 
 const statIcons = {
     libraries: ProiconsLibrary,
     folders: IconFolder,
-    videos: LucideClapperboard,
+    videos: IconPlay,
     songs: IconMusic,
     users: LucideUsers,
     tags: LucideTags,
