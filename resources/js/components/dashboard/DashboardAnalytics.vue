@@ -12,12 +12,12 @@ import { useGetPulse } from '@/service/queries';
 import { useAuth } from '@/composables/auth/useAuth';
 
 import PulseSlowOutgoingRequests from '@/components/cards/pulse/PulseSlowOutgoingRequests.vue';
+import ServerActivityCard from '@/components/cards/server/ServerActivityCard.vue';
 import DashboardTaskMenu from '@/components/menus/DashboardTaskMenu.vue';
 import PulseSlowRequests from '@/components/cards/pulse/PulseSlowRequests.vue';
-import PulseSlowQueries from '@/components/cards/pulse/PulseSlowQueries.vue';
-import ServerActivityCard from '@/components/cards/server/ServerActivityCard.vue';
-import PulseExceptions from '@/components/cards/pulse/PulseExceptions.vue';
 import StorageStatsCard from '@/components/cards/server/StorageStatsCard.vue';
+import PulseSlowQueries from '@/components/cards/pulse/PulseSlowQueries.vue';
+import PulseExceptions from '@/components/cards/pulse/PulseExceptions.vue';
 import PulseRequests from '@/components/cards/pulse/PulseRequests.vue';
 import PulseSlowJobs from '@/components/cards/pulse/PulseSlowJobs.vue';
 import PulseServers from '@/components/cards/pulse/PulseServers.vue';
