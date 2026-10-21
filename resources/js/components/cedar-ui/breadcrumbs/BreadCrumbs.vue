@@ -43,7 +43,7 @@ withDefaults(defineProps<{ breadCrumbs: BreadCrumbItem[] }>(), { breadCrumbs: ()
     </nav>
 </template>
 
-<style scoped>
+<style lang="css" scoped>
 a {
     text-decoration: none;
 }
