@@ -1,7 +1,7 @@
 import type { ServerConfig, DiskUsageResponse } from '@/contracts/server';
 
-import { getServerConfig } from '@/service/server/serverConfig';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
+import { getServerConfig } from '@/service/server/serverConfig';
 import { API } from '@/service/api';
 
 export const diskUsageKey = ['server', 'disk-usage'] as const;
