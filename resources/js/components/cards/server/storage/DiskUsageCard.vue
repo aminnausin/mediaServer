@@ -54,7 +54,7 @@ withDefaults(
                     <span class="text-foreground-2 text-xs">free of {{ formatFileSize(disk.totalSpace) }}</span>
                 </p>
 
-                <div class="flex h-2 w-full gap-px overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700" role="img" :aria-label="`${disk.percentUsed}% used`">
+                <div class="flex h-2 w-full gap-px overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700" :aria-label="`${disk.percentUsed}% used`">
                     <div
                         v-for="segment in disk.segments"
                         :key="segment.key"
@@ -84,7 +84,7 @@ withDefaults(
                     <span class="text-foreground-2 text-xs">of {{ formatFileSize(disk.totalSpace) }}</span>
                 </span>
             </div>
-            <div class="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700" role="img" :aria-label="`${disk.percentUsed}% used`">
+            <div class="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700" :aria-label="`${disk.percentUsed}% used`">
                 <div :class="disk.colour" class="h-full" :style="{ width: `${disk.percentUsed}%` }"></div>
             </div>
         </div>

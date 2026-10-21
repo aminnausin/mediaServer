@@ -21,12 +21,11 @@ class DiskUsageController extends Controller {
     public function __construct(private ServerConfigService $config) {}
 
     public function index(Request $request): JsonResponse {
+        $isAdmin = Gate::allows('admin');
         $refresh = $request->boolean('refresh');
         $directorySizes = [];
         $filesystems = [];
         $locations = [];
-
-        $isAdmin = Gate::allows('admin');
 
         foreach ($this->locations($isAdmin) as $location) {
             [$key, $label, $category, $path] = $location;
@@ -34,22 +33,13 @@ class DiskUsageController extends Controller {
             $bytes = $location[4] ?? null;
 
             $real = is_dir($path) ? realpath($path) : false;
-            $stat = $real !== false ? stat($real) : false;
-            $fsId = $stat !== false ? (string) $stat['dev'] : null;
+            $fsId = $this->collectFilesystem($real, $filesystems);
 
-            if ($fsId !== null && ! isset($filesystems[$fsId])) {
-                $total = disk_total_space($real);
-                $free = disk_free_space($real);
-
-                if ($total !== false && $free !== false) {
-                    $filesystems[$fsId] = [
-                        'id' => $fsId,
-                        'totalSpace' => $total,
-                        'usedSpace' => $total - $free,
-                        'freeSpace' => $free,
-                    ];
-                }
-            }
+            $bytes = match (true) {
+                $category === 'library' => $bytes ?? 0,
+                $real !== false => $directorySizes[$real] ??= $this->directorySize($real, $refresh),
+                default => null,
+            };
 
             $locations[] = [
                 'key' => $key,
@@ -58,9 +48,7 @@ class DiskUsageController extends Controller {
                 'path' => $isAdmin ? $path : '/',
                 'exists' => (bool) $real,
                 'filesystem' => $fsId,
-                'bytes' => $category === 'library'
-                    ? ($bytes ?? 0)
-                    : ($real ? ($directorySizes[$real] ??= $this->directorySize($real, $refresh)) : null),
+                'bytes' => $bytes,
             ];
         }
 
@@ -68,6 +56,32 @@ class DiskUsageController extends Controller {
             'filesystems' => array_values($filesystems),
             'locations' => $locations,
         ]);
+    }
+
+    private function collectFilesystem(string|false $real, array &$filesystems): ?string {
+        if ($real === false || ($stat = stat($real)) === false) {
+            return null;
+        }
+
+        $fsId = (string) $stat['dev'];
+
+        if (isset($filesystems[$fsId])) {
+            return $fsId;
+        }
+
+        $total = disk_total_space($real);
+        $free = disk_free_space($real);
+
+        if ($total !== false && $free !== false) {
+            $filesystems[$fsId] = [
+                'id' => $fsId,
+                'totalSpace' => $total,
+                'usedSpace' => $total - $free,
+                'freeSpace' => $free,
+            ];
+        }
+
+        return $fsId;
     }
 
     /** @return array<int, array{string, string, string, string, 4?: int|null}> [key, label, category, path, ?bytes] */

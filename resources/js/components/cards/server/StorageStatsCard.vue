@@ -92,14 +92,20 @@ const disks = computed(() =>
         const top = libs.slice(0, 3).map((l) => l.label);
         const rest = libs.length - top.length;
 
+        const getDiskColour = (percentUsed: number) => {
+            if (percentUsed >= 90) return 'bg-danger-2';
+            if (percentUsed >= 75) return 'bg-warning-2';
+            return 'bg-success';
+        };
+
         return {
             ...fs,
             title: all.length > 1 ? `Disk ${index + 1}` : 'Disk',
             percentUsed,
             segments,
-            contents: [appData.length > 0 && 'app data', , ...top, rest > 0 ? `+${rest} more` : ''].filter(Boolean).join(' · '),
+            contents: [appData.length > 0 && 'app data', ...top, rest > 0 ? `+${rest} more` : ''].filter(Boolean).join(' · '),
             libraryNames: libs.map((l) => l.label).join(', '),
-            colour: percentUsed >= 90 ? 'bg-danger-2' : percentUsed >= 75 ? 'bg-warning-2' : 'bg-success',
+            colour: getDiskColour(percentUsed),
         };
     }),
 );
