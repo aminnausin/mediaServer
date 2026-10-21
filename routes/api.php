@@ -138,6 +138,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::delete('/{subTask}', [SubTaskController::class, 'destroy']);
     });
 
+    Route::prefix('server')->group(function () {
+        Route::get('/disk-usage', [DiskUsageController::class, 'index']);
+    });
+
     Route::resource('/tasks', TaskController::class)->only(['index', 'destroy']);
     Route::prefix('tasks')->group(function () {
         Route::get('/stats', [TaskController::class, 'stats']);
@@ -151,10 +155,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/clean', [JobController::class, 'cleanPaths']); // OLD
         Route::post('/cancel/{task}', [TaskController::class, 'cancel']);
     });
-});
-
-Route::prefix('server')->group(function () {
-    Route::get('/disk-usage', [DiskUsageController::class, 'index']);
 });
 
 //
