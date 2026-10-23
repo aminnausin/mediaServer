@@ -2,7 +2,7 @@
 import type { MediaInfoResource } from '@/contracts/mediaInfo.ts';
 import type { VideoResource } from '@/contracts/media';
 
-import { formatFileSize, toFormattedDate, toFormattedDuration } from '@/service/util';
+import { formatBitrate, formatFileSize, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { buildStreamCards, type FfprobeStream } from '@/service/media/ffprobe';
 import { MediaType } from '@/types/types';
 import { computed } from 'vue';
@@ -34,6 +34,10 @@ const metadataItems = computed<{ label: string; items: { label: string; value: a
                 { label: 'Title', value: props.data.title },
                 props.data.title !== props.data.name && { label: 'Name', value: props.data.name },
                 props.data.duration && { label: 'Duration', value: `${toFormattedDuration(props.data.duration)} (${props.data.duration}s)` },
+                props.data.metadata.bitrate && { label: 'Bitrate', value: formatBitrate(props.data.metadata.bitrate) },
+                { label: 'Framerate', value: `${props.data.metadata.frame_rate} fps` },
+                { label: 'Container', value: props.data.path.split('.').at(-1) },
+                { label: 'Codec', value: props.data.metadata.codec },
                 ...(isAudio?.value
                     ? [
                           { label: 'Artist', value: props.data.artist },
