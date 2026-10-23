@@ -98,6 +98,7 @@ export const useContentStore = defineStore('Content', () => {
                           video.metadata?.codec ?? '',
                           video.metadata?.album ?? '',
                           video.metadata?.artist ?? '',
+                          video.metadata?.resolution_height ? `${video.metadata.resolution_height}p` : '',
                       ];
                       return strRepresentation.join(' ').toLowerCase().includes(searchTerm);
                   } catch (error) {

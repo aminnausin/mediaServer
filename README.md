@@ -425,7 +425,7 @@ MediaServer can be run via Docker (recommended) or directly with PHP.
 To set up MediaServer without Docker, you’ll need:
 
 - A web server: [Caddy](https://caddyserver.com/) or [NGINX](https://nginx.org/en)
-- Backend: [PHP 8.4+](https://www.php.net/), [PostgreSQL](https://www.postgresql.org/)
+- Backend: [PHP 8.4.27+](https://www.php.net/), [PostgreSQL](https://www.postgresql.org/)
 - Frontend (for compiling only): [Node.js](https://nodejs.org/en) with [Vue 3](https://vuejs.org/) + [Tailwind CSS](https://tailwindcss.com/)
 - Media tools: [FFmpeg](https://www.ffmpeg.org/) *(required)*, [ExifTool](https://exiftool.org/) *(optional)*
 - HTTPS: A valid SSL certificate is required to enable certain metadata features
@@ -434,7 +434,7 @@ To set up MediaServer without Docker, you’ll need:
 #### Windows
 
 - [phpredis](https://pecl.php.net/package/redis) dll extension must be loaded to use redis cache on windows
-  - Download the version that corresponds to your PHP version (such as [v6.3.0](https://pecl.php.net/package/redis/6.3.0/windows) for PHP 7.4 to 8.5)
+  - Download the version that corresponds to your PHP version (such as [v6.3.0](https://pecl.php.net/package/redis/6.3.0/windows) for PHP >=8.4)
 
 > [!TIP]  
 > You can use [Laragon](https://laragon.org/) to try it out locally. This will only be available on the host machine.
