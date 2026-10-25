@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 
 class DirectoryController extends Controller {
     use HttpResponses;
@@ -60,7 +61,8 @@ class DirectoryController extends Controller {
         } catch (ForbiddenLibraryException $e) {
             $result = $this->error(null, $e->getMessage(), 403);
         } catch (\Throwable $th) {
-            $result = $this->error(null, 'Unable to parse URL: ' . $th->getMessage(), 500);
+            Log::error('Unable to parse category/folder url', ['error' => $th->getMessage()]);
+            $result = $this->error(null, 'Unable to process directory request.', 500);
         }
 
         return $result;
