@@ -184,7 +184,7 @@ onMounted(async () => {
             <div
                 ref="scrollContainer"
                 :class="
-                    cn('scrollbar-hide gap-3', useGrid ? $attrs.class : 'flex touch-pan-y overflow-x-auto scroll-smooth', {
+                    cn('scrollbar-hide gap-3', useGrid ? $attrs.class : 'flex overflow-x-auto scroll-smooth', {
                         'cursor-grab snap-x snap-mandatory': !useGrid && !isDragging,
                         'cursor-grabbing scroll-auto select-none': isDragging,
                     })
