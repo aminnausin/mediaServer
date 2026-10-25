@@ -195,10 +195,10 @@ Route::prefix('/explore')->group(function () {
 });
 
 // Libraries (categories)
-Route::resource('/categories', CategoryController::class)->only(['show']);
+Route::resource('/categories', CategoryController::class)->only(['show'])->whereNumber('category');
 
 // Folder GET by Id or by Library Id
-Route::resource('/folders', FolderController::class)->only(['show']);
+Route::resource('/folders', FolderController::class)->only(['show'])->whereNumber('folder');
 Route::get('/folders', [FolderController::class, 'getFrom']);
 
 // Video Search and Views
