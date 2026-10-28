@@ -169,10 +169,12 @@ watch(activeIndex, async (index) => {
 
             <div class="w-full space-y-1" v-if="subtitleTrack">
                 <div v-if="isLoading && !hasError">
-                    <button type="button" :class="['group flex w-full animate-pulse cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 text-left transition-colors']">
-                        <span class="shrink-0 rounded-md px-1.5 py-0.5 font-mono text-xs tabular-nums transition-colors" :class="'bg-white/5 text-transparent'"> 00:00 </span>
-                        <span class="h-5 w-full rounded-md bg-white/15"></span>
-                    </button>
+                    <div :class="['group flex w-full animate-pulse items-start gap-2 rounded-lg px-2 py-1.5 text-left transition-colors select-none']">
+                        <span class="shrink-0 rounded-md px-1.5 py-0.5 font-mono text-xs tabular-nums transition-colors" :class="'bg-foreground-0/5 text-transparent'">
+                            00:00
+                        </span>
+                        <span class="bg-foreground-0/15 h-5 w-full rounded-md"></span>
+                    </div>
                 </div>
                 <TranscriptStatus
                     v-else-if="hasError"
@@ -188,7 +190,7 @@ watch(activeIndex, async (index) => {
                         <ProiconsArrowSync class="size-3.5" />
                     </template>
                 </TranscriptStatus>
-                <TranscriptStatus v-else-if="!filteredTranscript.length" :copy="{ heading: 'Transcript is empty' }" badge-class="bg-white/8 text-white/40">
+                <TranscriptStatus v-else-if="!filteredTranscript.length" :copy="{ heading: 'Transcript is empty' }">
                     <template #icon>
                         <IconCaptionsOff class="size-4 sm:size-5" />
                     </template>

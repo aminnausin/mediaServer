@@ -2,7 +2,7 @@
 import type { SubtitleResource } from '@/contracts/media';
 
 import { useTranscript } from '@/components/video/transcript/useTranscript';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useAuth } from '@/composables/auth/useAuth';
 import { cn } from '@aminnausin/cedar-ui';
 
@@ -110,7 +110,7 @@ async function generateTranscript() {
         :is-busy="isBusy"
         :is-locked="status === 'queued'"
         :copy="copy"
-        :badge-class="cn({ 'bg-danger-2/10 text-danger-2': status === 'error', 'bg-white/8 text-white/40': status === 'idle' })"
+        :badge-class="cn({ 'bg-danger-2/10 text-danger-2': status === 'error' })"
         @action="requestTranscript"
     >
         <template #icon>

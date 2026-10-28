@@ -1643,7 +1643,7 @@ defineExpose({
             >
                 <!-- Watch Party (Z-7) -->
                 <VideoPartyPanel :is-showing-party="isShowingParty" />
-                <PlayerTranscript :is-visible="transcriptPlacement === 'overlay'" />
+                <PlayerTranscript :is-visible="transcriptPlacement === 'overlay'" class="dark" />
             </div>
         </div>
 
