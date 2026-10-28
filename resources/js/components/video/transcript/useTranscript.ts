@@ -1,12 +1,15 @@
 import type { SubtitleResource } from '@/contracts/media';
 import type { TranscriptLine } from '@/components/video/transcript/transcriptParser';
 import type { PlayerViewMode } from '@/components/video/VideoPlayer.vue';
+import type { AxiosError } from 'axios';
 import type { Ref } from 'vue';
 
 import { buildTranscriptUrl, findActiveTranscriptIndex } from '@/components/video/transcript/transcriptUtil.ts';
 import { computed, ref, shallowRef, watch } from 'vue';
 import { useReactiveBreakpoints } from '@/service/breakpoints/useReactiveBreakpoints';
+import { generateTranscript } from '@/service/media/attachments';
 import { parseTranscript } from '@/components/video/transcript/transcriptParser';
+import { subscribeToTask } from '@/service/wsService';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { toast } from '@aminnausin/cedar-ui';
@@ -153,6 +156,57 @@ function retry() {
 }
 
 async function requestTranscript() {
+    const id = context.value?.metadataId.value;
+    if (!id || generationStatus.value === 'processing') return;
+
+    useAppStore().createEcho();
+
+    const onComplete = async () => {
+        try {
+            const { data } = await API.get(`/metadata/${id}/transcript`);
+
+            if (context.value?.metadataId.value !== id) {
+                console.error('Selected video changed while loading transcript.', { old: id, new: context.value?.metadataId });
+                return;
+            }
+
+            generated(data.subtitle as SubtitleResource);
+            generationStatus.value = 'idle';
+        } catch (error) {
+            toast.error('Failed to load transcript', { description: 'Refresh to see updated subtitle tracks' });
+            console.error(error);
+        }
+    };
+
+    generationStatus.value = 'processing';
+    try {
+        const result = await toast.promise(generateTranscript(id), {
+            loading: 'Transcribing Video',
+            loadingDescription: `Setting up transcription job...`,
+            success: 'Transcription queued!',
+            error: 'Failed to transcribe video',
+            errorDescription: (err) => {
+                const axiosErr = err as AxiosError<{ message?: string }>;
+                return axiosErr.response?.data?.message ?? axiosErr.message;
+            },
+        });
+
+        subscribeToTask(result.data.task_id, { onComplete });
+    } catch (error: any) {
+        if ((error as AxiosError).status === 503) toast.error('Transcription service is unavailable'); //toast.error((error as AxiosError).data.message);
+
+        const taskId = error?.response?.data?.task_id;
+
+        if (error?.response?.status === 409 && taskId) {
+            subscribeToTask(taskId, { onComplete });
+            return;
+        }
+
+        generationStatus.value = 'error';
+    }
+}
+
+async function requestBasicTranscript() {
     const id = context.value?.metadataId.value;
     if (!id || generationStatus.value === 'processing') return;
 

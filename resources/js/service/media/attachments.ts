@@ -76,3 +76,7 @@ export const runRegenerateFonts = async (videoId: number, metadataId: number) =>
         console.error(error);
     }
 };
+
+export const generateTranscript = (metadataId: number): Promise<AxiosResponse<{ task_id: number; message?: string }>> => {
+    return API.post(`/metadata/${metadataId}/transcript`, {}, { headers: { 'X-Skip-Toast': 'true' } });
+};
