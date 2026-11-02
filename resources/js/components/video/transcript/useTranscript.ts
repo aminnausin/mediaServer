@@ -201,6 +201,7 @@ async function requestTranscript() {
         });
 
         subscribeToTask(result.data.task_id, { onComplete });
+        generationStatus.value = 'queued';
     } catch (error: any) {
         if ((error as AxiosError).status === 503) toast.error('Transcription service is unavailable'); //toast.error((error as AxiosError).data.message);
 
