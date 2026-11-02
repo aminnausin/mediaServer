@@ -3,23 +3,37 @@
 namespace App\Http\Controllers\Api\V1\Metadata;
 
 use App\Data\Access\RateLimitData;
+use App\Enums\TaskStatus;
 use App\Exceptions\TranscriptionException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SubtitleResource;
+use App\Jobs\Transcription\IngestTranscript;
+use App\Jobs\Transcription\QueueTranscript;
 use App\Models\Metadata;
+use App\Models\SubTask;
 use App\Models\Subtitle;
+use App\Services\FileJobService;
 use App\Services\RateLimitService;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
 class TranscriptController extends Controller {
-    public function __construct(protected RateLimitService $rateLimiter) {}
+    public function __construct(protected FileJobService $fileJobService, protected RateLimitService $rateLimiter) {}
 
-    public function regenerate(Metadata $metadata): JsonResponse {
+    public function get(Request $request, Metadata $metadata) {
+        $language = $request->query('language');
+        $subtitle = Subtitle::where('metadata_uuid', $metadata->uuid)->when($language, fn ($query) => $query->where('language', $language))->firstOrFail();
+
+        return response()->json(new SubtitleResource($subtitle));
+    }
+
+    public function generateInline(Metadata $metadata): JsonResponse {
         $limits = $this->getRateLimits();
         $isAdmin = Gate::allows('admin');
 
@@ -44,11 +58,48 @@ class TranscriptController extends Controller {
                 'language_probability' => $transcript['language_probability'],
                 'segment_count' => $transcript['segment_count'],
             ], 201);
+        } catch (ConnectionException $e) {
+            return response()->json(['message' => 'Transcription service is unavailable'], 503);
         } catch (FileNotFoundException $e) {
             return response()->json(['message' => $e->getMessage()], 404);
         } catch (TranscriptionException $e) {
             return response()->json(['message' => $e->getMessage(), 'error' => $e->error()], $e->status());
         }
+    }
+
+    public function generate(Metadata $metadata): JsonResponse {
+        $limits = $this->getRateLimits();
+        $isAdmin = Gate::allows('admin');
+
+        if (! $isAdmin) {
+            $rateLimitError = $this->rateLimiter->getRateLimitError($limits);
+
+            if ($rateLimitError) {
+                return $rateLimitError;
+            }
+
+            $this->rateLimiter->hitRateLimits($limits);
+        }
+
+        $alreadyRunning = SubTask::where('reference_uuid', $metadata->uuid)
+            ->whereIn('reference_type', [QueueTranscript::class, IngestTranscript::class])
+            ->whereIn('status', [TaskStatus::PENDING, TaskStatus::PROCESSING])
+            ->whereHas('task', function ($query) {
+                $query->whereIn('status', [
+                    TaskStatus::PENDING,
+                    TaskStatus::PROCESSING,
+                ]);
+            })
+            ->latest()
+            ->first();
+
+        if ($alreadyRunning) {
+            return response()->json(['message' => 'Transcript generation already in progress', 'task_id' => $alreadyRunning->task_id], 409);
+        }
+
+        $task = $this->fileJobService->generateTranscript(Auth::id(), $metadata);
+
+        return response()->json(['task_id' => $task->id], 202);
     }
 
     private function getRateLimits(): array {
