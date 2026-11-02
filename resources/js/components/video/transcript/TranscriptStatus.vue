@@ -52,7 +52,7 @@ defineEmits<{ action: [] }>();
             "
             @click="$emit('action')"
         >
-            <ProiconsArrowClockwise v-if="isBusy || isLocked" :class="cn('size-3.5 shrink-0 animate-spin', buttonIconClass)" />
+            <ProiconsArrowClockwise v-if="isBusy" :class="cn('size-3.5 shrink-0 animate-spin', buttonIconClass)" />
             <slot name="buttonIcon" v-else> </slot>
             <span class="line-clamp-1 break-all">{{ copy.button }}</span>
         </ButtonBase>

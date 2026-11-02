@@ -59,7 +59,8 @@ const copy = computed(() => {
         case 'queued':
             return {
                 heading: 'Transcript queued',
-                button: 'Queued…',
+                description: 'Waiting for transcript service to respond',
+                button: 'Waiting…',
             };
         case 'processing':
             return {
