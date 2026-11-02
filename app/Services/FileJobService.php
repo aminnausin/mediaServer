@@ -382,10 +382,11 @@ class FileJobService {
                     taskId: $task->id,
                 );
 
-                DB::transaction(function () use ($task) {
-                    $this->taskService->updateTaskCounts($task->id, ['sub_tasks_total' => '++', 'sub_tasks_pending' => '++', 'sub_tasks_current' => '++']);
+                $taskService = $this->taskService;
+                DB::transaction(function () use ($task, $taskService) {
+                    $taskService->updateTaskCounts($task->id, ['sub_tasks_total' => '++', 'sub_tasks_pending' => '++', 'sub_tasks_current' => '++']);
 
-                    $this->taskService->updateTask($task->id, [
+                    $taskService->updateTask($task->id, [
                         'status' => TaskStatus::PROCESSING,
                     ]);
                 });
