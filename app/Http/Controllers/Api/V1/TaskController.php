@@ -94,7 +94,7 @@ class TaskController extends Controller {
         $batch = $task->batch_id ? Bus::findBatch($task->batch_id) : null;
 
         if (! $batch) {
-            $taskService->updateTask($task->id, ['status' => TaskStatus::INCOMPLETE]);
+            $taskService->updateTask($task->id, ['status' => TaskStatus::INCOMPLETE], true);
 
             $message = $task->batch_id
                 ? 'Batch not found.'
@@ -106,7 +106,7 @@ class TaskController extends Controller {
         }
 
         $batch->cancel();
-        $taskService->updateTask($task->id, ['status' => TaskStatus::CANCELLED]);
+        $taskService->updateTask($task->id, ['status' => TaskStatus::CANCELLED], true);
 
         return response()->json(['message' => 'Batch canceled successfully.']);
     }
