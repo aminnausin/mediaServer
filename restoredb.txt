@@ -1,0 +1,4 @@
+pg_dump -h localhost -p 5442 -U postgres -W -Fc -d mediaServer -f "mediaServer-$(date +%Y%m%d-%H%M%S).dump"
+dropdb -h localhost -p 5442 -U postgres --force mediaServer
+createdb -h localhost -p 5442 -U postgres mediaServer
+pg_restore -h localhost -p 5442 -U postgres -W --clean --if-exists --create -d postgres .\mediaServer-20261101-121724.dump
