@@ -157,7 +157,10 @@ function retry() {
 
 async function requestTranscript() {
     const id = context.value?.metadataId.value;
-    if (!id || generationStatus.value === 'processing') return;
+    if (!id || generationStatus.value === 'processing') {
+        console.warn('Invalid transcript request due to metadata id or generation status', id, generationStatus.value);
+        return;
+    }
 
     useAppStore().createEcho();
 
@@ -166,7 +169,7 @@ async function requestTranscript() {
             const { data } = await getTranscript(id);
 
             if (context.value?.metadataId.value !== id) {
-                console.error('Selected video changed while loading transcript.', { old: id, new: context.value?.metadataId });
+                console.warn('Selected video changed while loading transcript.', { old: id, new: context.value?.metadataId });
                 return;
             }
 

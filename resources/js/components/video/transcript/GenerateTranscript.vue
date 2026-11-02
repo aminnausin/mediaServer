@@ -37,7 +37,7 @@ const buttonIcon = computed(() => {
         case 'error':
             return ProiconsArrowSync;
         case 'queued':
-            return ProiconsClock;
+            return undefined;
         default:
             return ProiconsSparkle;
     }
@@ -60,7 +60,6 @@ const copy = computed(() => {
             return {
                 heading: 'Transcript queued',
                 description: 'Waiting for transcript service to respond',
-                button: 'Waiting…',
             };
         case 'processing':
             return {
@@ -80,29 +79,6 @@ const copy = computed(() => {
         }
     }
 });
-
-// Todo: implement ws based transcript generation
-async function generateTranscript() {
-    try {
-        // const { jobId } = await api.requestTranscript(videoId);
-        // status.value = 'queued';
-        //
-        // subscribeToTranscriptJob(jobId, {
-        //     onQueued: () => { status.value = 'queued'; },
-        //     onProcessing: () => { status.value = 'processing'; },
-        //     onComplete: (track) => {
-        //         status.value = 'idle';
-        //         emit('generated', track);
-        //     },
-        //     onFailed: () => {
-        //         status.value = 'error';
-        //     },
-        // });
-        status.value = 'idle';
-    } catch (error) {
-        status.value = 'error';
-    }
-}
 </script>
 
 <template>
@@ -118,7 +94,7 @@ async function generateTranscript() {
             <component :is="icon" class="size-4 sm:size-5" />
         </template>
         <template #buttonIcon>
-            <component :is="buttonIcon" class="size-3.5 shrink-0" />
+            <component v-if="buttonIcon" :is="buttonIcon" class="size-3.5 shrink-0" />
         </template>
     </TranscriptStatus>
 </template>
