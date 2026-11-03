@@ -42,7 +42,7 @@ const tooltipToggle = (event: MouseEvent, state: boolean = true) => {
 };
 
 const buttonStyle = computed(() => {
-    const classes = ['text-white/80 transition-colors ease-in hover:text-white cursor-pointer'];
+    const classes = ['text-white/80 transition-[color,background-color,transform] ease-out hover:text-white active:scale-[0.95] motion-reduce:active:scale-100 cursor-pointer'];
     if (props.useBackground) return cn(classes, 'rounded-full hover:bg-white/10 p-1');
     return classes;
 });
