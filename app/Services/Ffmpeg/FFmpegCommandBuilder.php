@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Ffmpeg;
+namespace App\Services\FFmpeg;
 
 use App\Enums\HardwareType;
 use App\Services\Hardware\HardwareDetectionService;

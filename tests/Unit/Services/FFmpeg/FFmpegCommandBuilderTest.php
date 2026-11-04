@@ -3,7 +3,7 @@
 namespace Tests\Unit\Services\FFmpeg;
 
 use App\Enums\HardwareType;
-use App\Services\Ffmpeg\FFmpegCommandBuilder;
+use App\Services\FFmpeg\FFmpegCommandBuilder;
 use App\Services\Hardware\HardwareDetectionService;
 use App\Services\Hardware\HardwareProfile;
 use App\Services\Images\Storyboard\StoryboardOptions;
