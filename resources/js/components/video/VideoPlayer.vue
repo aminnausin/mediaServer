@@ -4,6 +4,7 @@ import type { ContextMenuItem, PopoverItem } from '@/types/types';
 import { controlsHideTime, playbackDataBuffer, playerHealthBuffer, volumeDelta, playbackDelta, playbackMin, playbackMax } from '@/service/player/playerConstants';
 import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, useTemplateRef, watch } from 'vue';
+import { connectLocalLibrary, getLocalUrl, listLocalLibrary } from '@/service/proxy/useLocalLibrary';
 import { copyVideoFrame, saveVideoFrame } from '@/service/player/frameService';
 import { usePlaybackProgress } from '@/composables/player/usePlaybackProgress';
 import { useRoute, useRouter } from 'vue-router';
@@ -72,6 +73,7 @@ import IconCaptions from '@/components/icons/IconCaptions.vue';
 import ProiconsPlay from '~icons/proicons/play';
 import MagePlaylist from '~icons/mage/playlist';
 import CircumTimer from '~icons/circum/timer';
+import IconReplay from '@/components/icons/IconReplay.vue';
 import IconPause from '@/components/icons/IconPause.vue';
 
 export type PlayerViewMode = 'normal' | 'theatre' | 'fullscreen';
@@ -198,6 +200,7 @@ const isLoading = ref(false);
 const isLooping = ref(false);
 const isPaused = ref(true);
 const isMuted = ref(false);
+const isEnded = ref(false);
 
 const rewindTick = ref(0);
 const fastForwardTick = ref(0);
@@ -240,6 +243,8 @@ const timeStrings = computed(() => {
     };
 });
 
+const playLabel = computed(() => (!isPaused.value ? 'Pause' : isEnded.value ? 'Replay' : 'Play'));
+
 const keyBinds = computed(() => {
     let keys = {
         mute: ` (m)`,
@@ -272,7 +277,7 @@ const keyBinds = computed(() => {
     return {
         mute: `${isMuted.value ? 'Unmute' : 'Mute'}${keys.mute}`,
         previous: `Play Previous${keys.previous}`,
-        play: `${isPaused.value ? 'Play' : 'Pause'}${keys.play}`,
+        play: `${playLabel.value}${keys.play}`,
         next: `Play Next${keys.next}`,
         theatre: `${isTheatreView.value ? 'Exit Theatre Mode' : 'Theatre Mode'}${keys.theatre}`,
         fullscreen: `${isFullScreen.value ? 'Exit Full Screen' : 'Full Screen'}${keys.fullscreen}`,
@@ -528,6 +533,22 @@ const posterUrl = computed(() => {
     return isAudio.value ? (url ?? audioFallback) : url;
 });
 
+const videoSrc = ref<string>();
+
+const resolveSource = async () => {
+    if (videoSrc.value?.startsWith('blob:')) URL.revokeObjectURL(videoSrc.value);
+
+    const path = stateVideo.value?.path;
+    if (!path) {
+        videoSrc.value = undefined;
+        return;
+    }
+
+    console.log(path.replace('storage/media/', ''));
+
+    videoSrc.value = (await getLocalUrl(path.replace('storage/media', ''))) ?? '/' + path.split('/').map(encodeURIComponent).join('/');
+};
+
 const initVideoPlayer = async (previousId: number) => {
     if (stateVideo.value.id === currentId.value || stateVideo.value.id === previousId) {
         // Only reset metadata on statevideo update if id is the same
@@ -547,6 +568,7 @@ const initVideoPlayer = async (previousId: number) => {
     else playerSubtitles.value?.clearSubtitles(); // Otherwise clear
 
     isLooping.value = false;
+    isEnded.value = false;
     currentSpeed.value = 1;
     currentId.value = null;
     isThumbnailDismissed.value = false;
@@ -567,6 +589,7 @@ const initVideoPlayer = async (previousId: number) => {
     metadataId.value = stateVideo.value?.metadata ? stateVideo.value?.metadata.id : NaN;
 
     initBrowserMetadata();
+    await resolveSource();
 
     if (!isFullScreen.value && !isAutoPlay.value) {
         onPlayerPause();
@@ -721,6 +744,7 @@ const onPlayerEnded = () => {
         return;
     }
 
+    isEnded.value = true;
     emit('ended');
 
     if (isPlaylist.value) {
@@ -976,6 +1000,7 @@ const handleSeek = (seconds?: number) => {
 };
 
 const onSeeked = () => {
+    isEnded.value = false;
     debouncedEndTime();
     emit('seeked');
     getPlayerInfo();
@@ -1396,6 +1421,9 @@ onMounted(() => {
     globalThis.addEventListener('pointerup', stopScrub);
     globalThis.addEventListener('contextmenu', stopScrub);
     unSub = onSeek(handleManualSeek);
+    resolveSource();
+    (window as any).connectLocalLibrary = connectLocalLibrary;
+    (window as any).listLocalLibrary = listLocalLibrary;
 });
 
 onBeforeUnmount(() => {
@@ -1486,8 +1514,11 @@ defineExpose({
                         { '[--subtitle-bottom-offset:3em] sm:[--subtitle-bottom-offset:2em]': isShowingControls },
                     )
                 "
-                :src="stateVideo?.path ? '/' + stateVideo.path.split('/').map(encodeURIComponent).join('/') : undefined"
-                @play="isPaused = false"
+                :src="videoSrc"
+                @play="
+                    isPaused = false;
+                    isEnded = false;
+                "
                 @pause="isPaused = true"
                 @ended="onPlayerEnded"
                 @loadstart="onPlayerLoadStart"
@@ -1710,7 +1741,8 @@ defineExpose({
                                 :offset="videoButtonOffset"
                             >
                                 <template #icon>
-                                    <ProiconsPlay v-if="isPaused" class="size-4" />
+                                    <IconReplay v-if="isPaused && isEnded" class="size-4" />
+                                    <ProiconsPlay v-else-if="isPaused" class="size-4" />
                                     <IconPause v-else class="size-4" />
                                 </template>
                             </VideoButton>
