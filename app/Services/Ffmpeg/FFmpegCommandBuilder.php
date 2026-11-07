@@ -104,12 +104,32 @@ class FFmpegCommandBuilder {
         ];
     }
 
+    public function extractAudio(string $filePath, string $outputPath, ExtractAudioOptions $options = new ExtractAudioOptions): array {
+        return [
+            'ffmpeg',
+            '-nostdin',
+            '-i',
+            "file:{$filePath}",
+            '-map',
+            "0:a:{$options->stream}",
+            '-vn',
+            '-sn',
+            '-ac',
+            (string) $options->channels,
+            '-ar',
+            (string) $options->sampleRate,
+            '-c:a',
+            $options->codec,
+            '-f',
+            $options->format,
+            '-y',
+            $outputPath,
+        ];
+    }
+
     // region
     // TODO: Implement
     // public function posterFrame(string $filePath, string $outputPath, int $offset): array {
-    //     return [];
-    // }
-    // public function extractAudio(string $filePath, string $outputPath): array {
     //     return [];
     // }
     // public function transcode(string $filePath, string $outputPath, TranscodeOptions $options): array {
