@@ -11,8 +11,11 @@ use App\Jobs\Maintenance\PurgeStaleGuestData;
 use App\Jobs\Metadata\ExtractFonts;
 use App\Jobs\Metadata\GenerateStoryboard;
 use App\Jobs\SyncFiles;
+use App\Jobs\Transcription\GenerateTranscript;
 use App\Jobs\Transcription\IngestTranscript;
+use App\Jobs\Transcription\PrepareTranscriptAudio;
 use App\Jobs\Transcription\QueueTranscript;
+use App\Jobs\Transcription\SaveTranscript;
 use App\Jobs\Utility\Paths\CleanFolderPaths;
 use App\Jobs\Utility\Paths\CleanVideoPaths;
 use App\Jobs\VerifyFiles;
@@ -360,6 +363,28 @@ class FileJobService {
     }
 
     public function generateTranscript(int $userId, Metadata $metadata): Task {
+        return config('services.transcribe.mode') === 'redis'
+            ? $this->generateTranscriptViaRedis($userId, $metadata)
+            : $this->generateTranscriptViaHttp($userId, $metadata);
+    }
+
+    private function generateTranscriptViaHttp(int $userId, Metadata $metadata): Task {
+        $filePath = VerifyFiles::getAbsoluteMediaPath($metadata->video);
+
+        return $this->executeBatchOperation(
+            userId: $userId,
+            name: 'Generate Transcript',
+            description: 'Generates transcript for ' . $metadata->composite_id,
+            chain: fn ($task) => [
+                new PrepareTranscriptAudio($filePath, $metadata->uuid, $task->id),
+                new GenerateTranscript($filePath, $metadata->uuid, $task->id),
+                new SaveTranscript($filePath, $metadata->uuid, $task->id),
+            ],
+            queue: 'encode',
+        );
+    }
+
+    public function generateTranscriptViaRedis(int $userId, Metadata $metadata): Task {
         $name = 'Generate Transcript';
         $description = 'Generates transcript for ' . $metadata->composite_id;
 
