@@ -1,5 +1,7 @@
 import { get, set } from 'idb-keyval'; // npm i idb-keyval
 
+type Kind = 'directory' | 'file';
+
 const KEY = 'localLibraryRoot';
 let root: FileSystemDirectoryHandle | null = null;
 
@@ -39,16 +41,36 @@ export async function getLocalUrl(path: string) {
     try {
         root ??= (await get(KEY)) ?? null;
         if (!root || (await root.queryPermission({ mode: 'read' })) !== 'granted') return null;
-        console.log('Using local directory', path);
-        const parts = path.split('/').filter(Boolean);
-        const name = parts.pop()!;
-        let dir = root;
-        for (const part of parts) dir = await dir.getDirectoryHandle(part);
 
-        return URL.createObjectURL(await (await dir.getFileHandle(name)).getFile());
+        const parts = path.split('/').filter(Boolean);
+        const fileName = parts.pop();
+        if (!fileName) return null;
+
+        let dir = root;
+        for (const part of parts) {
+            const next = await findChild(dir, part, 'directory');
+            if (!next) return null;
+            dir = next as FileSystemDirectoryHandle;
+        }
+
+        const file = (await findChild(dir, fileName, 'file')) as FileSystemFileHandle | null;
+        if (!file) return null;
+
+        console.log('Using local directory', path);
+        return URL.createObjectURL(await file.getFile());
     } catch (e) {
         console.log('Local directory failed', path, e);
 
         return null;
     }
+}
+
+async function findChild(dir: FileSystemDirectoryHandle, name: string, kind: FileSystemHandleKind) {
+    const exact = await (kind === 'directory' ? dir.getDirectoryHandle(name) : dir.getFileHandle(name)).catch(() => null);
+    if (exact) return exact;
+
+    for await (const [entry, handle] of dir.entries()) {
+        if (handle.kind === kind && entry.toLowerCase() === name.toLowerCase()) return handle;
+    }
+    return null;
 }
