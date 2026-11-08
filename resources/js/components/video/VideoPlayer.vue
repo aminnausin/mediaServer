@@ -773,10 +773,6 @@ const onPlayerPause = () => {
 
 const onPlayerEnded = () => {
     currentId.value = null;
-    // if (isLooping.value) {
-    //     onPlayerPlay();
-    //     return;
-    // }
 
     isEnded.value = true;
     emit('ended');
@@ -809,28 +805,11 @@ const onPlayerLoadeddata = () => {
     emit('loadedMetadata');
 };
 
-const onPlayerError = async () => {
-    toast.error('player error');
-    if (!videoSrc.value?.startsWith('blob:') || !stateVideo.value?.path) return;
-    const time = getCurrentTime();
-    videoSrc.value = '/' + stateVideo.value.path.split('/').map(encodeURIComponent).join('/');
-    await nextTick();
-    handleManualSeek(time);
-};
-
 // Seamless Looping
-const onPlayerWaiting = () => {
-    return;
-    if (player.value?.loop) {
-        createRecord.mutate({ video_id: stateVideo.value.id });
-        updateViewCount(stateVideo.value.id);
-        handleProgress(true);
-    }
-};
-
 let lastTime = 0;
 const handleLoopWrap = () => {
     const t = player.value?.currentTime ?? 0;
+    // records if more than half of the playthrough was completed compared to the last loop time
     if (isLooping.value && lastTime - t > timeDuration.value / 2) {
         createRecord.mutate({ video_id: stateVideo.value.id });
         updateViewCount(stateVideo.value.id);
@@ -1587,12 +1566,10 @@ defineExpose({
                 @loadstart="onPlayerLoadStart"
                 @loadedmetadata="onPlayerLoadeddata"
                 @seeked="onSeeked"
-                @waiting="onPlayerWaiting"
                 @timeupdate="handlePlayerTimeUpdate"
                 @click="handlePlayerToggle"
                 @enterpictureinpicture="enterPictureInPicture"
                 @leavepictureinpicture="leavePictureInPicture"
-                @error="onPlayerError"
             >
                 <track
                     v-if="playerSubtitles?.currentSubtitleTrack?.codec !== 'ass'"
