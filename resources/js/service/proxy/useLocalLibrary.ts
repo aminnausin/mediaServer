@@ -1,15 +1,23 @@
-import { toast } from '@aminnausin/cedar-ui';
 import { del, get, set } from 'idb-keyval';
-import { each } from 'lodash-es';
 
 const KEY = 'localLibraryRoot';
 let root: FileSystemDirectoryHandle | null = null;
 
 export const hasLocalLibrary = 'showDirectoryPicker' in window;
 
+export async function queryLocalLibrary() {
+    root ??= (await get(KEY)) ?? null;
+    return root ? root.queryPermission({ mode: 'read' }) : 'none';
+}
+
+export async function reconnectLocalLibrary() {
+    root ??= (await get(KEY)) ?? null;
+    return !!root && (await root.requestPermission({ mode: 'read' })) === 'granted';
+}
+
 export async function connectLocalLibrary(reset = false) {
     root ??= (await get(KEY)) ?? null;
-    if (!reset && root && (await root.requestPermission({ mode: 'read' })) === 'granted') return;
+    if (!reset && root && (await root.requestPermission({ mode: 'read' })) === 'granted') return true;
 
     root = await (window as any).showDirectoryPicker({ mode: 'read' });
     await set(KEY, root);
@@ -46,7 +54,6 @@ export async function listLocalLibrary(subpath = '', depth = 1) {
 }
 
 export async function getLocalUrl(path: string) {
-    await listLocalLibrary();
     try {
         root ??= (await get(KEY)) ?? null;
         if (!root || (await root.queryPermission({ mode: 'read' })) !== 'granted') return null;
@@ -54,7 +61,6 @@ export async function getLocalUrl(path: string) {
         const parts = path.split('/').filter(Boolean);
         const fileName = parts.pop();
         if (!fileName) return null;
-        console.log(parts);
 
         let dir = root;
         for (const part of parts) {
@@ -70,29 +76,18 @@ export async function getLocalUrl(path: string) {
         return URL.createObjectURL(await file.getFile());
     } catch (e) {
         console.log('Local directory failed', path, e);
-
         return null;
     }
 }
 
 async function findChild(dir: FileSystemDirectoryHandle, name: string, kind: FileSystemHandleKind) {
     const exact = await (kind === 'directory' ? dir.getDirectoryHandle(name) : dir.getFileHandle(name)).catch(() => null);
-    if (exact) {
-        console.log(`exact match for "${name}" found as ${exact.name}`);
-        toast(`exact match for "${name}" found as ${exact.name}`);
-        return exact;
-    }
+    if (exact) return exact;
 
     for await (const [entry, handle] of dir.entries()) {
         if (handle.kind !== kind) continue;
-
-        if (entry.toLowerCase() === name.toLowerCase()) {
-            console.log(`simple match for ${entry} found`);
-            toast(`simple match for ${entry} found`);
-            return handle;
-        }
+        if (entry.toLowerCase() === name.toLowerCase()) return handle;
     }
-    console.log(`no match for "${name}"`);
-    toast(`no match for "${name}"`);
+
     return null;
 }

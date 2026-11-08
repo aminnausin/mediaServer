@@ -2,9 +2,9 @@
 import type { ContextMenuItem, PopoverItem } from '@/types/types';
 
 import { controlsHideTime, playbackDataBuffer, playerHealthBuffer, volumeDelta, playbackDelta, playbackMin, playbackMax } from '@/service/player/playerConstants';
+import { connectLocalLibrary, disconnectLocalLibrary, getLocalUrl, hasLocalLibrary, listLocalLibrary, queryLocalLibrary } from '@/service/proxy/useLocalLibrary';
 import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, useTemplateRef, watch } from 'vue';
-import { connectLocalLibrary, disconnectLocalLibrary, getLocalUrl, hasLocalLibrary, listLocalLibrary } from '@/service/proxy/useLocalLibrary';
 import { copyVideoFrame, saveVideoFrame } from '@/service/player/frameService';
 import { usePlaybackProgress } from '@/composables/player/usePlaybackProgress';
 import { useRoute, useRouter } from 'vue-router';
@@ -809,6 +809,14 @@ const onPlayerLoadeddata = () => {
     emit('loadedMetadata');
 };
 
+const onPlayerError = async () => {
+    if (!videoSrc.value?.startsWith('blob:') || !stateVideo.value?.path) return;
+    const time = getCurrentTime();
+    videoSrc.value = '/' + stateVideo.value.path.split('/').map(encodeURIComponent).join('/');
+    await nextTick();
+    handleManualSeek(time);
+};
+
 // Seamless Looping
 const onPlayerWaiting = () => {
     return;
@@ -900,7 +908,11 @@ const handleMute = () => {
     isMuted.value = !isMuted.value;
 };
 
-const handlePlayerToggle = () => {
+const handlePlayerToggle = async () => {
+    if (isPaused.value && !currentId.value && useLocalFiles.value && (await queryLocalLibrary()) === 'prompt') {
+        if (await connectLocalLibrary()) await resolveSource();
+    }
+
     if (isPaused.value) {
         onPlayerPlay();
         return;
@@ -1579,6 +1591,7 @@ defineExpose({
                 @click="handlePlayerToggle"
                 @enterpictureinpicture="enterPictureInPicture"
                 @leavepictureinpicture="leavePictureInPicture"
+                @error="onPlayerError"
             >
                 <track
                     v-if="playerSubtitles?.currentSubtitleTrack?.codec !== 'ass'"
