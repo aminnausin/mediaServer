@@ -46,7 +46,7 @@ export async function listLocalLibrary(subpath = '', depth = 1) {
 }
 
 export async function getLocalUrl(path: string) {
-    listLocalLibrary();
+    await listLocalLibrary();
     try {
         root ??= (await get(KEY)) ?? null;
         if (!root || (await root.queryPermission({ mode: 'read' })) !== 'granted') return null;
@@ -54,11 +54,11 @@ export async function getLocalUrl(path: string) {
         const parts = path.split('/').filter(Boolean);
         const fileName = parts.pop();
         if (!fileName) return null;
+        console.log(parts);
 
         let dir = root;
         for (const part of parts) {
             const next = await findChild(dir, part, 'directory');
-            toast(next?.name ?? 'No matching folder found');
             if (!next) return null;
             dir = next as FileSystemDirectoryHandle;
         }
@@ -78,16 +78,21 @@ export async function getLocalUrl(path: string) {
 async function findChild(dir: FileSystemDirectoryHandle, name: string, kind: FileSystemHandleKind) {
     const exact = await (kind === 'directory' ? dir.getDirectoryHandle(name) : dir.getFileHandle(name)).catch(() => null);
     if (exact) {
-        toast(`exact match for ${exact.name} found`);
+        console.log(`exact match for "${name}" found as ${exact.name}`);
+        toast(`exact match for "${name}" found as ${exact.name}`);
         return exact;
     }
 
     for await (const [entry, handle] of dir.entries()) {
-        if (handle.kind === kind && entry.toLowerCase() === name.toLowerCase()) {
-            toast(`simple match for ${handle.name} found`);
+        if (handle.kind !== kind) continue;
+
+        if (entry.toLowerCase() === name.toLowerCase()) {
+            console.log(`simple match for ${entry} found`);
+            toast(`simple match for ${entry} found`);
             return handle;
         }
     }
-    toast(`no match for ${name} found`);
+    console.log(`no match for "${name}"`);
+    toast(`no match for "${name}"`);
     return null;
 }
