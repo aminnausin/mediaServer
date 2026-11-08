@@ -810,6 +810,7 @@ const onPlayerLoadeddata = () => {
 };
 
 const onPlayerError = async () => {
+    toast.error('player error');
     if (!videoSrc.value?.startsWith('blob:') || !stateVideo.value?.path) return;
     const time = getCurrentTime();
     videoSrc.value = '/' + stateVideo.value.path.split('/').map(encodeURIComponent).join('/');
