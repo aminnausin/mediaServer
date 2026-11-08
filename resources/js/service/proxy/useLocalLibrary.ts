@@ -1,3 +1,4 @@
+import { toast } from '@aminnausin/cedar-ui';
 import { del, get, set } from 'idb-keyval';
 
 const KEY = 'localLibraryRoot';
@@ -88,6 +89,6 @@ async function findChild(dir: FileSystemDirectoryHandle, name: string, kind: Fil
         if (handle.kind !== kind) continue;
         if (entry.toLowerCase() === name.toLowerCase()) return handle;
     }
-
+    toast(`no match found for "${name}"`);
     return null;
 }
