@@ -123,10 +123,6 @@ function reset() {
 }
 
 async function loadTranscript(url: string | undefined, force = false) {
-    // const url = buildTranscriptUrl(subtitleTrack.value);
-
-    // if (!url || loadedTranscriptUrl.value === url) return;
-
     if (!url || (!force && url === loadedTranscriptUrl.value)) return;
 
     controller?.abort();
@@ -202,9 +198,7 @@ async function requestTranscript() {
                 return axiosErr.response?.data?.message ?? axiosErr.message;
             },
         });
-
         subscribeToTask(result.data.task_id, { onComplete });
-        generationStatus.value = 'queued';
     } catch (error: any) {
         if ((error as AxiosError).status === 503) toast.error('Transcription service is unavailable'); //toast.error((error as AxiosError).data.message);
 

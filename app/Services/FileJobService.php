@@ -579,7 +579,7 @@ class FileJobService {
             $this->taskService->updateTask($task->id, [
                 'status' => TaskStatus::FAILED,
                 'ended_at' => now(),
-            ]);
+            ], true);
 
             Log::error('Batch operation failed', [
                 'task_id' => $task->id,

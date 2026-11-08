@@ -2,7 +2,7 @@
 import type { SubtitleResource } from '@/contracts/media';
 
 import { useTranscript } from '@/components/video/transcript/useTranscript';
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { useAuth } from '@/composables/auth/useAuth';
 import { cn } from '@aminnausin/cedar-ui';
 
