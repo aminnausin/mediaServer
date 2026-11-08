@@ -88,6 +88,9 @@ const getPlayerDimensions = (player: HTMLVideoElement) => {
                     <p title="Path" class="max-w-44.5">
                         Path: <span>{{ stateVideo.path.split('/').at(-1) }}</span>
                     </p>
+                    <p title="Source" class="max-w-44.5">
+                        Source: <span>{{ player?.src.includes('blob') ? 'local disk' : 'remote server' }}</span>
+                    </p>
                 </section>
             </div>
             <ButtonCorner
