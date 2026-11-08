@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { ContextMenuItem, PopoverItem } from '@/types/types';
 
+import { connectLocalLibrary, disconnectLocalLibrary, getLocalUrl, hasLocalLibrary, queryLocalLibrary, reconnectLocalLibrary } from '@/service/proxy/useLocalLibrary';
 import { controlsHideTime, playbackDataBuffer, playerHealthBuffer, volumeDelta, playbackDelta, playbackMin, playbackMax } from '@/service/player/playerConstants';
-import { connectLocalLibrary, disconnectLocalLibrary, getLocalUrl, hasLocalLibrary, listLocalLibrary, queryLocalLibrary } from '@/service/proxy/useLocalLibrary';
 import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, useTemplateRef, watch } from 'vue';
 import { copyVideoFrame, saveVideoFrame } from '@/service/player/frameService';
@@ -386,7 +386,7 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
                 }
 
                 toast.promise(
-                    connectLocalLibrary(true).then(() => (useLocalFiles.value = true)),
+                    connectLocalLibrary().then(() => (useLocalFiles.value = true)),
                     {
                         loading: 'Connecting Local Library',
                         loadingDescription: 'Select a folder that mirrors your media library',
@@ -574,6 +574,7 @@ const resolveSource = async () => {
 
     const localPath = path.replace('storage/media/', '');
     const localSrc = useLocalFiles.value ? await getLocalUrl(localPath) : null;
+
     if (localSrc) {
         toast('Playing Local File', { description: localPath });
         videoSrc.value = localSrc;
@@ -890,7 +891,7 @@ const handleMute = () => {
 
 const handlePlayerToggle = async () => {
     if (isPaused.value && !currentId.value && useLocalFiles.value && (await queryLocalLibrary()) === 'prompt') {
-        if (await connectLocalLibrary()) await resolveSource();
+        if (await reconnectLocalLibrary()) await resolveSource();
     }
 
     if (isPaused.value) {
@@ -1463,8 +1464,6 @@ onMounted(() => {
     globalThis.addEventListener('contextmenu', stopScrub);
     unSub = onSeek(handleManualSeek);
     resolveSource();
-    (window as any).connectLocalLibrary = connectLocalLibrary;
-    (window as any).listLocalLibrary = listLocalLibrary;
 });
 
 onBeforeUnmount(() => {
