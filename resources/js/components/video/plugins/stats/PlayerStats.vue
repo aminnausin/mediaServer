@@ -28,7 +28,10 @@ const getPlayerDimensions = (player: HTMLVideoElement) => {
 <template>
     <div
         v-show="isShowingStats"
-        class="pointer-events-auto max-h-[60cqh] w-fit rounded-md border border-neutral-700/10 bg-neutral-800/90 p-2 backdrop-blur-xs sm:max-h-[75cqh] sm:min-w-52 xl:max-h-[85cqh]"
+        :class="[
+            'xm:min-h-0 pointer-events-auto h-auto min-h-[20cqh] w-fit rounded-md border border-neutral-700/10 bg-neutral-800/90 p-2 backdrop-blur-xs sm:min-w-52',
+            // 'xm:max-h-[60cqh] m:max-h-[75cqh] max-h-[60cqh] xl:max-h-[85cqh]',
+        ]"
     >
         <div class="scrollbar-minimal scrollbar-dark flex h-auto max-h-full w-full gap-2 overflow-y-auto pe-1 sm:pe-0">
             <div class="space-y-2">
