@@ -84,7 +84,7 @@ watch(
     () => props.isVisible,
     async (visible) => {
         if (!visible) return;
-        resync('auto', true);
+        await resync('auto', true);
     },
     { immediate: true },
 );

@@ -341,9 +341,9 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
             icon: isPictureInPicture.value ? ProiconsCheckmark : undefined,
             selected: isPictureInPicture.value,
             hidden: !document.pictureInPictureEnabled || isAudio.value,
-            action: () => {
+            action: async () => {
                 if (isLoading.value) return;
-                togglePictureInPicture();
+                await togglePictureInPicture();
             },
         },
         {
@@ -488,9 +488,9 @@ const videoPopoverItems = computed<PopoverItem[]>(() => [
         selectedIcon: ProiconsCheckmark,
         selected: isPictureInPicture.value,
         disabled: !document.pictureInPictureEnabled || isAudio.value,
-        action: () => {
+        action: async () => {
             if (isLoading.value) return;
-            togglePictureInPicture();
+            await togglePictureInPicture();
         },
     },
 ]);
@@ -539,7 +539,7 @@ const initVideoPlayer = async (previousId: number) => {
 
     if (isPictureInPicture.value) {
         isPictureInPicture.value = false;
-        togglePictureInPicture();
+        await togglePictureInPicture();
     }
 
     if (playerSubtitles.value && playerSubtitles.value.defaultSubtitleTrack && showAutoSubtitles.value)
@@ -1197,8 +1197,7 @@ const handleKeyBinds = (event: KeyboardEvent, override = false) => {
             else playerSubtitles.value?.handleSubtitles();
             break;
         case 'f':
-            handleFullScreen();
-            break;
+            return handleFullScreen();
         case 't':
             handleTheatre();
             break;
@@ -1265,7 +1264,7 @@ const handleMediaSessionEvents = () => {
 
     navigator.mediaSession.setActionHandler('seekto', (details: MediaSessionActionDetails) => {
         if (!details.seekTime) return;
-        handleManualSeek(details.seekTime);
+        return handleManualSeek(details.seekTime);
     });
 };
 
@@ -1357,9 +1356,7 @@ registerTranscriptContext({
 provide('player', player);
 provide('isAudio', isAudio);
 
-watch(stateVideo, (_, old) => {
-    initVideoPlayer(old.id);
-});
+watch(stateVideo, async (_, old) => initVideoPlayer(old.id));
 
 watch(isShowingControls, async (visible) => {
     if (!visible || !shouldUpdateUI.value || !player.value) return;
@@ -1380,14 +1377,14 @@ watch(
 
         if (value[1] === old[1]) {
             // if time changes but video id does not change
-            handleLoadUrlTime();
+            await handleLoadUrlTime();
         }
     },
     { immediate: false },
 );
 
-onMounted(() => {
-    if (document.pictureInPictureElement) document.exitPictureInPicture();
+onMounted(async () => {
+    if (document.pictureInPictureElement) await document.exitPictureInPicture();
     handleLoadSavedVolume();
     handleMediaSessionEvents();
     globalThis.addEventListener('keydown', handleKeyBinds);
