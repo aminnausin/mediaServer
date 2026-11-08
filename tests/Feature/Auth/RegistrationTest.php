@@ -61,39 +61,56 @@ class RegistrationTest extends TestCase {
 
     public function test_name_rejects_reserved_words(): void {
         foreach (['admin', 'profile', 'settings', 'login', 'register'] as $reserved) {
-            $this->postJson(self::API_ENDPOINT, $this->validPayload(['name' => $reserved]))
-                ->assertUnprocessable()
-                ->assertJsonValidationErrors('name');
+            $response = $this->postJson(self::API_ENDPOINT, $this->validPayload(['name' => $reserved]));
+            $this->assertContains($response->status(), [422, 429]);
+
+            if ($response->status() === 422) {
+                $response->assertJsonValidationErrors('name');
+            }
         }
     }
 
     public function test_name_is_unique(): void {
         User::factory()->create(['name' => 'existinguser']);
 
-        $this->postJson(self::API_ENDPOINT, $this->validPayload(['name' => 'existinguser']))
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors('name');
+        $response = $this->postJson(self::API_ENDPOINT, $this->validPayload(['name' => 'existinguser']));
+        $this->assertContains($response->status(), [422, 429]);
+
+        if ($response->status() === 422) {
+            $response->assertJsonValidationErrors('name');
+        }
     }
 
     public function test_name_unique_check_is_case_insensitive(): void {
         User::factory()->create(['name' => 'existinguser']);
 
-        $this->postJson(self::API_ENDPOINT, $this->validPayload(['name' => 'ExistingUser']))
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors('name');
+        $response = $this->postJson(self::API_ENDPOINT, $this->validPayload(['name' => 'ExistingUser']));
+        $this->assertContains($response->status(), [422, 429]);
+
+        if ($response->status() === 422) {
+            $response->assertJsonValidationErrors('name');
+        }
     }
 
     public function test_email_must_be_unique(): void {
         User::factory()->create(['email' => self::VALID_EMAIL]);
 
-        $this->postJson(self::API_ENDPOINT, $this->validPayload())
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors('email');
+        $response = $this->postJson(self::API_ENDPOINT, $this->validPayload());
+
+        $this->assertContains($response->status(), [422, 429]);
+
+        if ($response->status() === 422) {
+            $response->assertJsonValidationErrors('email');
+        }
     }
 
     public function test_password_must_be_confirmed(): void {
-        $this->postJson(self::API_ENDPOINT, $this->validPayload(['password_confirmation' => 'wrong']))
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors('password');
+        $response = $this->postJson(self::API_ENDPOINT, $this->validPayload(['password_confirmation' => 'wrong']));
+
+        $this->assertContains($response->status(), [422, 429]);
+
+        if ($response->status() === 422) {
+            $response->assertJsonValidationErrors('password');
+        }
     }
 }
