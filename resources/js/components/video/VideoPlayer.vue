@@ -4,7 +4,7 @@ import type { ContextMenuItem, PopoverItem } from '@/types/types';
 import { controlsHideTime, playbackDataBuffer, playerHealthBuffer, volumeDelta, playbackDelta, playbackMin, playbackMax } from '@/service/player/playerConstants';
 import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, useTemplateRef, watch } from 'vue';
-import { connectLocalLibrary, getLocalUrl, hasLocalLibrary, listLocalLibrary } from '@/service/proxy/useLocalLibrary';
+import { connectLocalLibrary, disconnectLocalLibrary, getLocalUrl, hasLocalLibrary, listLocalLibrary } from '@/service/proxy/useLocalLibrary';
 import { copyVideoFrame, saveVideoFrame } from '@/service/player/frameService';
 import { usePlaybackProgress } from '@/composables/player/usePlaybackProgress';
 import { useRoute, useRouter } from 'vue-router';
@@ -379,6 +379,7 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
             hidden: !hasLocalLibrary,
             action: async () => {
                 if (useLocalFiles.value) {
+                    await disconnectLocalLibrary();
                     useLocalFiles.value = false;
                     toast('Local Library Disabled', { description: 'Files will play from the server' });
                     return;
@@ -571,9 +572,10 @@ const resolveSource = async () => {
         return;
     }
 
-    const localSrc = useLocalFiles.value ? await getLocalUrl(path.replace('storage/media/', '')) : null;
+    const localPath = path.replace('storage/media/', '');
+    const localSrc = useLocalFiles.value ? await getLocalUrl(localPath) : null;
     if (localSrc) {
-        toast('Playing Local File');
+        toast('Playing Local File', { description: localPath });
         videoSrc.value = localSrc;
         return;
     }
