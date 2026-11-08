@@ -7,7 +7,7 @@ export const hasLocalLibrary = 'showDirectoryPicker' in window;
 
 export async function connectLocalLibrary(reset = false) {
     root ??= (await get(KEY)) ?? null;
-    if (root && (await root.requestPermission({ mode: 'read' })) === 'granted') return;
+    if (!reset && root && (await root.requestPermission({ mode: 'read' })) === 'granted') return;
 
     root = await (window as any).showDirectoryPicker({ mode: 'read' });
     await set(KEY, root);
