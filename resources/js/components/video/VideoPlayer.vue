@@ -384,11 +384,6 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
                     return;
                 }
 
-                const enableLocalLibrary = async () => {
-                    await connectLocalLibrary(true);
-                    useLocalFiles.value = true;
-                };
-
                 toast.promise(
                     connectLocalLibrary(true).then(() => (useLocalFiles.value = true)),
                     {
@@ -576,7 +571,14 @@ const resolveSource = async () => {
         return;
     }
 
-    videoSrc.value = (useLocalFiles.value ? await getLocalUrl(path) : null) ?? '/' + path.split('/').map(encodeURIComponent).join('/');
+    const localSrc = useLocalFiles.value ? await getLocalUrl(path.replace('storage/media/', '')) : null;
+    if (localSrc) {
+        toast('Playing Local File');
+        videoSrc.value = localSrc;
+        return;
+    }
+
+    videoSrc.value = '/' + path.split('/').map(encodeURIComponent).join('/');
 };
 
 const initVideoPlayer = async (previousId: number) => {
