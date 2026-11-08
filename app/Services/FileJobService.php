@@ -385,13 +385,10 @@ class FileJobService {
     }
 
     public function generateTranscriptViaRedis(int $userId, Metadata $metadata): Task {
-        $name = 'Generate Transcript';
-        $description = 'Generates transcript for ' . $metadata->composite_id;
-
         return $this->executeBatchOperation(
             userId: $userId,
-            name: $name,
-            description: $description,
+            name: 'Generate Transcript',
+            description: 'Generates transcript for ' . $metadata->composite_id,
             chain: fn ($task) => [
                 new QueueTranscript(
                     filePath: VerifyFiles::getAbsoluteMediaPath($metadata->video),

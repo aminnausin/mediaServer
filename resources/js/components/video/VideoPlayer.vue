@@ -378,17 +378,17 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
         {
             text: 'Save Frame',
             hidden: isAudio.value,
-            action: () => {
+            action: async () => {
                 if (!player.value) return;
-                saveVideoFrame(player.value);
+                await saveVideoFrame(player.value);
             },
         },
         {
             text: 'Copy Frame',
             hidden: isAudio.value,
-            action: () => {
+            action: async () => {
                 if (!player.value) return;
-                copyVideoFrame(player.value);
+                await copyVideoFrame(player.value);
             },
         },
     ].map((item) => ({ ...item, selectedStyle: '' })),
@@ -901,9 +901,9 @@ const handleFullScreen = async () => {
     if (!container.value) return;
     try {
         if (!isFullScreen.value || document.fullscreenElement === null) {
-            cycleViewMode('fullscreen');
+            await cycleViewMode('fullscreen');
         } else {
-            cycleViewMode('normal');
+            await cycleViewMode('normal');
         }
     } catch (error) {
         document.documentElement.classList.remove('fullscreen');
@@ -955,7 +955,7 @@ function getCurrentTime() {
 
 //#region Seek
 
-const handleManualSeek = async (seconds: number) => {
+const handleManualSeek = (seconds: number) => {
     if (!player.value) return;
 
     seconds = Math.min(Math.max(seconds, 0), timeDuration.value);
@@ -1089,7 +1089,7 @@ const handleLoadSavedVolume = () => {
     if (normalVolume === 0) isMuted.value = true;
 };
 
-const handleLoadUrlTime = async () => {
+const handleLoadUrlTime = () => {
     if (!route.query.t) return;
     const seconds = Number.parseInt(route.query.t.toString());
     handleManualSeek(seconds);
@@ -1264,7 +1264,7 @@ const handleMediaSessionEvents = () => {
 
     navigator.mediaSession.setActionHandler('seekto', (details: MediaSessionActionDetails) => {
         if (!details.seekTime) return;
-        return handleManualSeek(details.seekTime);
+        handleManualSeek(details.seekTime);
     });
 };
 
@@ -1377,7 +1377,7 @@ watch(
 
         if (value[1] === old[1]) {
             // if time changes but video id does not change
-            await handleLoadUrlTime();
+            handleLoadUrlTime();
         }
     },
     { immediate: false },
