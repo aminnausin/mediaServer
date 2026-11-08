@@ -739,10 +739,10 @@ const onPlayerPause = () => {
 
 const onPlayerEnded = () => {
     currentId.value = null;
-    if (isLooping.value) {
-        onPlayerPlay();
-        return;
-    }
+    // if (isLooping.value) {
+    //     onPlayerPlay();
+    //     return;
+    // }
 
     isEnded.value = true;
     emit('ended');
@@ -775,12 +775,25 @@ const onPlayerLoadeddata = () => {
     emit('loadedMetadata');
 };
 
+// Seamless Looping
 const onPlayerWaiting = () => {
+    return;
     if (player.value?.loop) {
         createRecord.mutate({ video_id: stateVideo.value.id });
         updateViewCount(stateVideo.value.id);
         handleProgress(true);
     }
+};
+
+let lastTime = 0;
+const handleLoopWrap = () => {
+    const t = player.value?.currentTime ?? 0;
+    if (isLooping.value && lastTime - t > timeDuration.value / 2) {
+        createRecord.mutate({ video_id: stateVideo.value.id });
+        updateViewCount(stateVideo.value.id);
+        handleProgress(true);
+    }
+    lastTime = t;
 };
 
 const cacheVolume = () => {
@@ -963,6 +976,8 @@ const handleVisibilityChange = () => {
  *      -> Triggers a whole load of stuff
  */
 const handlePlayerTimeUpdate = (event: any) => {
+    handleLoopWrap();
+
     // update time if showing controls or showing stats, or paused, or not seeking
     if (!shouldUpdateUI.value) return;
     getBufferHealth();
@@ -1515,6 +1530,7 @@ defineExpose({
                     )
                 "
                 :src="videoSrc"
+                :loop="isLooping"
                 @play="
                     isPaused = false;
                     isEnded = false;
