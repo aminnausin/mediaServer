@@ -1,6 +1,6 @@
-import { get, set } from 'idb-keyval'; // npm i idb-keyval
-
-type Kind = 'directory' | 'file';
+import { toast } from '@aminnausin/cedar-ui';
+import { del, get, set } from 'idb-keyval';
+import { each } from 'lodash-es';
 
 const KEY = 'localLibraryRoot';
 let root: FileSystemDirectoryHandle | null = null;
@@ -15,6 +15,11 @@ export async function connectLocalLibrary(reset = false) {
     await set(KEY, root);
 }
 
+export async function disconnectLocalLibrary() {
+    root = null;
+    await del(KEY);
+}
+
 export async function listLocalLibrary(subpath = '', depth = 1) {
     root ??= (await get(KEY)) ?? null;
     if (!root) return console.log('no handle stored');
@@ -27,9 +32,12 @@ export async function listLocalLibrary(subpath = '', depth = 1) {
     }
 
     const walk = async (d: FileSystemDirectoryHandle, level: number, indent: string) => {
-        for await (const [name, handle] of (d as any).entries()) {
-            console.log(`${indent}${handle.kind === 'directory' ? '📁' : '📄'} ${name}`);
-            if (handle.kind === 'directory' && level > 0) await walk(handle, level - 1, indent + '  ');
+        for await (const handle of d.values()) {
+            console.log(`${indent}${handle.kind === 'directory' ? 'D:' : 'F:'} ${handle.name}`);
+
+            if (handle.kind === 'directory' && level > 0) {
+                await walk(handle, level - 1, indent + '  ');
+            }
         }
     };
 
@@ -38,6 +46,7 @@ export async function listLocalLibrary(subpath = '', depth = 1) {
 }
 
 export async function getLocalUrl(path: string) {
+    listLocalLibrary();
     try {
         root ??= (await get(KEY)) ?? null;
         if (!root || (await root.queryPermission({ mode: 'read' })) !== 'granted') return null;
@@ -49,6 +58,7 @@ export async function getLocalUrl(path: string) {
         let dir = root;
         for (const part of parts) {
             const next = await findChild(dir, part, 'directory');
+            toast(next?.name ?? 'No matching folder found');
             if (!next) return null;
             dir = next as FileSystemDirectoryHandle;
         }
@@ -67,10 +77,17 @@ export async function getLocalUrl(path: string) {
 
 async function findChild(dir: FileSystemDirectoryHandle, name: string, kind: FileSystemHandleKind) {
     const exact = await (kind === 'directory' ? dir.getDirectoryHandle(name) : dir.getFileHandle(name)).catch(() => null);
-    if (exact) return exact;
+    if (exact) {
+        toast(`exact match for ${exact.name} found`);
+        return exact;
+    }
 
     for await (const [entry, handle] of dir.entries()) {
-        if (handle.kind === kind && entry.toLowerCase() === name.toLowerCase()) return handle;
+        if (handle.kind === kind && entry.toLowerCase() === name.toLowerCase()) {
+            toast(`simple match for ${handle.name} found`);
+            return handle;
+        }
     }
+    toast(`no match for ${name} found`);
     return null;
 }
