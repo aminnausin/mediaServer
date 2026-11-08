@@ -4,7 +4,7 @@ import type { ContextMenuItem, PopoverItem } from '@/types/types';
 import { controlsHideTime, playbackDataBuffer, playerHealthBuffer, volumeDelta, playbackDelta, playbackMin, playbackMax } from '@/service/player/playerConstants';
 import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, useTemplateRef, watch } from 'vue';
-import { connectLocalLibrary, getLocalUrl, listLocalLibrary } from '@/service/proxy/useLocalLibrary';
+import { connectLocalLibrary, getLocalUrl, hasLocalLibrary, listLocalLibrary } from '@/service/proxy/useLocalLibrary';
 import { copyVideoFrame, saveVideoFrame } from '@/service/player/frameService';
 import { usePlaybackProgress } from '@/composables/player/usePlaybackProgress';
 import { useRoute, useRouter } from 'vue-router';
@@ -140,6 +140,7 @@ const {
     showSeekButtons,
     showLyricsMetadata,
     useAmLyrics,
+    useLocalFiles,
 } = storeToRefs(useAppStore());
 const { setContextMenu, closeContextMenu } = useAppStore();
 const { updateViewCount } = useContentStore();
@@ -372,6 +373,36 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
             },
         },
         {
+            text: 'Use Local Library',
+            icon: useLocalFiles.value ? ProiconsCheckmark : undefined,
+            selected: useLocalFiles.value,
+            hidden: !hasLocalLibrary,
+            action: async () => {
+                if (useLocalFiles.value) {
+                    useLocalFiles.value = false;
+                    toast('Local Library Disabled', { description: 'Files will play from the server' });
+                    return;
+                }
+
+                const enableLocalLibrary = async () => {
+                    await connectLocalLibrary(true);
+                    useLocalFiles.value = true;
+                };
+
+                toast.promise(
+                    connectLocalLibrary(true).then(() => (useLocalFiles.value = true)),
+                    {
+                        loading: 'Connecting Local Library',
+                        loadingDescription: 'Select a folder that mirrors your media library',
+                        success: 'Local Library Enabled',
+                        successDescription: () => 'Files found locally will play from your device',
+                        error: 'Failed to enable local library',
+                        errorDescription: (err) => (err instanceof DOMException && err.name === 'AbortError' ? 'No folder selected' : `${(err as Error).message}`),
+                    },
+                );
+            },
+        },
+        {
             text: 'Audio Graph Menu',
             icon: isShowingAudioGraphSettings.value ? ProiconsCheckmark : undefined,
             selected: isShowingAudioGraphSettings.value,
@@ -539,14 +570,13 @@ const resolveSource = async () => {
     if (videoSrc.value?.startsWith('blob:')) URL.revokeObjectURL(videoSrc.value);
 
     const path = stateVideo.value?.path;
+
     if (!path) {
         videoSrc.value = undefined;
         return;
     }
 
-    console.log(path.replace('storage/media/', ''));
-
-    videoSrc.value = (await getLocalUrl(path.replace('storage/media', ''))) ?? '/' + path.split('/').map(encodeURIComponent).join('/');
+    videoSrc.value = (useLocalFiles.value ? await getLocalUrl(path) : null) ?? '/' + path.split('/').map(encodeURIComponent).join('/');
 };
 
 const initVideoPlayer = async (previousId: number) => {

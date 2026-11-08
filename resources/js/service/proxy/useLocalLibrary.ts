@@ -3,14 +3,14 @@ import { get, set } from 'idb-keyval'; // npm i idb-keyval
 const KEY = 'localLibraryRoot';
 let root: FileSystemDirectoryHandle | null = null;
 
+export const hasLocalLibrary = 'showDirectoryPicker' in window;
+
 export async function connectLocalLibrary(reset = false) {
     root ??= (await get(KEY)) ?? null;
-
-    if (!reset && root && (await root.requestPermission({ mode: 'read' })) === 'granted') return true;
+    if (root && (await root.requestPermission({ mode: 'read' })) === 'granted') return;
 
     root = await (window as any).showDirectoryPicker({ mode: 'read' });
     await set(KEY, root);
-    return true;
 }
 
 export async function listLocalLibrary(subpath = '', depth = 1) {
@@ -38,9 +38,8 @@ export async function listLocalLibrary(subpath = '', depth = 1) {
 export async function getLocalUrl(path: string) {
     try {
         root ??= (await get(KEY)) ?? null;
-        console.log(path);
         if (!root || (await root.queryPermission({ mode: 'read' })) !== 'granted') return null;
-
+        console.log('Using local directory', path);
         const parts = path.split('/').filter(Boolean);
         const name = parts.pop()!;
         let dir = root;
@@ -48,7 +47,7 @@ export async function getLocalUrl(path: string) {
 
         return URL.createObjectURL(await (await dir.getFileHandle(name)).getFile());
     } catch (e) {
-        console.log('failed', e);
+        console.log('Local directory failed', path, e);
 
         return null;
     }
