@@ -1687,7 +1687,7 @@ defineExpose({
         <div
             style="z-index: 7; height: calc(100% - calc(var(--spacing) * 18))"
             :class="
-                cn('ui-layer scrollbar-hide inset-x-0 flex flex-wrap justify-between gap-2', 'xms:top-2 top-9 bottom-16 mx-2', {
+                cn('ui-layer scrollbar-hide @container-size inset-x-0 flex flex-wrap justify-between gap-2', 'xms:top-2 top-9 bottom-16 mx-2', {
                     'top-11! mx-4': isFullScreen || isTheatreView,
                 })
             "
@@ -1796,11 +1796,11 @@ defineExpose({
                             </VideoButton>
                         </VideoControlWrapper>
 
-                        <VideoControlWrapper class="xs:flex hidden items-center gap-1" v-if="previousVideoURL || nextVideoURL">
+                        <VideoControlWrapper :class="['xs:flex hidden items-center gap-1']" v-if="previousVideoURL || nextVideoURL">
                             <VideoButton
                                 v-if="previousVideoURL"
                                 id="play-previous"
-                                :class="cn('hidden @[28rem]:block', { block: isFullScreen })"
+                                :class="cn('hidden @[28rem]:block', { block: isFullScreen || !nextVideoURL })"
                                 :title="keyBinds.previous"
                                 :icon="ProiconsReverse"
                                 :to="previousVideoURL"
