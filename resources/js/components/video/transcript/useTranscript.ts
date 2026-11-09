@@ -13,7 +13,6 @@ import { subscribeToTask } from '@/service/wsService';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { toast } from '@aminnausin/cedar-ui';
-import { API } from '@/service/api';
 
 const { selectedSideBar } = storeToRefs(useAppStore());
 const { isDesktop } = useReactiveBreakpoints();
@@ -209,24 +208,6 @@ async function requestTranscript() {
             return;
         }
 
-        generationStatus.value = 'error';
-    }
-}
-
-async function requestBasicTranscript() {
-    const id = context.value?.metadataId.value;
-    if (!id || generationStatus.value === 'processing') return;
-
-    generationStatus.value = 'processing';
-    try {
-        const { data } = await API.post(`/metadata/${id}/transcript`, undefined, { headers: { 'X-Skip-Toast': true } });
-        if (context.value?.metadataId.value !== id) {
-            console.error('Selected video changed while loading transcript.', { old: id, new: context.value?.metadataId });
-            return;
-        }
-        generated(data.subtitle as SubtitleResource);
-        generationStatus.value = 'idle';
-    } catch {
         generationStatus.value = 'error';
     }
 }
