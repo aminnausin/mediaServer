@@ -126,7 +126,7 @@ const mediaType = computed(() => {
                     v-if="!isDesktop"
                 />
 
-                <div class="flex w-full flex-1 flex-col sm:p-3 lg:contents lg:p-0">
+                <div class="flex w-full flex-1 flex-col sm:w-3/4 sm:p-3 lg:contents lg:w-full lg:p-0">
                     <div
                         :class="[
                             'flex w-full flex-1 flex-col flex-wrap gap-4 p-3 text-left',

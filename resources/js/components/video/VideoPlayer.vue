@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ContextMenuItem, PopoverItem } from '@/types/types';
 
+import { connectLocalLibrary, disconnectLocalLibrary, getLocalUrl, hasLocalLibrary, queryLocalLibrary, reconnectLocalLibrary } from '@/service/proxy/useLocalLibrary';
 import { controlsHideTime, playbackDataBuffer, playerHealthBuffer, volumeDelta, playbackDelta, playbackMin, playbackMax } from '@/service/player/playerConstants';
 import { getScreenSize, handleStorageURL, isInputLikeElement, isMobileDevice, toFormattedDate, toFormattedDuration } from '@/service/util';
 import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, useTemplateRef, watch } from 'vue';
@@ -72,6 +73,7 @@ import IconCaptions from '@/components/icons/IconCaptions.vue';
 import ProiconsPlay from '~icons/proicons/play';
 import MagePlaylist from '~icons/mage/playlist';
 import CircumTimer from '~icons/circum/timer';
+import IconReplay from '@/components/icons/IconReplay.vue';
 import IconPause from '@/components/icons/IconPause.vue';
 
 export type PlayerViewMode = 'normal' | 'theatre' | 'fullscreen';
@@ -138,6 +140,7 @@ const {
     showSeekButtons,
     showLyricsMetadata,
     useAmLyrics,
+    useLocalFiles,
 } = storeToRefs(useAppStore());
 const { setContextMenu, closeContextMenu } = useAppStore();
 const { updateViewCount } = useContentStore();
@@ -198,6 +201,7 @@ const isLoading = ref(false);
 const isLooping = ref(false);
 const isPaused = ref(true);
 const isMuted = ref(false);
+const isEnded = ref(false);
 
 const rewindTick = ref(0);
 const fastForwardTick = ref(0);
@@ -240,6 +244,8 @@ const timeStrings = computed(() => {
     };
 });
 
+const playLabel = computed(() => (!isPaused.value ? 'Pause' : isEnded.value ? 'Replay' : 'Play'));
+
 const keyBinds = computed(() => {
     let keys = {
         mute: ` (m)`,
@@ -272,7 +278,7 @@ const keyBinds = computed(() => {
     return {
         mute: `${isMuted.value ? 'Unmute' : 'Mute'}${keys.mute}`,
         previous: `Play Previous${keys.previous}`,
-        play: `${isPaused.value ? 'Play' : 'Pause'}${keys.play}`,
+        play: `${playLabel.value}${keys.play}`,
         next: `Play Next${keys.next}`,
         theatre: `${isTheatreView.value ? 'Exit Theatre Mode' : 'Theatre Mode'}${keys.theatre}`,
         fullscreen: `${isFullScreen.value ? 'Exit Full Screen' : 'Full Screen'}${keys.fullscreen}`,
@@ -364,6 +370,32 @@ const playerContextMenuItems = computed<ContextMenuItem[]>(() =>
             hidden: !FLAGS.USE_AM_LYRICS || !isShowingLyrics.value || !(isAudio.value || stateFolder.value.is_majority_audio),
             action: () => {
                 useAmLyrics.value = !useAmLyrics.value;
+            },
+        },
+        {
+            text: 'Use Local Library',
+            icon: useLocalFiles.value ? ProiconsCheckmark : undefined,
+            selected: useLocalFiles.value,
+            hidden: !hasLocalLibrary,
+            action: async () => {
+                if (useLocalFiles.value) {
+                    await disconnectLocalLibrary();
+                    useLocalFiles.value = false;
+                    toast('Local Library Disabled', { description: 'Files will play from the server' });
+                    return;
+                }
+
+                toast.promise(
+                    connectLocalLibrary().then(() => (useLocalFiles.value = true)),
+                    {
+                        loading: 'Connecting Local Library',
+                        loadingDescription: 'Select a folder that mirrors your media library',
+                        success: 'Local Library Enabled',
+                        successDescription: () => 'Files found locally will play from your device',
+                        error: 'Failed to enable local library',
+                        errorDescription: (err) => (err instanceof DOMException && err.name === 'AbortError' ? 'No folder selected' : `${(err as Error).message}`),
+                    },
+                );
             },
         },
         {
@@ -528,6 +560,27 @@ const posterUrl = computed(() => {
     return isAudio.value ? (url ?? audioFallback) : url;
 });
 
+const videoSrc = ref<string>();
+let sourceRequest = 0;
+
+const resolveSource = async () => {
+    const request = ++sourceRequest;
+    const path = stateVideo.value?.path;
+    const localPath = path?.replace(/^storage\/media\//, '');
+    const localSrc = localPath && useLocalFiles.value ? await getLocalUrl(localPath) : null;
+
+    if (request !== sourceRequest) {
+        if (localSrc) URL.revokeObjectURL(localSrc); // revoke previous results if new request occurs
+        return;
+    }
+
+    const previousSrc = videoSrc.value;
+    videoSrc.value = localSrc ?? (path ? '/' + path.split('/').map(encodeURIComponent).join('/') : undefined);
+
+    if (previousSrc?.startsWith('blob:')) URL.revokeObjectURL(previousSrc);
+    if (localSrc) toast.success('Playing Local File', { description: `Path: ${localPath}` });
+};
+
 const initVideoPlayer = async (previousId: number) => {
     if (stateVideo.value.id === currentId.value || stateVideo.value.id === previousId) {
         // Only reset metadata on statevideo update if id is the same
@@ -539,14 +592,14 @@ const initVideoPlayer = async (previousId: number) => {
 
     if (isPictureInPicture.value) {
         isPictureInPicture.value = false;
-        await togglePictureInPicture();
+        void togglePictureInPicture();
     }
 
-    if (playerSubtitles.value?.defaultSubtitleTrack && showAutoSubtitles.value)
-        playerSubtitles.value.handleSubtitles(playerSubtitles.value.defaultSubtitleTrack); // Select default track on init if exists
-    else playerSubtitles.value?.clearSubtitles(); // Otherwise clear
+    // start loading video based on resolved source before loading metadata
+    const sourceReady = resolveSource();
 
     isLooping.value = false;
+    isEnded.value = false;
     currentSpeed.value = 1;
     currentId.value = null;
     isThumbnailDismissed.value = false;
@@ -567,6 +620,12 @@ const initVideoPlayer = async (previousId: number) => {
     metadataId.value = stateVideo.value?.metadata ? stateVideo.value?.metadata.id : NaN;
 
     initBrowserMetadata();
+
+    await sourceReady;
+
+    if (playerSubtitles.value?.defaultSubtitleTrack && showAutoSubtitles.value)
+        playerSubtitles.value.handleSubtitles(playerSubtitles.value.defaultSubtitleTrack); // Select default track on init if exists
+    else playerSubtitles.value?.clearSubtitles(); // Otherwise clear
 
     if (!isFullScreen.value && !isAutoPlay.value) {
         onPlayerPause();
@@ -719,11 +778,8 @@ const onPlayerPause = () => {
 
 const onPlayerEnded = () => {
     currentId.value = null;
-    if (isLooping.value) {
-        void onPlayerPlay();
-        return;
-    }
 
+    isEnded.value = true;
     emit('ended');
 
     if (isPlaylist.value) {
@@ -754,12 +810,17 @@ const onPlayerLoadeddata = () => {
     emit('loadedMetadata');
 };
 
-const onPlayerWaiting = () => {
-    if (player.value?.loop) {
+// Seamless Looping
+let lastTime = 0;
+const handleLoopWrap = () => {
+    const t = player.value?.currentTime ?? 0;
+    // records if more than half of the playthrough was completed compared to the last loop time
+    if (isLooping.value && lastTime - t > timeDuration.value / 2) {
         createRecord.mutate({ video_id: stateVideo.value.id });
         updateViewCount(stateVideo.value.id);
         handleProgress(true);
     }
+    lastTime = t;
 };
 
 const cacheVolume = () => {
@@ -832,7 +893,11 @@ const handleMute = () => {
     isMuted.value = !isMuted.value;
 };
 
-const handlePlayerToggle = () => {
+const handlePlayerToggle = async () => {
+    if (isPaused.value && !currentId.value && useLocalFiles.value && (await queryLocalLibrary()) === 'prompt') {
+        if (await reconnectLocalLibrary()) await resolveSource();
+    }
+
     if (isPaused.value) {
         void onPlayerPlay();
         return;
@@ -942,6 +1007,8 @@ const handleVisibilityChange = () => {
  *      -> Triggers a whole load of stuff
  */
 const handlePlayerTimeUpdate = (event: any) => {
+    handleLoopWrap();
+
     // update time if showing controls or showing stats, or paused, or not seeking
     if (!shouldUpdateUI.value) return;
     getBufferHealth();
@@ -979,6 +1046,7 @@ const handleSeek = (seconds?: number) => {
 };
 
 const onSeeked = () => {
+    isEnded.value = false;
     debouncedEndTime();
     emit('seeked');
     getPlayerInfo();
@@ -1125,7 +1193,7 @@ const handlePrevious = (useAutoPlay = isAudio.value || (!!isPlaylist.value && !i
 const handlePlayPause = (explicitAction?: 'play' | 'pause') => {
     if (explicitAction === 'play') void onPlayerPlay();
     else if (explicitAction === 'pause') onPlayerPause();
-    else handlePlayerToggle();
+    else void handlePlayerToggle();
 };
 
 const handleToggleAutoplay = () => {
@@ -1398,6 +1466,7 @@ onMounted(async () => {
     globalThis.addEventListener('pointerup', stopScrub);
     globalThis.addEventListener('contextmenu', stopScrub);
     unSub = onSeek(handleManualSeek);
+    void resolveSource();
 });
 
 onBeforeUnmount(() => {
@@ -1488,14 +1557,17 @@ defineExpose({
                         { '[--subtitle-bottom-offset:3em] sm:[--subtitle-bottom-offset:2em]': isShowingControls },
                     )
                 "
-                :src="stateVideo?.path ? '/' + stateVideo.path.split('/').map(encodeURIComponent).join('/') : undefined"
-                @play="isPaused = false"
+                :src="videoSrc"
+                :loop="isLooping"
+                @play="
+                    isPaused = false;
+                    isEnded = false;
+                "
                 @pause="isPaused = true"
                 @ended="onPlayerEnded"
                 @loadstart="onPlayerLoadStart"
                 @loadedmetadata="onPlayerLoadeddata"
                 @seeked="onSeeked"
-                @waiting="onPlayerWaiting"
                 @timeupdate="handlePlayerTimeUpdate"
                 @click="handlePlayerToggle"
                 @enterpictureinpicture="enterPictureInPicture"
@@ -1610,7 +1682,7 @@ defineExpose({
         <div
             style="z-index: 7; height: calc(100% - calc(var(--spacing) * 18))"
             :class="
-                cn('ui-layer scrollbar-hide inset-x-0 flex flex-wrap justify-between gap-2', 'xms:top-2 top-9 bottom-16 mx-2', {
+                cn('ui-layer scrollbar-hide @container-size inset-x-0 flex justify-between gap-2', 'xms:top-2 top-9 bottom-16 mx-2 text-[10px] sm:text-xs', {
                     'top-11! mx-4': isFullScreen || isTheatreView,
                 })
             "
@@ -1637,7 +1709,7 @@ defineExpose({
 
             <!-- UI Panels Right -->
             <div
-                :class="cn('flex h-full flex-1 flex-col items-end gap-2', { 'xxs:mt-7': isNormalView && isShowingParty })"
+                :class="cn('flex h-full flex-1 flex-col items-end gap-2', { 'xm:mt-7': isNormalView && isShowingParty })"
                 :style="{
                     '--watch-party-margin': isNormalView ? (isShowingParty ? 7 : 0) : 11,
                     maxHeight: 'calc(100% - var(--spacing) * var(--watch-party-margin))',
@@ -1712,17 +1784,18 @@ defineExpose({
                                 :offset="videoButtonOffset"
                             >
                                 <template #icon>
-                                    <ProiconsPlay v-if="isPaused" class="size-4" />
+                                    <IconReplay v-if="isPaused && isEnded" class="size-4" />
+                                    <ProiconsPlay v-else-if="isPaused" class="size-4" />
                                     <IconPause v-else class="size-4" />
                                 </template>
                             </VideoButton>
                         </VideoControlWrapper>
 
-                        <VideoControlWrapper class="xs:flex hidden items-center gap-1" v-if="previousVideoURL || nextVideoURL">
+                        <VideoControlWrapper :class="['xs:flex hidden items-center gap-1']" v-if="previousVideoURL || nextVideoURL">
                             <VideoButton
                                 v-if="previousVideoURL"
                                 id="play-previous"
-                                :class="cn('hidden @[28rem]:block', { block: isFullScreen })"
+                                :class="cn('hidden @[28rem]:block', { block: isFullScreen || !nextVideoURL })"
                                 :title="keyBinds.previous"
                                 :icon="ProiconsReverse"
                                 :to="previousVideoURL"

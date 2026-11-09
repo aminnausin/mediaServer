@@ -90,10 +90,10 @@ const getChangeIcon = (change: number) => {
                                     'text-rose-500': stat.change < 0,
                                 })
                             "
-                            :title="`${stat.change_pct}% change`"
+                            :title="`${stat.change > 0 ? '+' : ''}${stat.change_pct}% change`"
                         >
                             <component :is="getChangeIcon(stat.change)" class="size-3.5 shrink-0" />
-                            <span class="tabular-nums"> {{ stat.change > 0 ? '+' : '' }}{{ stat.change.toLocaleString() }} </span>
+                            <span class="tabular-nums"> {{ stat.change.toLocaleString() }} </span>
                             <span class="xsm:hidden 3xl:block truncate sm:block md:hidden"> this period </span>
                         </div>
                     </div>

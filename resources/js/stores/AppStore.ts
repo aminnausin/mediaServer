@@ -83,6 +83,7 @@ export const useAppStore = defineStore('App', () => {
 
     const showLyricsMetadata = usePersisted('showLyricsMetadata', false);
     const useAmLyrics = usePersisted('useAmLyrics', false);
+    const useLocalFiles = usePersisted('useLocalFiles', false);
 
     const preferredAudioLanguage = usePersistedString('preferredAudioLanguage', '');
 
@@ -189,6 +190,7 @@ export const useAppStore = defineStore('App', () => {
 
         showLyricsMetadata.init();
         useAmLyrics.init();
+        useLocalFiles.init();
 
         preferredAudioLanguage.init();
 
@@ -210,6 +212,7 @@ export const useAppStore = defineStore('App', () => {
 
     watch(showLyricsMetadata.state, showLyricsMetadata.persist);
     watch(useAmLyrics.state, useAmLyrics.persist);
+    watch(useLocalFiles.state, useLocalFiles.persist);
 
     watch(preferredAudioLanguage.state, preferredAudioLanguage.persist);
 
@@ -230,6 +233,7 @@ export const useAppStore = defineStore('App', () => {
         preferredAudioLanguage: preferredAudioLanguage.state,
         showLyricsMetadata: showLyricsMetadata.state,
         useAmLyrics: useAmLyrics.state,
+        useLocalFiles: useLocalFiles.state,
         useEmbeddedFonts: useEmbeddedFonts.state,
         initBrowserState,
 
