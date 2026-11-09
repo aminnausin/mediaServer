@@ -23,6 +23,7 @@ use App\Jobs\VerifyFolders;
 use App\Models\Category;
 use App\Models\Folder;
 use App\Models\Metadata;
+use App\Models\SubTask;
 use App\Models\Task;
 use App\Models\Video;
 use Illuminate\Bus\Batch;
@@ -387,8 +388,8 @@ class FileJobService {
     public function generateTranscriptViaRedis(int $userId, Metadata $metadata): Task {
         return $this->executeBatchOperation(
             userId: $userId,
-            name: 'Generate Transcript',
-            description: 'Generates transcript for ' . $metadata->composite_id,
+            name: 'Request Transcript',
+            description: 'Requests transcript for ' . $metadata->composite_id,
             chain: fn ($task) => [
                 new QueueTranscript(
                     filePath: VerifyFiles::getAbsoluteMediaPath($metadata->video),
@@ -398,14 +399,18 @@ class FileJobService {
             ],
             queue: 'encode',
             callback: function ($task) use ($metadata) {
-                new IngestTranscript(
-                    filePath: VerifyFiles::getAbsoluteMediaPath($metadata->video),
-                    uuid: $metadata->uuid,
-                    taskId: $task->id,
-                );
-
                 $taskService = $this->taskService;
-                DB::transaction(function () use ($task, $taskService) {
+                DB::transaction(function () use ($task, $taskService, $metadata) {
+                    $filePath = VerifyFiles::getAbsoluteMediaPath($metadata->video);
+
+                    SubTask::create([
+                        'task_id' => $task->id,
+                        'status' => TaskStatus::PENDING,
+                        'name' => 'Save generated transcript of ' . basename(dirname($filePath)) . '/' . basename($filePath),
+                        'reference_uuid' => $metadata->uuid,
+                        'reference_type' => IngestTranscript::class,
+                    ]);
+
                     $taskService->updateTaskCounts($task->id, ['sub_tasks_total' => '++', 'sub_tasks_pending' => '++', 'sub_tasks_current' => '++']);
 
                     $taskService->updateTask($task->id, [
@@ -417,13 +422,10 @@ class FileJobService {
     }
 
     public function ingestTranscript(array $data, Metadata $metadata, int $taskId) {
-        $name = 'Generate Transcript';
-        $description = 'Generates transcript for ' . $metadata->composite_id;
-
         return $this->executeBatchOperation(
             userId: $data['user_id'] ?? null,
-            name: $name,
-            description: $description,
+            name: 'Ingest Transcript',
+            description: 'Ingest transcript for ' . $metadata->composite_id,
             chain: fn ($task) => [
                 new IngestTranscript(
                     filePath: VerifyFiles::getAbsoluteMediaPath($metadata->video),

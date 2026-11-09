@@ -542,7 +542,7 @@ const initVideoPlayer = async (previousId: number) => {
         await togglePictureInPicture();
     }
 
-    if (playerSubtitles.value && playerSubtitles.value.defaultSubtitleTrack && showAutoSubtitles.value)
+    if (playerSubtitles.value?.defaultSubtitleTrack && showAutoSubtitles.value)
         playerSubtitles.value.handleSubtitles(playerSubtitles.value.defaultSubtitleTrack); // Select default track on init if exists
     else playerSubtitles.value?.clearSubtitles(); // Otherwise clear
 
@@ -694,7 +694,10 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
             return;
         }
 
-        toast.error('Error playing content...', { description: `${error ?? ''}` });
+        toast.error('Error playing content...', {
+            description: error instanceof Error ? error.message : String(error ?? ''),
+        });
+
         isLoading.value = false;
         console.error(error);
     }
