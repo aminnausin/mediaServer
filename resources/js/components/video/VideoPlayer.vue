@@ -576,7 +576,7 @@ const initVideoPlayer = async (previousId: number) => {
 
     await nextTick();
 
-    onPlayerPlay();
+    await onPlayerPlay();
     // url.value = await getMediaUrl(stateVideo.value.path ?? '');
 };
 
@@ -695,7 +695,7 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         }
 
         toast.error('Error playing content...', {
-            description: error instanceof Error ? error.message : String(error ?? ''),
+            description: error instanceof Error ? error.message : (String(error) ?? ''),
         });
 
         isLoading.value = false;
@@ -720,7 +720,7 @@ const onPlayerPause = () => {
 const onPlayerEnded = () => {
     currentId.value = null;
     if (isLooping.value) {
-        onPlayerPlay();
+        void onPlayerPlay();
         return;
     }
 
@@ -834,7 +834,7 @@ const handleMute = () => {
 
 const handlePlayerToggle = () => {
     if (isPaused.value) {
-        onPlayerPlay();
+        void onPlayerPlay();
         return;
     }
 
@@ -849,7 +849,7 @@ function handleAutoSeek(seconds: number) {
     player.value.currentTime = newTimeElapsed;
     timeElapsed.value = (newTimeElapsed / timeDuration.value) * 100;
 
-    if (!isPaused.value) onPlayerPlay(false, false);
+    if (!isPaused.value) void onPlayerPlay(false, false);
     else if (!currentId.value) isThumbnailDismissed.value = true;
 
     if (autoSeekTimeout.value) clearTimeout(autoSeekTimeout.value);
@@ -897,7 +897,7 @@ const cycleViewMode = async (mode: PlayerViewMode) => {
 };
 
 const handleTheatre = () => {
-    cycleViewMode(isNormalView.value ? 'theatre' : 'normal');
+    void cycleViewMode(isNormalView.value ? 'theatre' : 'normal');
 };
 
 const handleFullScreen = async () => {
@@ -919,13 +919,13 @@ const handleFullScreenChange = (e: Event) => {
     // Should this do anything? its an uncontrolled side effect? viewmode should only change in a single function?
     // This handles other events like picture in picture exiting fullscreen without a button press
     // viewMode.value = document.fullscreenElement !== null ? 'fullscreen' : 'normal';
-    cycleViewMode(document.fullscreenElement === null ? 'normal' : 'fullscreen');
+    void cycleViewMode(document.fullscreenElement === null ? 'normal' : 'fullscreen');
 };
 
 const handleVisibilityChange = () => {
     // Firefox Android doesn't reliably fire `fullscreenchange`
     if (document.visibilityState === 'visible' && isFullScreen.value && document.fullscreenElement === null) {
-        cycleViewMode('normal');
+        void cycleViewMode('normal');
     }
 };
 
@@ -982,11 +982,13 @@ const onSeeked = () => {
     debouncedEndTime();
     emit('seeked');
     getPlayerInfo();
+
     if (isPaused.value) {
         isLoading.value = false;
         return;
     }
-    onPlayerPlay();
+
+    void onPlayerPlay();
 };
 
 const handleSeekPreview = () => {
@@ -1121,7 +1123,7 @@ const handlePrevious = (useAutoPlay = isAudio.value || (!!isPlaylist.value && !i
  * @param explicitAction depending on the source (keybind or media session) explictly play / pause or simply toggle
  */
 const handlePlayPause = (explicitAction?: 'play' | 'pause') => {
-    if (explicitAction === 'play') onPlayerPlay();
+    if (explicitAction === 'play') void onPlayerPlay();
     else if (explicitAction === 'pause') onPlayerPause();
     else handlePlayerToggle();
 };
@@ -1375,7 +1377,7 @@ watch([isThumbnailVisible, viewMode], async () => {
 
 watch(
     () => [route.query.t, route.query.video],
-    async (value, old) => {
+    (value, old) => {
         if (isLoadingMetadata.value) return;
 
         if (value[1] === old[1]) {
@@ -1387,7 +1389,7 @@ watch(
 );
 
 onMounted(async () => {
-    if (document.pictureInPictureElement) await document.exitPictureInPicture();
+    if (document.pictureInPictureElement) await document.exitPictureInPicture().catch(console.error);
     handleLoadSavedVolume();
     handleMediaSessionEvents();
     globalThis.addEventListener('keydown', handleKeyBinds);
@@ -2073,6 +2075,12 @@ defineExpose({
 }
 .animate-pop {
     animation: pop 200ms ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-pop {
+        animation: none;
+    }
 }
 
 /* Theatre Mode */
