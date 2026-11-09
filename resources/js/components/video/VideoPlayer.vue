@@ -1193,7 +1193,7 @@ const handlePrevious = (useAutoPlay = isAudio.value || (!!isPlaylist.value && !i
 const handlePlayPause = (explicitAction?: 'play' | 'pause') => {
     if (explicitAction === 'play') void onPlayerPlay();
     else if (explicitAction === 'pause') onPlayerPause();
-    else handlePlayerToggle();
+    else void handlePlayerToggle();
 };
 
 const handleToggleAutoplay = () => {
