@@ -695,7 +695,7 @@ const onPlayerPlay = async (override = false, recordProgress = true) => {
         }
 
         toast.error('Error playing content...', {
-            description: error instanceof Error ? error.message : (String(error) ?? ''),
+            description: error instanceof Error ? error.message : String(error),
         });
 
         isLoading.value = false;
