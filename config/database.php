@@ -169,6 +169,15 @@ return [
             'database' => env('REDIS_CACHE_DB', '1'),
         ],
 
-    ],
+        'services' => [
+            'url' => env('TRANSCRIPTION_REDIS_URL', env('REDIS_URL')),
+            'host' => env('TRANSCRIPTION_REDIS_HOST', env('REDIS_HOST', '127.0.0.1')),
+            'username' => env('TRANSCRIPTION_REDIS_USERNAME', env('REDIS_USERNAME')),
+            'password' => env('TRANSCRIPTION_REDIS_PASSWORD', env('REDIS_PASSWORD')),
+            'port' => env('TRANSCRIPTION_REDIS_PORT', env('REDIS_PORT', '6379')),
+            'database' => env('REDIS_DB', '0'),
+            'prefix' => 'mediaserver_',
+        ],
 
+    ],
 ];

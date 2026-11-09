@@ -9,7 +9,7 @@ use App\Jobs\ManagedSubTask;
 use App\Models\Metadata;
 use App\Models\Storyboard;
 use App\Models\SubTask;
-use App\Services\Ffmpeg\FFmpegCommandBuilder;
+use App\Services\FFmpeg\FFmpegCommandBuilder;
 use App\Services\Images\Storyboard\StoryboardOptions;
 use App\Services\TaskService;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;

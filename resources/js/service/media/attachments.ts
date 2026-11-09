@@ -1,5 +1,5 @@
+import type { FontResource, SubtitleResource } from '@/contracts/media';
 import type { AxiosError, AxiosResponse } from 'axios';
-import type { FontResource } from '@/contracts/media';
 
 import { useContentStore } from '@/stores/ContentStore';
 import { subscribeToTask } from '@/service/wsService';
@@ -13,6 +13,10 @@ export const resetSubtitles = (metadataId: number) => {
 
 export const getFonts = (metadataId: number): Promise<AxiosResponse<{ fonts: FontResource[]; fonts_scanned_at?: string }>> => {
     return API.get(`/metadata/${metadataId}/fonts`, { headers: { 'X-Skip-Toast': 'true' } });
+};
+
+export const getTranscript = async (metadataId: number): Promise<AxiosResponse<SubtitleResource>> => {
+    return await API.get<SubtitleResource>(`/metadata/${metadataId}/transcript`, { headers: { 'X-Skip-Toast': 'true' } });
 };
 
 export const regenerateFonts = (metadataId: number): Promise<AxiosResponse<{ task_id: number; message?: string }>> => {
@@ -75,4 +79,8 @@ export const runRegenerateFonts = async (videoId: number, metadataId: number) =>
 
         console.error(error);
     }
+};
+
+export const generateTranscript = (metadataId: number): Promise<AxiosResponse<{ task_id: number; message?: string }>> => {
+    return API.post(`/metadata/${metadataId}/transcript`, {}, { headers: { 'X-Skip-Toast': 'true' } });
 };

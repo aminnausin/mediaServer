@@ -1,16 +1,18 @@
 import type { SubtitleResource } from '@/contracts/media';
 import type { TranscriptLine } from '@/components/video/transcript/transcriptParser';
 import type { PlayerViewMode } from '@/components/video/VideoPlayer.vue';
+import type { AxiosError } from 'axios';
 import type { Ref } from 'vue';
 
 import { buildTranscriptUrl, findActiveTranscriptIndex } from '@/components/video/transcript/transcriptUtil.ts';
+import { generateTranscript, getTranscript } from '@/service/media/attachments';
 import { computed, ref, shallowRef, watch } from 'vue';
 import { useReactiveBreakpoints } from '@/service/breakpoints/useReactiveBreakpoints';
 import { parseTranscript } from '@/components/video/transcript/transcriptParser';
+import { subscribeToTask } from '@/service/wsService';
 import { useAppStore } from '@/stores/AppStore';
 import { storeToRefs } from 'pinia';
 import { toast } from '@aminnausin/cedar-ui';
-import { API } from '@/service/api';
 
 const { selectedSideBar } = storeToRefs(useAppStore());
 const { isDesktop } = useReactiveBreakpoints();
@@ -120,10 +122,6 @@ function reset() {
 }
 
 async function loadTranscript(url: string | undefined, force = false) {
-    // const url = buildTranscriptUrl(subtitleTrack.value);
-
-    // if (!url || loadedTranscriptUrl.value === url) return;
-
     if (!url || (!force && url === loadedTranscriptUrl.value)) return;
 
     controller?.abort();
@@ -154,18 +152,62 @@ function retry() {
 
 async function requestTranscript() {
     const id = context.value?.metadataId.value;
-    if (!id || generationStatus.value === 'processing') return;
+    if (!id || generationStatus.value === 'processing') {
+        console.warn('Invalid transcript request due to metadata id or generation status', id, generationStatus.value);
+        return;
+    }
+
+    useAppStore().createEcho();
+
+    const onComplete = async () => {
+        try {
+            const { data } = await getTranscript(id);
+
+            if (context.value?.metadataId.value !== id) {
+                console.warn('Selected video changed while loading transcript.', { old: id, new: context.value?.metadataId });
+                return;
+            }
+
+            generated(data);
+            generationStatus.value = 'idle';
+        } catch (error) {
+            toast.error('Failed to load transcript', { description: 'Refresh to see updated subtitle tracks' });
+            console.error(error);
+            generationStatus.value = 'error';
+        }
+    };
 
     generationStatus.value = 'processing';
     try {
-        const { data } = await API.post(`/metadata/${id}/transcript`, undefined, { headers: { 'X-Skip-Toast': true } });
-        if (context.value?.metadataId.value !== id) {
-            console.error('Selected video changed while loading transcript.', { old: id, new: context.value?.metadataId });
+        const result = await toast.promise(generateTranscript(id), {
+            loading: 'Transcribing Video',
+            loadingDescription: `Setting up transcription job...`,
+            success: 'Transcription queued!',
+            error(err) {
+                const error = err as AxiosError<{ message?: string; task_id?: number }>;
+                const taskId = error?.response?.data?.task_id;
+
+                if (error?.response?.status === 409 && taskId) {
+                    return 'Transcription is pending...';
+                }
+                return 'Failed to transcribe video';
+            },
+            errorDescription: (err) => {
+                const axiosErr = err as AxiosError<{ message?: string }>;
+                return axiosErr.response?.data?.message ?? axiosErr.message;
+            },
+        });
+        subscribeToTask(result.data.task_id, { onComplete });
+    } catch (error: any) {
+        if ((error as AxiosError).status === 503) toast.error('Transcription service is unavailable'); //toast.error((error as AxiosError).data.message);
+
+        const taskId = error?.response?.data?.task_id;
+
+        if (error?.response?.status === 409 && taskId) {
+            subscribeToTask(taskId, { onComplete });
             return;
         }
-        generated(data.subtitle as SubtitleResource);
-        generationStatus.value = 'idle';
-    } catch {
+
         generationStatus.value = 'error';
     }
 }

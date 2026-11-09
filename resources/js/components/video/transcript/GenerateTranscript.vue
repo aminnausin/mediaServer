@@ -11,6 +11,7 @@ import TranscriptStatus from '@/components/video/transcript/TranscriptStatus.vue
 import ProiconsAlertTriangle from '~icons/proicons/alert-triangle';
 import ProiconsArrowSync from '~icons/proicons/arrow-sync';
 import ProiconsSparkle from '~icons/proicons/sparkle';
+import ProiconsClock from '~icons/proicons/clock';
 import IconCaptions from '@/components/icons/IconCaptions.vue';
 
 const emit = defineEmits<{ generated: [track: { url: string; track: SubtitleResource }] }>();
@@ -18,7 +19,29 @@ const emit = defineEmits<{ generated: [track: { url: string; track: SubtitleReso
 const { generationStatus: status, requestTranscript } = useTranscript();
 const { isAuthenticated } = useAuth();
 
-const isBusy = computed(() => status.value === 'requesting' || status.value === 'queued' || status.value === 'processing');
+const isBusy = computed(() => status.value === 'requesting' || status.value === 'processing');
+
+const icon = computed(() => {
+    switch (status.value) {
+        case 'error':
+            return ProiconsAlertTriangle;
+        case 'queued':
+            return ProiconsClock;
+        default:
+            return IconCaptions;
+    }
+});
+
+const buttonIcon = computed(() => {
+    switch (status.value) {
+        case 'error':
+            return ProiconsArrowSync;
+        case 'queued':
+            return undefined;
+        default:
+            return ProiconsSparkle;
+    }
+});
 
 const copy = computed(() => {
     switch (status.value) {
@@ -36,7 +59,7 @@ const copy = computed(() => {
         case 'queued':
             return {
                 heading: 'Transcript queued',
-                button: 'Queued…',
+                description: 'Waiting for transcript service to respond',
             };
         case 'processing':
             return {
@@ -56,46 +79,22 @@ const copy = computed(() => {
         }
     }
 });
-
-// Todo: implement ws based transcript generation
-async function generateTranscript() {
-    try {
-        // const { jobId } = await api.requestTranscript(videoId);
-        // status.value = 'queued';
-        //
-        // subscribeToTranscriptJob(jobId, {
-        //     onQueued: () => { status.value = 'queued'; },
-        //     onProcessing: () => { status.value = 'processing'; },
-        //     onComplete: (track) => {
-        //         status.value = 'idle';
-        //         emit('generated', track);
-        //     },
-        //     onFailed: () => {
-        //         status.value = 'error';
-        //     },
-        // });
-        status.value = 'idle';
-    } catch (error) {
-        status.value = 'error';
-    }
-}
 </script>
 
 <template>
     <TranscriptStatus
         :class="$attrs.class"
         :is-busy="isBusy"
+        :is-locked="status === 'queued'"
         :copy="copy"
-        :badge-class="cn({ 'bg-danger-2/10 text-danger-2': status === 'error', 'bg-white/8 text-white/40': status === 'idle' })"
+        :badge-class="cn({ 'bg-danger-2/10 text-danger-2': status === 'error' })"
         @action="requestTranscript"
     >
         <template #icon>
-            <ProiconsAlertTriangle v-if="status === 'error'" class="size-4 sm:size-5" />
-            <IconCaptions v-else class="size-4 sm:size-5" />
+            <component :is="icon" class="size-4 sm:size-5" />
         </template>
         <template #buttonIcon>
-            <ProiconsArrowSync v-if="status === 'error'" class="size-3.5" />
-            <ProiconsSparkle v-else class="size-3.5" />
+            <component v-if="buttonIcon" :is="buttonIcon" class="size-3.5 shrink-0" />
         </template>
     </TranscriptStatus>
 </template>

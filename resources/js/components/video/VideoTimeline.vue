@@ -222,7 +222,8 @@ defineExpose({ progressTooltip });
     transform: translateX(var(--thumb-offset));
 }
 
-.group:hover .thumb .group:focus-within .thumb {
+.group:hover .thumb,
+.group:focus-within .thumb {
     --thumb-offset: 0px;
 }
 
@@ -255,8 +256,7 @@ defineExpose({ progressTooltip });
     background: #111827;
 }
 
-.group:hover .progress,
-.group:focus-within .progress {
+.group:hover .progress {
     --thumb-offset: var(--thumb-width);
 }
 
