@@ -1466,7 +1466,7 @@ onMounted(async () => {
     globalThis.addEventListener('pointerup', stopScrub);
     globalThis.addEventListener('contextmenu', stopScrub);
     unSub = onSeek(handleManualSeek);
-    resolveSource();
+    void resolveSource();
 });
 
 onBeforeUnmount(() => {
