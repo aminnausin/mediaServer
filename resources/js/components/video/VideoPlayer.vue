@@ -623,7 +623,7 @@ const initVideoPlayer = async (previousId: number) => {
 
     await sourceReady;
 
-    if (playerSubtitles.value && playerSubtitles.value.defaultSubtitleTrack && showAutoSubtitles.value)
+    if (playerSubtitles.value?.defaultSubtitleTrack && showAutoSubtitles.value)
         playerSubtitles.value.handleSubtitles(playerSubtitles.value.defaultSubtitleTrack); // Select default track on init if exists
     else playerSubtitles.value?.clearSubtitles(); // Otherwise clear
 
