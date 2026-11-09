@@ -99,10 +99,16 @@ Both can serve shows, movies, and music but with different approaches.
   - Speed Controls
   - Player Statistics
   - Ambient Background Effect
-  - User Playback Activty Graph
+  - User Playback Activity Graph
   - Auto-Scrolling Lyrics Viewer
+    - [Musicolet](https://play.google.com/store/apps/details?id=in.krosbits.musicolet&hl=en_CA) style
+    - Apple music style (using [am-lyrics](https://github.com/aminnausin/am-lyrics))
   - Media Session API Integration
+    - Control Play/Pause/Seek/Playlist from your notifications
   - Skip Intro (manual detection)
+    - Set intro time and duration per video (duration defaults to the value defined in the folder's metadata)
+  - Local Library (Chrome and Edge only)
+    - Pick a copy of your media folder from the right-click menu and any file found there plays from your device instead of the server, which saves data when you're away
   - Watch Party UI Demo *(coming soon)*
 
 #### 🔗 Sharing
