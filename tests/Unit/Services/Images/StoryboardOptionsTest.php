@@ -5,7 +5,7 @@ namespace Tests\Unit\Services\Images;
 use App\Exceptions\StoryboardNotSupportedException;
 use App\Models\Metadata;
 use App\Models\Video;
-use App\Services\Ffmpeg\FFprobeService;
+use App\Services\FFmpeg\FFprobeService;
 use App\Services\Images\Storyboard\StoryboardOptions;
 use Tests\TestCase;
 

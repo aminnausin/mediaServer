@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\Internal\Transcription\TranscriptionDownloadController;
+use App\Http\Controllers\Api\Internal\Transcription\TranscriptionIngestController;
 use App\Http\Controllers\Api\V1\AnalyticsController;
 use App\Http\Controllers\Api\V1\Auth\GuestTokenController;
 use App\Http\Controllers\Api\V1\Auth\PasswordResetLinkController;
@@ -34,6 +36,7 @@ use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\VideoController;
 use App\Http\Controllers\DirectoryController;
 use App\Http\Controllers\Proxy\PlausibleProxyController;
+use App\Http\Middleware\AuthenticateTranscriptionService;
 use App\Support\AppManifest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -98,7 +101,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         // Images
         Route::patch('/images', [MetadataController::class, 'updateImages']);
         // Transcript
-        Route::post('/transcript', [TranscriptController::class, 'regenerate']);
+        Route::get('/transcript', [TranscriptController::class, 'get']);
+        Route::post('/transcript', [TranscriptController::class, 'generate']);
     });
 
     Route::prefix('/categories/{category}')->group(function () {
@@ -195,10 +199,10 @@ Route::prefix('/explore')->group(function () {
 });
 
 // Libraries (categories)
-Route::resource('/categories', CategoryController::class)->only(['show']);
+Route::resource('/categories', CategoryController::class)->only(['show'])->whereNumber('category');
 
 // Folder GET by Id or by Library Id
-Route::resource('/folders', FolderController::class)->only(['show']);
+Route::resource('/folders', FolderController::class)->only(['show'])->whereNumber('folder');
 Route::get('/folders', [FolderController::class, 'getFrom']);
 
 // Video Search and Views
@@ -213,6 +217,12 @@ Route::resource('/playback', PlaybackController::class)->only(['show', 'store'])
 Route::prefix('/media/{video}')->group(function () {
     // Downloads
     Route::get('/download', [MediaController::class, 'download']);
+});
+
+// Transcript Service
+Route::prefix('internal/transcriptions')->group(function () {
+    Route::get('/{media}/download', TranscriptionDownloadController::class)->middleware('signed')->name('internal.transcription.download');
+    Route::put('/{metadata}/transcript', TranscriptionIngestController::class)->middleware(AuthenticateTranscriptionService::class);
 });
 
 // Public Metadata

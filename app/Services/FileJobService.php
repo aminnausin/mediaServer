@@ -11,6 +11,11 @@ use App\Jobs\Maintenance\PurgeStaleGuestData;
 use App\Jobs\Metadata\ExtractFonts;
 use App\Jobs\Metadata\GenerateStoryboard;
 use App\Jobs\SyncFiles;
+use App\Jobs\Transcription\GenerateTranscript;
+use App\Jobs\Transcription\IngestTranscript;
+use App\Jobs\Transcription\PrepareTranscriptAudio;
+use App\Jobs\Transcription\QueueTranscript;
+use App\Jobs\Transcription\SaveTranscript;
 use App\Jobs\Utility\Paths\CleanFolderPaths;
 use App\Jobs\Utility\Paths\CleanVideoPaths;
 use App\Jobs\VerifyFiles;
@@ -18,10 +23,12 @@ use App\Jobs\VerifyFolders;
 use App\Models\Category;
 use App\Models\Folder;
 use App\Models\Metadata;
+use App\Models\SubTask;
 use App\Models\Task;
 use App\Models\Video;
 use Illuminate\Bus\Batch;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class FileJobService {
@@ -217,7 +224,7 @@ class FileJobService {
     /**
      * Regenerate open graph preview images
      *
-     * @param  array<array{array: data, path: string}>  $rows
+     * @param  array<array{data: array, path: string}>  $rows
      * @return \Illuminate\Http\JsonResponse
      */
     public function regeneratePreviewImages(array $rows, ?int $userId = null) {
@@ -356,6 +363,89 @@ class FileJobService {
         );
     }
 
+    public function generateTranscript(int $userId, Metadata $metadata): Task {
+        return config('services.transcribe.mode') === 'redis'
+            ? $this->generateTranscriptViaRedis($userId, $metadata)
+            : $this->generateTranscriptViaHttp($userId, $metadata);
+    }
+
+    private function generateTranscriptViaHttp(int $userId, Metadata $metadata): Task {
+        $filePath = VerifyFiles::getAbsoluteMediaPath($metadata->video);
+
+        return $this->executeBatchOperation(
+            userId: $userId,
+            name: 'Generate Transcript',
+            description: 'Generates transcript for ' . $metadata->composite_id,
+            chain: fn ($task) => [
+                new PrepareTranscriptAudio($filePath, $metadata->uuid, $task->id),
+                new GenerateTranscript($filePath, $metadata->uuid, $task->id),
+                new SaveTranscript($filePath, $metadata->uuid, $task->id),
+            ],
+            queue: 'encode',
+        );
+    }
+
+    public function generateTranscriptViaRedis(int $userId, Metadata $metadata): Task {
+        return $this->executeBatchOperation(
+            userId: $userId,
+            name: 'Request Transcript',
+            description: 'Requests transcript for ' . $metadata->composite_id,
+            chain: fn ($task) => [
+                new QueueTranscript(
+                    filePath: VerifyFiles::getAbsoluteMediaPath($metadata->video),
+                    uuid: $metadata->uuid,
+                    taskId: $task->id,
+                ),
+            ],
+            queue: 'encode',
+            callback: function ($task) use ($metadata) {
+                $taskService = $this->taskService;
+                DB::transaction(function () use ($task, $taskService, $metadata) {
+                    $filePath = VerifyFiles::getAbsoluteMediaPath($metadata->video);
+
+                    SubTask::create([
+                        'task_id' => $task->id,
+                        'status' => TaskStatus::PENDING,
+                        'name' => 'Save generated transcript of ' . basename(dirname($filePath)) . '/' . basename($filePath),
+                        'reference_uuid' => $metadata->uuid,
+                        'reference_type' => IngestTranscript::class,
+                    ]);
+
+                    $taskService->updateTaskCounts($task->id, ['sub_tasks_total' => '++', 'sub_tasks_pending' => '++', 'sub_tasks_current' => '++']);
+
+                    $taskService->updateTask($task->id, [
+                        'status' => TaskStatus::PROCESSING,
+                    ]);
+                });
+            }
+        );
+    }
+
+    public function ingestTranscript(array $data, Metadata $metadata, int $taskId) {
+        return $this->executeBatchOperation(
+            userId: $data['user_id'] ?? null,
+            name: 'Ingest Transcript',
+            description: 'Ingest transcript for ' . $metadata->composite_id,
+            chain: fn ($task) => [
+                new IngestTranscript(
+                    filePath: VerifyFiles::getAbsoluteMediaPath($metadata->video),
+                    uuid: $metadata->uuid,
+                    taskId: $task->id,
+                    subTaskId: $data['subtask_id'],
+                    vtt: $data['vtt'],
+                    language: $data['language'],
+                ),
+            ],
+            initialTaskId: $taskId,
+            initialTaskData: [
+                'sub_tasks_total' => 2,
+                'sub_tasks_pending' => 1,
+                'sub_tasks_current' => 1,
+            ],
+            queue: 'encode'
+        );
+    }
+
     public function executeBatchOperation(
         ?int $userId,
         string $name,
@@ -415,7 +505,7 @@ class FileJobService {
 
     public function setupBatch(array $chain, Task $task, ?callable $callback, ?array $taskData, string $queue) {
         return Bus::batch($chain)
-            ->catch(fn (Batch $batch, \Throwable $e) => $this->handleOperationFailure($task, $e))
+            ->catch(fn (Batch $_, \Throwable $e) => $this->handleOperationFailure($task, $e))
             ->finally(fn (Batch $batch) => $this->finalizeBatch($batch, $task, $callback))
             ->before(fn (Batch $batch) => $this->taskService->updateTask($task->id, array_merge([
                 'batch_id' => $batch->id,
@@ -488,7 +578,7 @@ class FileJobService {
             $this->taskService->updateTask($task->id, [
                 'status' => TaskStatus::FAILED,
                 'ended_at' => now(),
-            ]);
+            ], true);
 
             Log::error('Batch operation failed', [
                 'task_id' => $task->id,

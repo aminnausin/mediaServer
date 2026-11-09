@@ -28,6 +28,31 @@ defineEmits<{ select: [start: number] }>();
         >
             {{ timestamp }}
         </span>
-        <span class="font-dm-sans line-clamp-3 leading-5 select-text" v-html="line.text"></span>
+        <span :class="['font-dm-sans transcript-text line-clamp-3 max-h-[3lh] leading-5 duration-300 select-text', { active }]" v-html="line.text"></span>
     </button>
 </template>
+
+<style scoped>
+.transcript-text {
+    overflow: hidden;
+    transition:
+        max-height var(--tw-duration) ease-out,
+        -webkit-line-clamp 0s var(--tw-duration),
+        line-clamp 0s var(--tw-duration);
+    transition-behavior: allow-discrete;
+}
+
+.group:hover .transcript-text,
+.active.transcript-text {
+    max-height: 10lh;
+    -webkit-line-clamp: 10;
+    line-clamp: 10;
+    transition: max-height var(--tw-duration) ease-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .transcript-text {
+        transition: none;
+    }
+}
+</style>

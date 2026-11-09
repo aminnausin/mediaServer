@@ -5,7 +5,7 @@ namespace App\Services\Images\Storyboard;
 use App\Exceptions\StoryboardNotSupportedException;
 use App\Jobs\VerifyFiles;
 use App\Models\Metadata;
-use App\Services\Ffmpeg\FFprobeService;
+use App\Services\FFmpeg\FFprobeService;
 
 class StoryboardOptions {
     public function __construct(
