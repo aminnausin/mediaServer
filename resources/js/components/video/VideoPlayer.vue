@@ -561,27 +561,24 @@ const posterUrl = computed(() => {
 });
 
 const videoSrc = ref<string>();
+let sourceRequest = 0;
 
 const resolveSource = async () => {
-    if (videoSrc.value?.startsWith('blob:')) URL.revokeObjectURL(videoSrc.value);
-
+    const request = ++sourceRequest;
     const path = stateVideo.value?.path;
+    const localPath = path?.replace(/^storage\/media\//, '');
+    const localSrc = localPath && useLocalFiles.value ? await getLocalUrl(localPath) : null;
 
-    if (!path) {
-        videoSrc.value = undefined;
+    if (request !== sourceRequest) {
+        if (localSrc) URL.revokeObjectURL(localSrc); // revoke previous results if new request occurs
         return;
     }
 
-    const localPath = path.replace('storage/media/', '');
-    const localSrc = useLocalFiles.value ? await getLocalUrl(localPath) : null;
+    const previousSrc = videoSrc.value;
+    videoSrc.value = localSrc ?? (path ? '/' + path.split('/').map(encodeURIComponent).join('/') : undefined);
 
-    if (localSrc) {
-        toast('Playing Local File', { description: localPath });
-        videoSrc.value = localSrc;
-        return;
-    }
-
-    videoSrc.value = '/' + path.split('/').map(encodeURIComponent).join('/');
+    if (previousSrc?.startsWith('blob:')) URL.revokeObjectURL(previousSrc);
+    if (localSrc) toast.success('Playing Local File', { description: `Path: ${localPath}` });
 };
 
 const initVideoPlayer = async (previousId: number) => {
@@ -595,12 +592,11 @@ const initVideoPlayer = async (previousId: number) => {
 
     if (isPictureInPicture.value) {
         isPictureInPicture.value = false;
-        await togglePictureInPicture();
+        void togglePictureInPicture();
     }
 
-    if (playerSubtitles.value?.defaultSubtitleTrack && showAutoSubtitles.value)
-        playerSubtitles.value.handleSubtitles(playerSubtitles.value.defaultSubtitleTrack); // Select default track on init if exists
-    else playerSubtitles.value?.clearSubtitles(); // Otherwise clear
+    // start loading video based on resolved source before loading metadata
+    const sourceReady = resolveSource();
 
     isLooping.value = false;
     isEnded.value = false;
@@ -624,7 +620,12 @@ const initVideoPlayer = async (previousId: number) => {
     metadataId.value = stateVideo.value?.metadata ? stateVideo.value?.metadata.id : NaN;
 
     initBrowserMetadata();
-    await resolveSource();
+
+    await sourceReady;
+
+    if (playerSubtitles.value && playerSubtitles.value.defaultSubtitleTrack && showAutoSubtitles.value)
+        playerSubtitles.value.handleSubtitles(playerSubtitles.value.defaultSubtitleTrack); // Select default track on init if exists
+    else playerSubtitles.value?.clearSubtitles(); // Otherwise clear
 
     if (!isFullScreen.value && !isAutoPlay.value) {
         onPlayerPause();
